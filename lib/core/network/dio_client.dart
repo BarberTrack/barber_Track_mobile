@@ -17,14 +17,6 @@ class DioClient {
       ),
     );
 
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        requestHeader: true,
-        responseHeader: false,
-      ),
-    );
   }
 
   Dio get dio => _dio;
