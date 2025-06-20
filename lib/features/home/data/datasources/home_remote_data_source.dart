@@ -11,7 +11,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   late final Dio _businessDio;
 
   HomeRemoteDataSourceImpl(this.dioClient) {
-    // Crear cliente específico para businesses en localhost:3000
     _businessDio = Dio(
       BaseOptions(
         baseUrl: 'https://api-barber-dummie-production.up.railway.app',

@@ -63,7 +63,7 @@ class _LoginFormState extends State<LoginForm> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Logo o título
+           
             const Icon(Icons.cut, size: 80, color: Colors.blue),
             const SizedBox(height: 24),
             Text(
@@ -84,12 +84,12 @@ class _LoginFormState extends State<LoginForm> {
             ),
             const SizedBox(height: 48),
 
-            // Formulario
+            
             Form(
               key: _formKey,
               child: Column(
                 children: [
-                  // Campo Email
+                  
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -105,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Campo Contraseña
+                  
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
@@ -133,7 +133,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Botón de login
+                  
                   BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
                       return SizedBox(

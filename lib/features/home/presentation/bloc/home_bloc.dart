@@ -31,7 +31,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     RefreshBusinesses event,
     Emitter<HomeState> emit,
   ) async {
-    // No mostrar loading si ya hay datos
+    // todo: lazy loading
     try {
       final businesses = await getBusinesses();
       emit(HomeLoaded(businesses));

@@ -6,7 +6,7 @@ class DioClient {
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://vecindapp.up.railway.app',
+        baseUrl: 'https://barbertrack-gateway.up.railway.app/api/v1',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),

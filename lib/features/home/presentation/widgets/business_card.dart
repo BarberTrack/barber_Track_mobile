@@ -15,7 +15,7 @@ class BusinessCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Imagen de la galería
+        
           if (business.galleryImages.isNotEmpty)
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
@@ -60,13 +60,13 @@ class BusinessCard extends StatelessWidget {
               ),
             ),
 
-          // Información del negocio
+          
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Nombre del negocio
+                
                 Text(
                   business.name,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -76,7 +76,7 @@ class BusinessCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // Dirección
+               
                 Row(
                   children: [
                     const Icon(Icons.location_on, color: Colors.red, size: 20),
@@ -93,7 +93,7 @@ class BusinessCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // Teléfono
+             
                 Row(
                   children: [
                     const Icon(Icons.phone, color: Colors.green, size: 20),
@@ -108,7 +108,7 @@ class BusinessCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                // Rating y reseñas
+               
                 Row(
                   children: [
                     const Icon(Icons.star, color: Colors.amber, size: 20),
