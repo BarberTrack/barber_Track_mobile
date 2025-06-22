@@ -13,11 +13,12 @@ class HomePage extends StatelessWidget {
       create: (context) => sl<HomeBloc>()..add(const LoadBusinesses()),
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text(
-            'Barberías Disponibles',
+            'Barber Track',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          backgroundColor: Colors.indigo,
+          backgroundColor: Colors.blueAccent,
           elevation: 0,
         ),
         body: BlocBuilder<HomeBloc, HomeState>(
@@ -62,7 +63,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.refresh),
                       label: const Text('Reintentar'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
+                        backgroundColor: Colors.blueAccent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -105,14 +106,17 @@ class HomePage extends StatelessWidget {
                 onRefresh: () async {
                   context.read<HomeBloc>().add(const RefreshBusinesses());
                 },
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: state.businesses.length,
-                  itemBuilder: (context, index) {
-                    final business = state.businesses[index];
-                    return BusinessCard(business: business);
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    itemCount: state.businesses.length,
+                    itemBuilder: (context, index) {
+                      final business = state.businesses[index];
+                      return BusinessCard(business: business);
+                    },
+                  ),
                 ),
               );
             }
