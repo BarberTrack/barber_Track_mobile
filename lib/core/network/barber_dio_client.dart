@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 
-class DioClient {
+class BarberDioClient {
   late final Dio _dio;
 
-  DioClient() {
+  BarberDioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://barbertrack-gateway.up.railway.app/api/v1',
+        baseUrl: 'https://api-barber-dummie-production.up.railway.app',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
@@ -16,7 +16,6 @@ class DioClient {
         },
       ),
     );
-
   }
 
   Dio get dio => _dio;

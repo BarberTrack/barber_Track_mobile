@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/business_model.dart';
 import '../../../../core/network/dio_client.dart';
+import 'package:logger/logger.dart';
 
 abstract class HomeRemoteDataSource {
   Future<List<BusinessModel>> getBusinesses();
@@ -9,9 +10,9 @@ abstract class HomeRemoteDataSource {
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final DioClient dioClient;
   late final Dio _businessDio;
+  final Logger logger = Logger();
 
   HomeRemoteDataSourceImpl(this.dioClient) {
-    // Crear cliente específico para businesses en localhost:3000
     _businessDio = Dio(
       BaseOptions(
         baseUrl: 'https://api-barber-dummie-production.up.railway.app',
@@ -24,15 +25,13 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         },
       ),
     );
-
-
   }
 
   @override
   Future<List<BusinessModel>> getBusinesses() async {
     try {
       final response = await _businessDio.get('/businesses');
-
+      //logger.d(response.data);
       if (response.statusCode == 200) {
         final data = response.data;
         final businessesData = data['businesses'] as List<dynamic>;

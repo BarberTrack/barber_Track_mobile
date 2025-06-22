@@ -12,7 +12,6 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<List<Business>> getBusinesses() async {
     try {
       final businessModels = await remoteDataSource.getBusinesses();
-      // Mapear directamente en el repositorio como especifica el prompt
       return BusinessMapper.modelListToEntityList(businessModels);
     } catch (e) {
       throw Exception('Repository error: $e');
