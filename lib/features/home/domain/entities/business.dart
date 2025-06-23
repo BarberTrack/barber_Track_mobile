@@ -2,18 +2,18 @@ import 'package:equatable/equatable.dart';
 
 abstract class Business extends Equatable {
   final String id;
-  final String ownerId;
+  final String? ownerId;
   final String name;
   final String description;
   final String address;
-  final double latitude;
-  final double longitude;
+  final double? latitude;
+  final double? longitude;
   final String phone;
   final String email;
   final Map<String, dynamic> businessHours;
   final List<String> galleryImages;
   final Map<String, dynamic> cancellationPolicy;
-  final Map<String, dynamic> breakSettings;
+  final Map<String, dynamic>? breakSettings;
   final double ratingAverage;
   final int totalReviews;
   final List<Map<String, dynamic>> products;
@@ -24,18 +24,18 @@ abstract class Business extends Equatable {
 
   const Business({
     required this.id,
-    required this.ownerId,
+    this.ownerId,
     required this.name,
     required this.description,
     required this.address,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
     required this.phone,
     required this.email,
     required this.businessHours,
     required this.galleryImages,
     required this.cancellationPolicy,
-    required this.breakSettings,
+    this.breakSettings,
     required this.ratingAverage,
     required this.totalReviews,
     required this.products,

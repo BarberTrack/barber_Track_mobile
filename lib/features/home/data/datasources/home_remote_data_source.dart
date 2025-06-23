@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../models/business_model.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../../../core/storage/token_storage.dart';
 import 'package:logger/logger.dart';
 
 abstract class HomeRemoteDataSource {
@@ -9,32 +10,30 @@ abstract class HomeRemoteDataSource {
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final DioClient dioClient;
-  late final Dio _businessDio;
+  final TokenStorage tokenStorage;
   final Logger logger = Logger();
 
-  HomeRemoteDataSourceImpl(this.dioClient) {
-    _businessDio = Dio(
-      BaseOptions(
-        baseUrl: 'https://api-barber-dummie-production.up.railway.app',
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      ),
-    );
-  }
+  HomeRemoteDataSourceImpl(this.dioClient, this.tokenStorage);
 
   @override
   Future<List<BusinessModel>> getBusinesses() async {
     try {
-      final response = await _businessDio.get('/businesses');
-      //logger.d(response.data);
+      // Obtener el token del almacenamiento
+      final token = await tokenStorage.getToken();
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      // Configurar el header de autorización
+      final response = await dioClient.dio.get(
+        '/businesses',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      //logger.d(response);
       if (response.statusCode == 200) {
         final data = response.data;
-        final businessesData = data['businesses'] as List<dynamic>;
+        final businessesData = data['data']['businesses'] as List<dynamic>;
 
         return businessesData
             .map((businessJson) => BusinessModel.fromJson(businessJson))
