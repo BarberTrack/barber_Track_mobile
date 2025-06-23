@@ -21,6 +21,14 @@ import '../../features/barberShops/features/barberDetails/domain/repositories/ba
 import '../../features/barberShops/features/barberDetails/domain/usecases/get_business_by_id.dart';
 import '../../features/barberShops/features/barberDetails/presentation/bloc/barberdetails_bloc.dart';
 
+// CreateAppointment imports
+import '../../features/appointments/features/create_appointment/data/datasources/appointment_remote_data_source.dart';
+import '../../features/appointments/features/create_appointment/data/repositories/appointment_repository_impl.dart';
+import '../../features/appointments/features/create_appointment/domain/repositories/appointment_repository.dart';
+import '../../features/appointments/features/create_appointment/domain/usecases/get_business_services.dart';
+import '../../features/appointments/features/create_appointment/domain/usecases/get_availability.dart';
+import '../../features/appointments/features/create_appointment/presentation/bloc/create_appointment_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -29,6 +37,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<BarberDioClient>(() => BarberDioClient());
   sl.registerLazySingleton<TokenStorage>(() => TokenStorage());
 
+  // Login dependencies
   sl.registerLazySingleton<LoginRemoteDataSource>(
     () => LoginRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
   );
@@ -43,6 +52,7 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<LoginBloc>(() => LoginBloc(sl<AuthenticateUser>()));
 
+  // Home dependencies
   sl.registerLazySingleton<HomeRemoteDataSource>(
     () => HomeRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
   );
@@ -59,7 +69,8 @@ Future<void> initializeDependencies() async {
 
   // BarberDetails dependencies
   sl.registerLazySingleton<BarberDetailsRemoteDataSource>(
-      () => BarberDetailsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+    () =>
+        BarberDetailsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
   );
 
   sl.registerLazySingleton<BarberDetailsRepository>(
@@ -72,5 +83,29 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<BarberdetailsBloc>(
     () => BarberdetailsBloc(sl<GetBusinessById>()),
+  );
+
+  // CreateAppointment dependencies
+  sl.registerLazySingleton<AppointmentRemoteDataSource>(
+    () => AppointmentRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<AppointmentRepository>(
+    () => AppointmentRepositoryImpl(sl<AppointmentRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetBusinessServices>(
+    () => GetBusinessServices(sl<AppointmentRepository>()),
+  );
+
+  sl.registerLazySingleton<GetAvailability>(
+    () => GetAvailability(sl<AppointmentRepository>()),
+  );
+
+  sl.registerFactory<CreateAppointmentBloc>(
+    () => CreateAppointmentBloc(
+      getBusinessServices: sl<GetBusinessServices>(),
+      getAvailability: sl<GetAvailability>(),
+    ),
   );
 }
