@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../core/di/injection.dart';
 import '../bloc/barberdetails_bloc.dart';
+import '../../../../../appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
 
 class BarberDetailsPage extends StatelessWidget {
   final String businessId;
@@ -56,6 +57,32 @@ class BarberDetailsPage extends StatelessWidget {
               );
             }
             return const Center(child: Text('Estado inicial'));
+          },
+        ),
+        floatingActionButton: BlocBuilder<BarberdetailsBloc, BarberdetailsState>(
+          builder: (context, state) {
+            // Solo mostrar el botón si los datos se cargaron exitosamente
+            if (state is BarberdetailsLoaded) {
+              return FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CreateAppointmentPage(businessId: businessId),
+                    ),
+                  );
+                },
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                icon: const Icon(Icons.calendar_today),
+                label: const Text(
+                  'Agendar cita',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              );
+            }
+            return const SizedBox.shrink(); // No mostrar nada si no hay datos cargados
           },
         ),
       ),
