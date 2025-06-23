@@ -44,7 +44,7 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<LoginBloc>(() => LoginBloc(sl<AuthenticateUser>()));
 
   sl.registerLazySingleton<HomeRemoteDataSource>(
-    () => HomeRemoteDataSourceImpl(sl<DioClient>()),
+    () => HomeRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
   );
 
   sl.registerLazySingleton<HomeRepository>(
@@ -59,7 +59,7 @@ Future<void> initializeDependencies() async {
 
   // BarberDetails dependencies
   sl.registerLazySingleton<BarberDetailsRemoteDataSource>(
-    () => BarberDetailsRemoteDataSourceImpl(sl<BarberDioClient>()),
+      () => BarberDetailsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
   );
 
   sl.registerLazySingleton<BarberDetailsRepository>(
