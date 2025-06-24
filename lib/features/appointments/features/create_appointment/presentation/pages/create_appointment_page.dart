@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../../core/di/injection.dart';
+import '../../../../../../core/router/app_router.dart';
 import '../bloc/create_appointment_bloc.dart';
 import '../../domain/entities/service.dart';
 import '../../domain/entities/time_slot.dart';
 
-class CreateAppointmentPage extends StatelessWidget {
+class CreateAppointmentPage extends StatefulWidget {
   final String businessId;
 
   const CreateAppointmentPage({super.key, required this.businessId});
 
   @override
+  State<CreateAppointmentPage> createState() => _CreateAppointmentPageState();
+}
+
+class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
+  String clientNotes = '';
+  bool showClientNotesCard = false;
+  final TextEditingController _notesController = TextEditingController();
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          sl<CreateAppointmentBloc>()..add(LoadBusinessServices(businessId)),
+          sl<CreateAppointmentBloc>()
+            ..add(LoadBusinessServices(widget.businessId)),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Crear Cita'),
@@ -23,9 +41,17 @@ class CreateAppointmentPage extends StatelessWidget {
           backgroundColor: Colors.blue.shade700,
           foregroundColor: Colors.white,
         ),
-        body: BlocBuilder<CreateAppointmentBloc, CreateAppointmentState>(
+        body: BlocConsumer<CreateAppointmentBloc, CreateAppointmentState>(
+          listener: (context, state) {
+            if (state is CreateAppointmentSuccess) {
+              _showSuccessDialog(context, state);
+            } else if (state is CreateAppointmentError) {
+              _showErrorDialog(context, state.message);
+            }
+          },
           builder: (context, state) {
-            if (state is CreateAppointmentLoading) {
+            if (state is CreateAppointmentLoading ||
+                state is CreateAppointmentCreating) {
               return const Center(child: CircularProgressIndicator());
             } else if (state is CreateAppointmentError) {
               return _buildErrorView(context, state.message);
@@ -34,7 +60,8 @@ class CreateAppointmentPage extends StatelessWidget {
             } else if (state is CreateAppointmentServiceSelected ||
                 state is CreateAppointmentDateSelected ||
                 state is CreateAppointmentAvailabilityLoaded ||
-                state is CreateAppointmentTimeSlotSelected) {
+                state is CreateAppointmentTimeSlotSelected ||
+                state is CreateAppointmentWithNotes) {
               return _buildAppointmentFlow(context, state);
             }
             return const Center(child: Text('Cargando servicios...'));
@@ -71,7 +98,7 @@ class CreateAppointmentPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               context.read<CreateAppointmentBloc>().add(
-                LoadBusinessServices(businessId),
+                LoadBusinessServices(widget.businessId),
               );
             },
             child: const Text('Reintentar'),
@@ -178,6 +205,11 @@ class CreateAppointmentPage extends StatelessWidget {
           if (state is CreateAppointmentTimeSlotSelected) ...[
             const SizedBox(height: 24),
             _buildFinalSummary(context, state),
+            // Card de client notes
+            if (showClientNotesCard) ...[
+              const SizedBox(height: 16),
+              _buildClientNotesCard(context),
+            ],
           ],
         ],
       ),
@@ -345,7 +377,7 @@ class CreateAppointmentPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'No hay horarios disponibles este día',
+                            'Todos los horaioos estan libre',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,
@@ -378,9 +410,8 @@ class CreateAppointmentPage extends StatelessWidget {
       label: Text(slot.time),
       selected: isSelected,
       onSelected: (selected) {
-        if (selected) {
-          context.read<CreateAppointmentBloc>().add(SelectTimeSlot(slot));
-        }
+        // Siempre disparar el evento de selección para permitir cambios
+        context.read<CreateAppointmentBloc>().add(SelectTimeSlot(slot));
       },
     );
   }
@@ -423,15 +454,60 @@ class CreateAppointmentPage extends StatelessWidget {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () {
-                  // TODO: Implementar creación de cita
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Funcionalidad de crear cita en desarrollo',
-                      ),
-                    ),
-                  );
+                  setState(() {
+                    showClientNotesCard = true;
+                  });
                 },
+                child: const Text('Continuar'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClientNotesCard(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.note_add, color: Colors.blue.shade600),
+                const SizedBox(width: 8),
+                const Text(
+                  'Notas adicionales',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _notesController,
+              decoration: const InputDecoration(
+                labelText: 'Comentarios o notas especiales (opcional)',
+                hintText: 'Ej: Corte específico, preferencias, etc.',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+              onChanged: (value) {
+                setState(() {
+                  clientNotes = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => _showConfirmationModal(context),
                 child: const Text('Confirmar cita'),
               ),
             ),
@@ -464,7 +540,7 @@ class CreateAppointmentPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Business ID: $businessId'),
+              Text('Business ID: ${widget.businessId}'),
               const SizedBox(height: 8),
               if (state is CreateAppointmentServiceSelected ||
                   state is CreateAppointmentDateSelected ||
@@ -479,12 +555,13 @@ class CreateAppointmentPage extends StatelessWidget {
               if (state is CreateAppointmentDateSelected ||
                   state is CreateAppointmentAvailabilityLoaded ||
                   state is CreateAppointmentTimeSlotSelected) ...[
-                Text(
-                  'Date: ${DateFormat('yyyy-MM-dd').format(_getSelectedDate(state))}',
-                ),
+                Text('Date: ${_getFormattedDateTime(state)}'),
                 const SizedBox(height: 8),
               ],
-              Text('Estado actual: ${state.runtimeType}'),
+              if (clientNotes.isNotEmpty) ...[
+                Text('Client Notes: $clientNotes'),
+                const SizedBox(height: 8),
+              ],
             ],
           ),
         ),
@@ -519,6 +596,33 @@ class CreateAppointmentPage extends StatelessWidget {
     return service.barberAssignments.isNotEmpty
         ? service.barberAssignments.first.barberId
         : 'No disponible';
+  }
+
+  String _getFormattedDateTime(CreateAppointmentState state) {
+    final selectedDate = _getSelectedDate(state);
+
+    // Si tenemos un time slot seleccionado, combinar fecha y hora
+    if (state is CreateAppointmentTimeSlotSelected) {
+      final timeSlot = state.selectedTimeSlot;
+      final timeParts = timeSlot.time.split(':');
+      if (timeParts.length >= 2) {
+        final hour = int.tryParse(timeParts[0]) ?? 0;
+        final minute = int.tryParse(timeParts[1]) ?? 0;
+
+        final combinedDateTime = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          hour,
+          minute,
+        );
+
+        return combinedDateTime.toIso8601String();
+      }
+    }
+
+    // Si no hay time slot, mostrar solo la fecha
+    return selectedDate.toIso8601String();
   }
 
   // Helper para formatear fechas sin problemas de locale
@@ -557,5 +661,246 @@ class CreateAppointmentPage extends StatelessWidget {
       // Fallback en caso de error
       return DateFormat('dd/MM/yyyy').format(DateTime.parse(dateString));
     }
+  }
+
+  void _showConfirmationModal(BuildContext context) {
+    final bloc = context.read<CreateAppointmentBloc>();
+    final state = bloc.state;
+
+    if (state is! CreateAppointmentTimeSlotSelected &&
+        state is! CreateAppointmentWithNotes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor complete todos los datos de la cita'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final service = _getSelectedService(state);
+    final selectedDate = _getSelectedDate(state);
+    final timeSlot = _getSelectedTimeSlot(state);
+    final notes = state is CreateAppointmentWithNotes
+        ? state.clientNotes
+        : clientNotes;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.calendar_today, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Confirmar Cita'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDetailRow('Servicio:', service.name),
+              _buildDetailRow(
+                'Precio:',
+                '\$${service.price.toStringAsFixed(2)}',
+              ),
+              _buildDetailRow(
+                'Duración:',
+                '${service.durationMinutes} minutos',
+              ),
+              _buildDetailRow('Barbero:', timeSlot.barberName),
+              _buildDetailRow(
+                'Fecha:',
+                _formatDateForDisplay(selectedDate.toIso8601String()),
+              ),
+              _buildDetailRow('Hora:', timeSlot.time),
+              if (notes.isNotEmpty) _buildDetailRow('Notas:', notes),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 43, 43, 43),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info, color: Colors.blue, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '¿Está seguro que desea agendar esta cita?',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade600,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _updateClientNotesAndCreateAppointment(bloc, notes);
+            },
+            child: const Text('Agendar Cita'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  void _updateClientNotesAndCreateAppointment(
+    CreateAppointmentBloc bloc,
+    String notes,
+  ) {
+    // Actualizar notas si no están vacías
+    if (notes.isNotEmpty) {
+      bloc.add(UpdateClientNotes(notes));
+    }
+
+    // Crear la cita
+    bloc.add(const CreateAppointment());
+  }
+
+  void _showSuccessDialog(
+    BuildContext context,
+    CreateAppointmentSuccess state,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 32),
+            SizedBox(width: 8),
+            Text('¡Cita Agendada!'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Su cita ha sido agendada exitosamente.',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 24, 59, 27),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.confirmation_number,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Código de confirmación:'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    state.response.confirmationCode,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade600,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go(AppRouter.home);
+            },
+            child: const Text('Ir a Inicio'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 32),
+            SizedBox(width: 8),
+            Text('Error'),
+          ],
+        ),
+        content: Text(
+          'Error al agendar la cita: $message',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  TimeSlot _getSelectedTimeSlot(CreateAppointmentState state) {
+    if (state is CreateAppointmentTimeSlotSelected)
+      return state.selectedTimeSlot;
+    if (state is CreateAppointmentWithNotes) return state.selectedTimeSlot;
+    throw Exception('Estado no válido para obtener time slot seleccionado');
   }
 }
