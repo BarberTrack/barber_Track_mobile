@@ -4,8 +4,10 @@ import 'package:logger/logger.dart';
 import '../../domain/entities/service.dart';
 import '../../domain/entities/availability.dart';
 import '../../domain/entities/time_slot.dart';
+import '../../domain/entities/appointment.dart';
 import '../../domain/usecases/get_business_services.dart';
 import '../../domain/usecases/get_availability.dart';
+import '../../domain/usecases/create_appointment.dart' as appointment_usecase;
 
 part 'create_appointment_event.dart';
 part 'create_appointment_state.dart';
@@ -14,17 +16,21 @@ class CreateAppointmentBloc
     extends Bloc<CreateAppointmentEvent, CreateAppointmentState> {
   final GetBusinessServices getBusinessServices;
   final GetAvailability getAvailability;
+  final appointment_usecase.CreateAppointment createAppointmentUseCase;
   final Logger logger = Logger();
 
   CreateAppointmentBloc({
     required this.getBusinessServices,
     required this.getAvailability,
+    required this.createAppointmentUseCase,
   }) : super(CreateAppointmentInitial()) {
     on<LoadBusinessServices>(_onLoadBusinessServices);
     on<SelectService>(_onSelectService);
     on<SelectDate>(_onSelectDate);
     on<LoadAvailability>(_onLoadAvailability);
     on<SelectTimeSlot>(_onSelectTimeSlot);
+    on<UpdateClientNotes>(_onUpdateClientNotes);
+    on<CreateAppointment>(_onCreateAppointment);
     on<ResetSelection>(_onResetSelection);
   }
 
@@ -129,7 +135,136 @@ class CreateAppointmentBloc
           selectedTimeSlot: event.timeSlot,
         ),
       );
+    } else if (currentState is CreateAppointmentTimeSlotSelected) {
+      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      emit(
+        CreateAppointmentTimeSlotSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: currentState.selectedDate,
+          availability: currentState.availability,
+          selectedTimeSlot: event.timeSlot,
+        ),
+      );
+    } else if (currentState is CreateAppointmentWithNotes) {
+      // Permitir cambiar de time slot cuando ya hay notas
+      emit(
+        CreateAppointmentWithNotes(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: currentState.selectedDate,
+          availability: currentState.availability,
+          selectedTimeSlot: event.timeSlot,
+          clientNotes: currentState.clientNotes,
+        ),
+      );
     }
+  }
+
+  Future<void> _onUpdateClientNotes(
+    UpdateClientNotes event,
+    Emitter<CreateAppointmentState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is CreateAppointmentTimeSlotSelected) {
+      emit(
+        CreateAppointmentWithNotes(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: currentState.selectedDate,
+          availability: currentState.availability,
+          selectedTimeSlot: currentState.selectedTimeSlot,
+          clientNotes: event.notes,
+        ),
+      );
+    } else if (currentState is CreateAppointmentWithNotes) {
+      emit(
+        CreateAppointmentWithNotes(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: currentState.selectedDate,
+          availability: currentState.availability,
+          selectedTimeSlot: currentState.selectedTimeSlot,
+          clientNotes: event.notes,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onCreateAppointment(
+    CreateAppointment event,
+    Emitter<CreateAppointmentState> emit,
+  ) async {
+    final currentState = state;
+
+    // Verificar que tenemos todos los datos necesarios
+    if (currentState is! CreateAppointmentTimeSlotSelected &&
+        currentState is! CreateAppointmentWithNotes) {
+      emit(
+        const CreateAppointmentError(
+          'Debe seleccionar un servicio, fecha y horario',
+        ),
+      );
+      return;
+    }
+
+    emit(CreateAppointmentCreating());
+
+    try {
+      String businessId, barberId, serviceId, scheduledDatetime;
+      String? clientNotes;
+
+      if (currentState is CreateAppointmentTimeSlotSelected) {
+        businessId = currentState.businessId;
+        barberId = currentState.selectedTimeSlot.barberId;
+        serviceId = currentState.selectedService.id;
+        scheduledDatetime = _formatDateTime(
+          currentState.selectedDate,
+          currentState.selectedTimeSlot.time,
+        );
+        clientNotes = null;
+      } else if (currentState is CreateAppointmentWithNotes) {
+        businessId = currentState.businessId;
+        barberId = currentState.selectedTimeSlot.barberId;
+        serviceId = currentState.selectedService.id;
+        scheduledDatetime = _formatDateTime(
+          currentState.selectedDate,
+          currentState.selectedTimeSlot.time,
+        );
+        clientNotes = currentState.clientNotes;
+      } else {
+        emit(const CreateAppointmentError('Estado inválido para crear cita'));
+        return;
+      }
+
+      final request = CreateAppointmentRequest(
+        businessId: businessId,
+        barberId: barberId,
+        serviceId: serviceId,
+        scheduledDatetime: scheduledDatetime,
+        clientNotes: clientNotes,
+      );
+
+      final response = await createAppointmentUseCase(request);
+      emit(CreateAppointmentSuccess(response));
+    } catch (e) {
+      logger.e('Error creating appointment: $e');
+      emit(CreateAppointmentError(e.toString()));
+    }
+  }
+
+  String _formatDateTime(DateTime date, String time) {
+    // Combinar fecha y hora en formato ISO 8601
+    final timeParts = time.split(':');
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
+
+    final dateTime = DateTime(date.year, date.month, date.day, hour, minute);
+    return dateTime.toIso8601String();
   }
 
   Future<void> _onResetSelection(

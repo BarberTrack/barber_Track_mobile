@@ -27,6 +27,8 @@ import '../../features/appointments/features/create_appointment/data/repositorie
 import '../../features/appointments/features/create_appointment/domain/repositories/appointment_repository.dart';
 import '../../features/appointments/features/create_appointment/domain/usecases/get_business_services.dart';
 import '../../features/appointments/features/create_appointment/domain/usecases/get_availability.dart';
+import '../../features/appointments/features/create_appointment/domain/usecases/create_appointment.dart'
+    as appointment_usecase;
 import '../../features/appointments/features/create_appointment/presentation/bloc/create_appointment_bloc.dart';
 
 final GetIt sl = GetIt.instance;
@@ -102,10 +104,15 @@ Future<void> initializeDependencies() async {
     () => GetAvailability(sl<AppointmentRepository>()),
   );
 
+  sl.registerLazySingleton<appointment_usecase.CreateAppointment>(
+    () => appointment_usecase.CreateAppointment(sl<AppointmentRepository>()),
+  );
+
   sl.registerFactory<CreateAppointmentBloc>(
     () => CreateAppointmentBloc(
       getBusinessServices: sl<GetBusinessServices>(),
       getAvailability: sl<GetAvailability>(),
+      createAppointmentUseCase: sl<appointment_usecase.CreateAppointment>(),
     ),
   );
 }

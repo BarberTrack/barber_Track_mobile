@@ -4,6 +4,8 @@ import '../../../../../../core/network/dio_client.dart';
 import '../../../../../../core/storage/token_storage.dart';
 import '../models/service_model.dart';
 import '../models/availability_model.dart';
+import '../models/create_appointment_request_model.dart';
+import '../models/create_appointment_response_model.dart';
 
 abstract class AppointmentRemoteDataSource {
   Future<List<ServiceModel>> getBusinessServices(String businessId);
@@ -13,6 +15,9 @@ abstract class AppointmentRemoteDataSource {
     required String date,
     int days = 1,
   });
+  Future<CreateAppointmentResponseModel> createAppointment(
+    CreateAppointmentRequestModel request,
+  );
 }
 
 class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
@@ -96,6 +101,50 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
     } catch (e) {
       logger.e('Error obteniendo disponibilidad: $e');
       throw Exception('Error de red al obtener disponibilidad: $e');
+    }
+  }
+
+  @override
+  Future<CreateAppointmentResponseModel> createAppointment(
+    CreateAppointmentRequestModel request,
+  ) async {
+    try {
+      final token = await tokenStorage.getToken();
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      logger.d('Creating appointment with data: ${request.toJson()}');
+
+      final response = await dioClient.dio.post(
+        '/appointments',
+        data: request.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      logger.d(
+        'Create appointment response: ${response.statusCode} - ${response.data}',
+      );
+
+      if (response.statusCode == 201) {
+        return CreateAppointmentResponseModel.fromJson(
+          response.data as Map<String, dynamic>,
+        );
+      } else {
+        throw Exception('Error al crear cita: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error creando cita: $e');
+      if (e is DioException) {
+        if (e.response != null) {
+          final errorData = e.response!.data;
+          if (errorData is Map<String, dynamic> &&
+              errorData.containsKey('message')) {
+            throw Exception(errorData['message']);
+          }
+        }
+      }
+      throw Exception('Error de red al crear cita: $e');
     }
   }
 }
