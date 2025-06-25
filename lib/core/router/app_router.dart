@@ -4,12 +4,14 @@ import '../../features/login/presentation/pages/login_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/barberShops/features/barberDetails/presentation/pages/barber_details_page.dart';
 import '../../features/appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
+import '../../features/appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
 
 class AppRouter {
   static const String login = '/login';
   static const String home = '/home';
   static const String barberDetails = '/barber-details';
   static const String createAppointment = '/create-appointment';
+  static const String appointments = '/appointments';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -41,6 +43,12 @@ class AppRouter {
           final businessId = state.pathParameters['businessId'] ?? '';
           return CreateAppointmentPage(businessId: businessId);
         },
+      ),
+      GoRoute(
+        path: appointments,
+        name: 'appointments',
+        builder: (BuildContext context, GoRouterState state) =>
+            const AppointmentsPage(),
       ),
     ],
   );
