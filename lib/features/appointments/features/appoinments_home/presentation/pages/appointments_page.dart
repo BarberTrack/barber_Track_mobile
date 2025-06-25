@@ -31,61 +31,48 @@ class AppointmentsView extends StatefulWidget {
 class _AppointmentsViewState extends State<AppointmentsView> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
+      backgroundColor: colorScheme.background,
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<AppointmentsBloc>().add(const RefreshAppointments());
         },
+        color: Colors.blueAccent,
+        backgroundColor: colorScheme.surface,
         child: BlocBuilder<AppointmentsBloc, AppointmentsState>(
           builder: (context, state) {
             if (state is AppointmentsLoading) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-                ),
-              );
-            }
-
-            if (state is AppointmentsError) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, color: Colors.red[400], size: 64),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error al cargar citas',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                      child: const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                        strokeWidth: 3,
                       ),
                     ),
                     const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<AppointmentsBloc>().add(
-                          const RefreshAppointments(),
-                        );
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reintentar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                    Text(
+                      'Cargando tus citas...',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onBackground,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Un momento por favor',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onBackground.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -93,99 +80,376 @@ class _AppointmentsViewState extends State<AppointmentsView> {
               );
             }
 
-            if (state is AppointmentsLoaded) {
-              if (state.appointments.isEmpty) {
-                return Center(
+            if (state is AppointmentsError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        color: Colors.black38,
-                        size: 80,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'No tienes citas',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: colorScheme.errorContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.wifi_off_rounded,
+                          color: colorScheme.onErrorContainer,
+                          size: 48,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '¡Agenda tu primera cita ahora!',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyLarge?.copyWith(color: Colors.black54),
-                      ),
                       const SizedBox(height: 32),
+                      Text(
+                        '¡Oops! Algo salió mal',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: colorScheme.onBackground,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onBackground.withOpacity(0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
                       ElevatedButton.icon(
                         onPressed: () {
-                          // Cambiar a la pestaña de inicio para agendar cita
-                          widget.onNavigateToHome?.call();
+                          context.read<AppointmentsBloc>().add(
+                            const RefreshAppointments(),
+                          );
                         },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Agendar Cita'),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Reintentar'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                            horizontal: 32,
+                            vertical: 16,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(30),
                           ),
+                          elevation: 2,
                         ),
                       ),
                     ],
                   ),
-                );
-              }
+                ),
+              );
+            }
 
-              return Column(
-                children: [
-                  // Header con información de paginación
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.transparent, Colors.blue.shade600],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (state is AppointmentsLoaded) {
+              if (state.appointments.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          'Total: ${state.total} citas',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.blueAccent.withOpacity(0.2),
+                                Colors.blueAccent.withOpacity(0.1),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.blueAccent.withOpacity(0.3),
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.calendar_month_rounded,
+                            color: Colors.blueAccent,
+                            size: 64,
                           ),
                         ),
+                        const SizedBox(height: 40),
                         Text(
-                          'Página ${state.page} de ${state.totalPages}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+                          '¡Tu agenda está vacía!',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            color: colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Es el momento perfecto para agendar\ntu primera cita y lucir increíble',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onBackground.withOpacity(0.8),
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 48),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            widget.onNavigateToHome?.call();
+                          },
+                          icon: const Icon(Icons.content_cut_rounded),
+                          label: const Text('Agendar Mi Primera Cita'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 20,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 4,
+                            shadowColor: Colors.blueAccent.withOpacity(0.3),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () {
+                            // Mostrar información sobre los servicios
+                          },
+                          child: Text(
+                            'Ver servicios disponibles',
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // Lista de citas
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: state.appointments.length,
-                      itemBuilder: (context, index) {
-                        return AppointmentCard(
-                          appointment: state.appointments[index],
+                );
+              }
+
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Header con estadísticas mejoradas
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          // Tarjeta principal de estadísticas
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blueAccent,
+                                  Colors.blueAccent.withOpacity(0.8),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blueAccent.withOpacity(0.3),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Mis Citas',
+                                          style: theme.textTheme.titleLarge?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Total de citas programadas',
+                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                            color: Colors.white.withOpacity(0.9),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Text(
+                                        '${state.total}',
+                                        style: theme.textTheme.headlineLarge?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                //const SizedBox(height: 20),
+                                
+                                // Row(
+                                //   children: [
+                                //     Expanded(
+                                //       child: Container(
+                                //         padding: const EdgeInsets.symmetric(
+                                //           vertical: 12,
+                                //           horizontal: 16,
+                                //         ),
+                                //         decoration: BoxDecoration(
+                                //           color: Colors.white.withOpacity(0.15),
+                                //           borderRadius: BorderRadius.circular(12),
+                                //           border: Border.all(
+                                //             color: Colors.white.withOpacity(0.3),
+                                //             width: 1,
+                                //           ),
+                                //         ),
+                                //         child: Row(
+                                //           mainAxisAlignment: MainAxisAlignment.center,
+                                //           children: [
+                                //             Icon(
+                                //               Icons.schedule_rounded,
+                                //               color: Colors.white,
+                                //               size: 18,
+                                //             ),
+                                //             const SizedBox(width: 8),
+                                //             Text(
+                                //               'Programadas',
+                                //               style: theme.textTheme.bodySmall?.copyWith(
+                                //                 color: Colors.white,
+                                //                 fontWeight: FontWeight.w500,
+                                //               ),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //     ),
+                                //     const SizedBox(width: 12),
+                                //     Expanded(
+                                //       child: Container(
+                                //         padding: const EdgeInsets.symmetric(
+                                //           vertical: 12,
+                                //           horizontal: 16,
+                                //         ),
+                                //         decoration: BoxDecoration(
+                                //           color: Colors.white.withOpacity(0.15),
+                                //           borderRadius: BorderRadius.circular(12),
+                                //           border: Border.all(
+                                //             color: Colors.white.withOpacity(0.3),
+                                //             width: 1,
+                                //           ),
+                                //         ),
+                                //         child: Row(
+                                //           mainAxisAlignment: MainAxisAlignment.center,
+                                //           children: [
+                                //             Icon(
+                                //               Icons.history_rounded,
+                                //               color: Colors.white,
+                                //               size: 18,
+                                //             ),
+                                //             const SizedBox(width: 8),
+                                //             Text(
+                                //               'Historial',
+                                //               style: theme.textTheme.bodySmall?.copyWith(
+                                //                 color: Colors.white,
+                                //                 fontWeight: FontWeight.w500,
+                                //               ),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          // Título de la lista
+                          Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Próximas Citas',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  color: colorScheme.onBackground,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Lista de citas con mejor separación
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: AppointmentCard(
+                            appointment: state.appointments[index],
+                          ),
                         );
-                      },
+                      }, childCount: state.appointments.length),
+                    ),
+                  ),
+                  // Espaciado inferior con botón flotante
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          // Botón para agendar nueva cita
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                widget.onNavigateToHome?.call();
+                              },
+                              icon: const Icon(Icons.add_rounded),
+                              label: const Text('Agendar Nueva Cita'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.blueAccent,
+                                side: BorderSide(color: Colors.blueAccent, width: 2),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   ),
                 ],
