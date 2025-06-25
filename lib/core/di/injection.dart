@@ -31,6 +31,13 @@ import '../../features/appointments/features/create_appointment/domain/usecases/
     as appointment_usecase;
 import '../../features/appointments/features/create_appointment/presentation/bloc/create_appointment_bloc.dart';
 
+// Appointments Home imports
+import '../../features/appointments/features/appoinments_home/data/datasources/appointments_remote_data_source.dart';
+import '../../features/appointments/features/appoinments_home/data/repositories/appointments_repository_impl.dart';
+import '../../features/appointments/features/appoinments_home/domain/repositories/appointments_repository.dart';
+import '../../features/appointments/features/appoinments_home/domain/usecases/get_appointments.dart';
+import '../../features/appointments/features/appoinments_home/presentation/bloc/appointments_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -114,5 +121,22 @@ Future<void> initializeDependencies() async {
       getAvailability: sl<GetAvailability>(),
       createAppointmentUseCase: sl<appointment_usecase.CreateAppointment>(),
     ),
+  );
+
+  // Appointments Home dependencies
+  sl.registerLazySingleton<AppointmentsRemoteDataSource>(
+    () => AppointmentsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<AppointmentsRepository>(
+    () => AppointmentsRepositoryImpl(sl<AppointmentsRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetAppointments>(
+    () => GetAppointments(sl<AppointmentsRepository>()),
+  );
+
+  sl.registerFactory<AppointmentsBloc>(
+    () => AppointmentsBloc(getAppointments: sl<GetAppointments>()),
   );
 }
