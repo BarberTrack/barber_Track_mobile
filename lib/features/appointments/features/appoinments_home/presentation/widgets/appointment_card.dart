@@ -15,19 +15,14 @@ class AppointmentCard extends StatelessWidget {
     return Card(
       elevation: 8,
       shadowColor: Colors.blueAccent.withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              colorScheme.surface,
-              colorScheme.surface.withOpacity(0.8),
-            ],
+            colors: [colorScheme.surface, colorScheme.surface.withOpacity(0.8)],
           ),
           border: Border.all(
             color: Colors.blueAccent.withOpacity(0.2),
@@ -103,7 +98,7 @@ class AppointmentCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Información principal con iconos mejorados
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -384,6 +379,12 @@ class AppointmentCard extends StatelessWidget {
         statusText = 'En Progreso';
         icon = Icons.hourglass_top_rounded;
         break;
+      case 'no_show':
+        backgroundColor = Colors.red;
+        textColor = Colors.white;
+        statusText = 'No asistió';
+        icon = Icons.cancel_rounded;
+        break;
       default:
         backgroundColor = Colors.grey;
         textColor = Colors.white;
@@ -437,16 +438,10 @@ class AppointmentCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.05),
-            color.withOpacity(0.02),
-          ],
+          colors: [color.withOpacity(0.05), color.withOpacity(0.02)],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
       ),
       child: Row(
         children: [
@@ -486,7 +481,7 @@ class AppointmentCard extends StatelessWidget {
               ],
             ),
           ),
-          // Flecha 
+          // Flecha
           // Container(
           //   padding: const EdgeInsets.all(6),
           //   decoration: BoxDecoration(
