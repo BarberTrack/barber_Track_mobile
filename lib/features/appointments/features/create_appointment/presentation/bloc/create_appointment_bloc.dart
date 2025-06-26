@@ -29,6 +29,7 @@ class CreateAppointmentBloc
     on<SelectDate>(_onSelectDate);
     on<LoadAvailability>(_onLoadAvailability);
     on<SelectTimeSlot>(_onSelectTimeSlot);
+    on<SelectTimeSlotWithDate>(_onSelectTimeSlotWithDate);
     on<UpdateClientNotes>(_onUpdateClientNotes);
     on<CreateAppointment>(_onCreateAppointment);
     on<ResetSelection>(_onResetSelection);
@@ -76,6 +77,42 @@ class CreateAppointmentBloc
   ) async {
     final currentState = state;
     if (currentState is CreateAppointmentServiceSelected) {
+      emit(
+        CreateAppointmentDateSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: event.date,
+        ),
+      );
+    } else if (currentState is CreateAppointmentDateSelected) {
+      emit(
+        CreateAppointmentDateSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: event.date,
+        ),
+      );
+    } else if (currentState is CreateAppointmentAvailabilityLoaded) {
+      emit(
+        CreateAppointmentDateSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: event.date,
+        ),
+      );
+    } else if (currentState is CreateAppointmentTimeSlotSelected) {
+      emit(
+        CreateAppointmentDateSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate: event.date,
+        ),
+      );
+    } else if (currentState is CreateAppointmentWithNotes) {
       emit(
         CreateAppointmentDateSelected(
           services: currentState.services,
@@ -155,6 +192,53 @@ class CreateAppointmentBloc
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate: currentState.selectedDate,
+          availability: currentState.availability,
+          selectedTimeSlot: event.timeSlot,
+          clientNotes: currentState.clientNotes,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSelectTimeSlotWithDate(
+    SelectTimeSlotWithDate event,
+    Emitter<CreateAppointmentState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is CreateAppointmentAvailabilityLoaded) {
+      emit(
+        CreateAppointmentTimeSlotSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate:
+              event.selectedDate, // Usar la fecha específica del evento
+          availability: currentState.availability,
+          selectedTimeSlot: event.timeSlot,
+        ),
+      );
+    } else if (currentState is CreateAppointmentTimeSlotSelected) {
+      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      emit(
+        CreateAppointmentTimeSlotSelected(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate:
+              event.selectedDate, // Usar la fecha específica del evento
+          availability: currentState.availability,
+          selectedTimeSlot: event.timeSlot,
+        ),
+      );
+    } else if (currentState is CreateAppointmentWithNotes) {
+      // Permitir cambiar de time slot cuando ya hay notas
+      emit(
+        CreateAppointmentWithNotes(
+          services: currentState.services,
+          businessId: currentState.businessId,
+          selectedService: currentState.selectedService,
+          selectedDate:
+              event.selectedDate, // Usar la fecha específica del evento
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
           clientNotes: currentState.clientNotes,

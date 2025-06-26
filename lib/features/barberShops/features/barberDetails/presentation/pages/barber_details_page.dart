@@ -8,7 +8,7 @@ class BarberDetailsPage extends StatelessWidget {
   final String businessId;
 
   const BarberDetailsPage({super.key, required this.businessId});
-
+  
   @override
   Widget build(BuildContext context) {
     return BlocProvider(

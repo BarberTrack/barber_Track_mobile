@@ -39,7 +39,7 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         '/services-business/business/$businessId',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-
+      //logger.d('Services: ${response.data}');
       if (response.statusCode == 200) {
         final data = response.data['data'];
         final services = data['services'] as List<dynamic>;
@@ -78,11 +78,11 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
           'businessId': businessId,
           'barberId': barberId,
           'date': date,
-          'days': days,
+          'days': 3,
         },
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      //logger.d(response.data);
+      //logger.d('Availability: ${response.data}');
       if (response.statusCode == 200) {
         final data = response.data['data'];
         final availability = data['availability'] as List<dynamic>;
