@@ -60,6 +60,19 @@ class SelectTimeSlot extends CreateAppointmentEvent {
   List<Object> get props => [timeSlot];
 }
 
+class SelectTimeSlotWithDate extends CreateAppointmentEvent {
+  final TimeSlot timeSlot;
+  final DateTime selectedDate;
+
+  const SelectTimeSlotWithDate({
+    required this.timeSlot,
+    required this.selectedDate,
+  });
+
+  @override
+  List<Object> get props => [timeSlot, selectedDate];
+}
+
 class UpdateClientNotes extends CreateAppointmentEvent {
   final String notes;
 

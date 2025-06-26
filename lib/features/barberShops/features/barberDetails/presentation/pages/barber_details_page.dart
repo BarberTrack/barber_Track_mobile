@@ -8,235 +8,406 @@ class BarberDetailsPage extends StatelessWidget {
   final String businessId;
 
   const BarberDetailsPage({super.key, required this.businessId});
-
+  
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
           sl<BarberdetailsBloc>()..add(LoadBusinessDetails(businessId)),
       child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         appBar: AppBar(
-          title: const Text("Detalles de barbería"),
+          title: Text(
+            "Detalles de barbería",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: Colors.white,
+            ),
+          ),
           centerTitle: true,
-          backgroundColor: Colors.blue.shade700,
+          backgroundColor: Colors.blueAccent,
           foregroundColor: Colors.white,
+          elevation: 8,
+          shadowColor: Colors.blueAccent.withOpacity(0.3),
         ),
         body: BlocBuilder<BarberdetailsBloc, BarberdetailsState>(
           builder: (context, state) {
             if (state is BarberdetailsLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade900,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.blueAccent.withOpacity(0.3),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withOpacity(0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        color: Colors.blueAccent,
+                        strokeWidth: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Cargando detalles...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             } else if (state is BarberdetailsLoaded) {
               return _buildBusinessDetails(state.business);
             } else if (state is BarberdetailsError) {
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red.shade400,
+                child: Container(
+                  margin: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade900,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.red.withOpacity(0.3),
+                      width: 1,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Error: ${state.message}',
-                      style: const TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red.shade300,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Error al cargar',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade300,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        state.message,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade300,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<BarberdetailsBloc>().add(
+                            LoadBusinessDetails(businessId),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 8,
+                          shadowColor: Colors.blueAccent.withOpacity(0.3),
+                        ),
+                        child: Text(
+                          'Reintentar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return Center(
+              child: Text(
+                'Estado inicial',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade400,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            );
+          },
+        ),
+        floatingActionButton:
+            BlocBuilder<BarberdetailsBloc, BarberdetailsState>(
+              builder: (context, state) {
+                if (state is BarberdetailsLoaded) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
+                    child: FloatingActionButton.extended(
                       onPressed: () {
-                        context.read<BarberdetailsBloc>().add(
-                          LoadBusinessDetails(businessId),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CreateAppointmentPage(businessId: businessId),
+                          ),
                         );
                       },
-                      child: const Text('Reintentar'),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const Center(child: Text('Estado inicial'));
-          },
-        ),
-        floatingActionButton: BlocBuilder<BarberdetailsBloc, BarberdetailsState>(
-          builder: (context, state) {
-            // Solo mostrar el botón si los datos se cargaron exitosamente
-            if (state is BarberdetailsLoaded) {
-              return FloatingActionButton.extended(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CreateAppointmentPage(businessId: businessId),
+                      backgroundColor: Colors.green.shade600,
+                      foregroundColor: Colors.white,
+                      icon: const Icon(Icons.calendar_today, size: 20),
+                      label: Text(
+                        'Agendar cita',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
                     ),
                   );
-                },
-                backgroundColor: Colors.green.shade600,
-                foregroundColor: Colors.white,
-                icon: const Icon(Icons.calendar_today),
-                label: const Text(
-                  'Agendar cita',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              );
-            }
-            return const SizedBox.shrink(); // No mostrar nada si no hay datos cargados
-          },
-        ),
+                }
+                return const SizedBox.shrink();
+              },
+            ),
       ),
     );
   }
 
   Widget _buildBusinessDetails(dynamic business) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Nombre del negocio
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.store, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Nombre',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(business.name, style: const TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
+          _buildDetailCard(
+            icon: Icons.store,
+            title: 'Nombre',
+            content: business.name,
+            iconColor: Colors.blueAccent,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Descripción
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.description, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Descripción',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    business.description,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
+          _buildDetailCard(
+            icon: Icons.description,
+            title: 'Descripción',
+            content: business.description,
+            iconColor: Colors.blueAccent,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Dirección
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Dirección',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(business.address, style: const TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
+          _buildDetailCard(
+            icon: Icons.location_on,
+            title: 'Dirección',
+            content: business.address,
+            iconColor: Colors.red.shade400,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Teléfono
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.phone, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Teléfono',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(business.phone, style: const TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
+          _buildDetailCard(
+            icon: Icons.phone,
+            title: 'Teléfono',
+            content: business.phone,
+            iconColor: Colors.green.shade400,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Horas de negocio
           Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.access_time, color: Colors.blue.shade700),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Horas de negocio',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+            elevation: 8,
+            shadowColor: Colors.blueAccent.withOpacity(0.3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.grey.shade900,
+                border: Border.all(
+                  color: Colors.blueAccent.withOpacity(0.3),
+                  width: 1,
+                ),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.grey.shade900,
+                    Colors.grey.shade800.withOpacity(0.8),
+                  ],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            Icons.access_time,
+                            color: Colors.orange.shade300,
+                            size: 24,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _buildBusinessHours(business.businessHours),
-                ],
+                        const SizedBox(width: 16),
+                        Text(
+                          'Horas de negocio',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildBusinessHours(business.businessHours),
+                  ],
+                ),
               ),
             ),
           ),
+          const SizedBox(height: 100), // Espacio extra para el FAB
         ],
+      ),
+    );
+  }
+
+  Widget _buildDetailCard({
+    required IconData icon,
+    required String title,
+    required String content,
+    required Color iconColor,
+  }) {
+    return Card(
+      elevation: 8,
+      shadowColor: Colors.blueAccent.withOpacity(0.3),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.grey.shade900,
+          border: Border.all(
+            color: Colors.blueAccent.withOpacity(0.3),
+            width: 1,
+          ),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.grey.shade900,
+              Colors.grey.shade800.withOpacity(0.8),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: iconColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: iconColor, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 56),
+                child: Text(
+                  content,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey.shade300,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -259,27 +430,57 @@ class BarberDetailsPage extends StatelessWidget {
         final openTime = dayData?['open'] as String?;
         final closeTime = dayData?['close'] as String?;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 6.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isClosed
+                ? Colors.red.withOpacity(0.2)
+                : Colors.green.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isClosed
+                  ? Colors.red.withOpacity(0.4)
+                  : Colors.green.withOpacity(0.4),
+              width: 1,
+            ),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 day['name']!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  letterSpacing: 0.5,
                 ),
               ),
-              Text(
-                isClosed
-                    ? 'Cerrado'
-                    : (openTime != null && closeTime != null)
-                    ? '$openTime - $closeTime'
-                    : 'No disponible',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isClosed ? Colors.red.shade600 : Colors.green.shade600,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: isClosed
+                      ? Colors.red.withOpacity(0.3)
+                      : Colors.green.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  isClosed
+                      ? 'Cerrado'
+                      : (openTime != null && closeTime != null)
+                      ? '$openTime - $closeTime'
+                      : 'No disponible',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isClosed
+                        ? Colors.red.shade300
+                        : Colors.green.shade300,
+                  ),
                 ),
               ),
             ],
