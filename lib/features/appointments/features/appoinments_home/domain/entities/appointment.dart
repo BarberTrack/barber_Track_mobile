@@ -1,5 +1,28 @@
 import 'package:equatable/equatable.dart';
 
+enum AppointmentStatus {
+  scheduled('scheduled', 'Programada'),
+  completed('completed', 'Completada'),
+  cancelled('cancelled', 'Cancelada'),
+  inProgress('in_progress', 'En Progreso'),
+  noShow('no_show', 'No Asistió'),
+  confirmed('confirmed', 'Confirmada');
+
+  const AppointmentStatus(this.value, this.displayName);
+
+  final String value;
+  final String displayName;
+
+  static AppointmentStatus? fromString(String value) {
+    for (AppointmentStatus status in AppointmentStatus.values) {
+      if (status.value == value) {
+        return status;
+      }
+    }
+    return null;
+  }
+}
+
 class Appointment extends Equatable {
   final String id;
   final String clientId;

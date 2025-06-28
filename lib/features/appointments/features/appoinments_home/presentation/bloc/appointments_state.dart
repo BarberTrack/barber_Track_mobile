@@ -16,16 +16,24 @@ class AppointmentsLoaded extends AppointmentsState {
   final int total;
   final int page;
   final int totalPages;
+  final String? currentFilter;
 
   const AppointmentsLoaded({
     required this.appointments,
     required this.total,
     required this.page,
     required this.totalPages,
+    this.currentFilter,
   });
 
   @override
-  List<Object> get props => [appointments, total, page, totalPages];
+  List<Object?> get props => [
+    appointments,
+    total,
+    page,
+    totalPages,
+    currentFilter,
+  ];
 }
 
 class AppointmentsError extends AppointmentsState {

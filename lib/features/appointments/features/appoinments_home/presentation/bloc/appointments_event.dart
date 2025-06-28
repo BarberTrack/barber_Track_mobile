@@ -4,19 +4,34 @@ abstract class AppointmentsEvent extends Equatable {
   const AppointmentsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadAppointments extends AppointmentsEvent {
   final int page;
   final int limit;
+  final String? status;
 
-  const LoadAppointments({this.page = 1, this.limit = 10});
+  const LoadAppointments({this.page = 1, this.limit = 10, this.status});
 
   @override
-  List<Object> get props => [page, limit];
+  List<Object?> get props => [page, limit, status];
 }
 
 class RefreshAppointments extends AppointmentsEvent {
-  const RefreshAppointments();
+  final String? status;
+
+  const RefreshAppointments({this.status});
+
+  @override
+  List<Object?> get props => [status];
+}
+
+class FilterAppointmentsByStatus extends AppointmentsEvent {
+  final String? status;
+
+  const FilterAppointmentsByStatus({this.status});
+
+  @override
+  List<Object?> get props => [status];
 }
