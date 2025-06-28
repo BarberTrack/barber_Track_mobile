@@ -4,6 +4,7 @@ import '../../../../core/di/injection.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/business_card.dart';
 import '../../../appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
+import '../../../style_ai/features/style_ai_home/presentation/pages/style_ai_home_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -65,6 +66,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   _animationController.forward();
                 },
               ),
+              const StyleAiHomePage(),
             ],
           ),
         ),
@@ -82,7 +84,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: Text(
-          _selectedIndex == 0 ? 'Barber Track' : 'Mis Citas',
+          _selectedIndex == 0
+              ? 'Barber Track'
+              : _selectedIndex == 1
+              ? 'Mis Citas'
+              : 'Estilo IA',
           key: ValueKey(_selectedIndex),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
@@ -123,6 +129,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_rounded),
             label: 'Citas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_fix_high_rounded),
+            label: 'Estilo IA',
           ),
         ],
         currentIndex: _selectedIndex,

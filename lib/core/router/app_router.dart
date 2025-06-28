@@ -5,6 +5,7 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/barberShops/features/barberDetails/presentation/pages/barber_details_page.dart';
 import '../../features/appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
 import '../../features/appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
+import '../../features/style_ai/features/style_ai_home/presentation/pages/style_ai_home_page.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -12,6 +13,7 @@ class AppRouter {
   static const String barberDetails = '/barber-details';
   static const String createAppointment = '/create-appointment';
   static const String appointments = '/appointments';
+  static const String styleAi = '/style-ai';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -49,6 +51,12 @@ class AppRouter {
         name: 'appointments',
         builder: (BuildContext context, GoRouterState state) =>
             const AppointmentsPage(),
+      ),
+      GoRoute(
+        path: styleAi,
+        name: 'style-ai',
+        builder: (BuildContext context, GoRouterState state) =>
+            const StyleAiHomePage(),
       ),
     ],
   );
