@@ -8,6 +8,7 @@ abstract class AppointmentsRemoteDataSource {
   Future<AppointmentsResponseModel> getAppointments({
     int page = 1,
     int limit = 10,
+    String? status,
   });
 }
 
@@ -22,6 +23,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
   Future<AppointmentsResponseModel> getAppointments({
     int page = 1,
     int limit = 10,
+    String? status,
   }) async {
     try {
       final token = await tokenStorage.getToken();
@@ -29,17 +31,23 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
         throw Exception('No authentication token found');
       }
 
-      //logger.d('Getting appointments with page: $page, limit: $limit');
+      final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+
+      if (status != null && status.isNotEmpty) {
+        queryParameters['status'] = status;
+      }
+
+      //logger.d('Getting appointments with params: $queryParameters');
 
       final response = await dioClient.dio.get(
         '/appointments',
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: queryParameters,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-        // logger.d(
-        //   'Get appointments response: ${response.statusCode} - ${response.data}',
-        // );
+      // logger.d(
+      //   'Get appointments response: ${response.statusCode} - ${response.data}',
+      // );
 
       if (response.statusCode == 200) {
         return AppointmentsResponseModel.fromJson(

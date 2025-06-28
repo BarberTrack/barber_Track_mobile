@@ -6,7 +6,11 @@ class GetAppointments {
 
   GetAppointments(this.repository);
 
-  Future<AppointmentsResponse> call({int page = 1, int limit = 10}) {
-    return repository.getAppointments(page: page, limit: limit);
+  Future<AppointmentsResponse> call({
+    int page = 1,
+    int limit = 10,
+    String? status,
+  }) {
+    return repository.getAppointments(page: page, limit: limit, status: status);
   }
 }

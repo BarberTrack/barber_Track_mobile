@@ -12,11 +12,13 @@ class AppointmentsRepositoryImpl implements AppointmentsRepository {
   Future<AppointmentsResponse> getAppointments({
     int page = 1,
     int limit = 10,
+    String? status,
   }) async {
     try {
       final model = await remoteDataSource.getAppointments(
         page: page,
         limit: limit,
+        status: status,
       );
       return AppointmentsMapper.toEntity(model);
     } catch (e) {
