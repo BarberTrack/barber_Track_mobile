@@ -7,6 +7,7 @@ import '../../features/appointments/features/create_appointment/presentation/pag
 import '../../features/appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
 import '../../features/style_ai/features/style_ai_home/presentation/pages/style_ai_home_page.dart';
 import '../../features/style_ai/features/analyze_face/presentation/pages/analyze_face_page.dart';
+import '../../features/style_ai/features/analyze_reference/presentation/pages/analyze_reference_page.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -16,6 +17,7 @@ class AppRouter {
   static const String appointments = '/appointments';
   static const String styleAi = '/style-ai';
   static const String analyzeFace = '/analyze-face';
+  static const String analyzeReference = '/analyze-reference';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -65,6 +67,12 @@ class AppRouter {
         name: 'analyze-face',
         builder: (BuildContext context, GoRouterState state) =>
             const AnalyzeFacePage(),
+      ),
+      GoRoute(
+        path: analyzeReference,
+        name: 'analyze-reference',
+        builder: (BuildContext context, GoRouterState state) =>
+            const AnalyzeReferencePage(),
       ),
     ],
   );

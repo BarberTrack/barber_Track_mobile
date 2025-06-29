@@ -24,7 +24,36 @@ class StyleHistoryRemoteDataSourceImpl implements StyleHistoryRemoteDataSource {
       );
 
       if (response.statusCode == 200) {
-        final data = response.data['data'] as Map<String, dynamic>;
+        // Verificar si response.data existe y no es null
+        if (response.data == null) {
+          throw Exception('La respuesta del servidor está vacía');
+        }
+
+        // Verificar si response.data contiene 'data' y no es null
+        final responseData = response.data;
+        if (responseData is! Map<String, dynamic>) {
+          throw Exception('Formato de respuesta inválido del servidor');
+        }
+
+        final data = responseData['data'];
+        if (data == null) {
+          // Retornar un objeto vacío si no hay datos
+          return const StyleHistoryModel(
+            analyses: [],
+            totalCount: 0,
+            hasMore: false,
+            dailyUsage: DailyUsageModel(
+              usedToday: 0,
+              remainingToday: 5,
+              resetTime: '',
+            ),
+          );
+        }
+
+        if (data is! Map<String, dynamic>) {
+          throw Exception('Los datos recibidos tienen formato inválido');
+        }
+
         return StyleHistoryModel.fromJson(data);
       } else {
         throw DioException(
@@ -37,7 +66,17 @@ class StyleHistoryRemoteDataSourceImpl implements StyleHistoryRemoteDataSource {
       if (e.response?.statusCode == 401) {
         throw Exception('Token de autorización inválido');
       } else if (e.response?.statusCode == 404) {
-        throw Exception('No se encontró historial de estilos');
+        // Retornar datos vacíos si no se encuentra historial
+        return const StyleHistoryModel(
+          analyses: [],
+          totalCount: 0,
+          hasMore: false,
+          dailyUsage: DailyUsageModel(
+            usedToday: 0,
+            remainingToday: 5,
+            resetTime: '',
+          ),
+        );
       } else {
         throw Exception(e.message ?? 'Error de conexión');
       }
