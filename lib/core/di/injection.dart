@@ -38,6 +38,13 @@ import '../../features/appointments/features/appoinments_home/domain/repositorie
 import '../../features/appointments/features/appoinments_home/domain/usecases/get_appointments.dart';
 import '../../features/appointments/features/appoinments_home/presentation/bloc/appointments_bloc.dart';
 
+// Style AI imports
+import '../../features/style_ai/features/style_ai_home/data/datasources/style_history_remote_data_source.dart';
+import '../../features/style_ai/features/style_ai_home/data/repositories/style_history_repository_impl.dart';
+import '../../features/style_ai/features/style_ai_home/domain/repositories/style_history_repository.dart';
+import '../../features/style_ai/features/style_ai_home/domain/usecases/get_style_history.dart';
+import '../../features/style_ai/features/style_ai_home/presentation/bloc/style_ai_home_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -138,5 +145,22 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<AppointmentsBloc>(
     () => AppointmentsBloc(getAppointments: sl<GetAppointments>()),
+  );
+
+  // Style AI dependencies
+  sl.registerLazySingleton<StyleHistoryRemoteDataSource>(
+    () => StyleHistoryRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<StyleHistoryRepository>(
+    () => StyleHistoryRepositoryImpl(sl<StyleHistoryRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetStyleHistory>(
+    () => GetStyleHistory(sl<StyleHistoryRepository>()),
+  );
+
+  sl.registerFactory<StyleAiHomeBloc>(
+    () => StyleAiHomeBloc(getStyleHistory: sl<GetStyleHistory>()),
   );
 }
