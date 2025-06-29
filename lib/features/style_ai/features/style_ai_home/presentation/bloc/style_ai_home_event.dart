@@ -6,3 +6,7 @@ abstract class StyleAiHomeEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class LoadStyleHistoryEvent extends StyleAiHomeEvent {
+  const LoadStyleHistoryEvent();
+}
