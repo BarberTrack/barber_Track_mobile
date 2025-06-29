@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../../core/di/injection.dart';
+import '../../../../../../core/router/app_router.dart';
 import '../bloc/style_ai_home_bloc.dart';
 import '../widgets/style_history_card.dart';
 import '../widgets/style_detail_modal.dart';
@@ -22,6 +24,40 @@ class StyleAiHomePage extends StatelessWidget {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           elevation: 0,
+          actions: [
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.push(AppRouter.analyzeFace);
+                },
+                icon: const Icon(
+                  Icons.face_retouching_natural,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                label: const Text(
+                  'Analizar Rostro',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         body: Container(
           decoration: BoxDecoration(
