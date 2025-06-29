@@ -142,6 +142,8 @@ class StyleHistoryCard extends StatelessWidget {
     switch (analysis.analysisType) {
       case 'visagismo_facial':
         return 'Analisis facial';
+      case 'style_description':
+        return 'Analisis de referencia';
       default:
         return analysis.analysisType.toUpperCase();
     }

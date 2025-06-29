@@ -24,40 +24,6 @@ class StyleAiHomePage extends StatelessWidget {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           elevation: 0,
-          actions: [
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.push(AppRouter.analyzeFace);
-                },
-                icon: const Icon(
-                  Icons.face_retouching_natural,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                label: const Text(
-                  'Analizar Rostro',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white,
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -77,7 +43,7 @@ class StyleAiHomePage extends StatelessWidget {
               } else if (state is StyleAiHomeSuccess) {
                 return _buildSuccessState(context, state);
               } else if (state is StyleAiHomeEmpty) {
-                return _buildEmptyState();
+                return _buildEmptyState(context);
               } else if (state is StyleAiHomeError) {
                 return _buildErrorState(context, state);
               }
@@ -170,6 +136,9 @@ class StyleAiHomePage extends StatelessWidget {
             ),
           ),
 
+          // Available Analysis Section
+          _buildAnalysisSection(context),
+
           // History List
           Expanded(
             child: ListView.builder(
@@ -189,39 +158,53 @@ class StyleAiHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+  Widget _buildEmptyState(BuildContext context) {
+    return Column(
+      children: [
+        // Available Analysis Section
+        _buildAnalysisSection(context),
+
+        // Empty State Message
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(
+                    Icons.history,
+                    size: 80,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'No hay historial de estilos',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Text(
+                    'Aún no has realizado ningún análisis de estilo. ¡Comienza ahora para ver recomendaciones personalizadas!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade500, height: 1.5),
+                  ),
+                ),
+              ],
             ),
-            child: Icon(Icons.history, size: 80, color: Colors.grey.shade400),
           ),
-          const SizedBox(height: 32),
-          Text(
-            'No hay historial de estilos',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Text(
-              'Aún no has realizado ningún análisis de estilo. ¡Comienza ahora para ver recomendaciones personalizadas!',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500, height: 1.5),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -326,6 +309,134 @@ class StyleAiHomePage extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnalysisSection(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Análisis Disponibles',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blueAccent,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              // Analyze Face Button
+              Expanded(
+                child: Container(
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [Colors.blueAccent, Colors.blue.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => context.push(AppRouter.analyzeFace),
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.face_retouching_natural,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Analizar Rostro',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Analyze Reference Button
+              Expanded(
+                child: Container(
+                  height: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [Colors.green, Colors.green.shade700],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => context.push(AppRouter.analyzeReference),
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Analizar Referencia',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

@@ -13,14 +13,14 @@ class StyleHistoryModel {
 
   factory StyleHistoryModel.fromJson(Map<String, dynamic> json) {
     return StyleHistoryModel(
-      analyses: (json['analyses'] as List<dynamic>)
+      analyses: (json['analyses'] as List<dynamic>? ?? [])
           .map((e) => AnalysisModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      totalCount: json['totalCount'] as int,
-      hasMore: json['hasMore'] as bool,
-      dailyUsage: DailyUsageModel.fromJson(
-        json['dailyUsage'] as Map<String, dynamic>,
-      ),
+      totalCount: json['totalCount'] as int? ?? 0,
+      hasMore: json['hasMore'] as bool? ?? false,
+      dailyUsage: json['dailyUsage'] != null
+          ? DailyUsageModel.fromJson(json['dailyUsage'] as Map<String, dynamic>)
+          : DailyUsageModel(usedToday: 0, remainingToday: 5, resetTime: ''),
     );
   }
 }
@@ -42,13 +42,30 @@ class AnalysisModel {
 
   factory AnalysisModel.fromJson(Map<String, dynamic> json) {
     return AnalysisModel(
-      id: json['id'] as String,
-      analyzedAt: json['analyzedAt'] as String,
-      analysisType: json['analysisType'] as String,
-      visagismo: VisagismoModel.fromJson(
-        json['visagismo'] as Map<String, dynamic>,
-      ),
-      recommendedStyles: (json['recommendedStyles'] as List<dynamic>)
+      id: json['id'] as String? ?? '',
+      analyzedAt:
+          json['analyzedAt'] as String? ?? DateTime.now().toIso8601String(),
+      analysisType: json['analysisType'] as String? ?? 'unknown',
+      visagismo: json['visagismo'] != null
+          ? VisagismoModel.fromJson(json['visagismo'] as Map<String, dynamic>)
+          : VisagismoModel(
+              formaRostro: 'desconocido',
+              proporcionesFaciales: ProporcionesFacialesModel(
+                analisisPerfil: AnalisisPerfilModel(
+                  perfilNariz: 'desconocido',
+                  proyeccionMenton: 'desconocido',
+                  inclinacionFrente: 'desconocido',
+                  definicionMandibula: 'desconocido',
+                ),
+                analisisFrontal: AnalisisFrontalModel(
+                  anchoFrente: 'desconocido',
+                  largoRostro: 'desconocido',
+                  anchoPomulos: 'desconocido',
+                  anchoMandibula: 'desconocido',
+                ),
+              ),
+            ),
+      recommendedStyles: (json['recommendedStyles'] as List<dynamic>? ?? [])
           .map((e) => RecommendedStyleModel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -66,10 +83,25 @@ class VisagismoModel {
 
   factory VisagismoModel.fromJson(Map<String, dynamic> json) {
     return VisagismoModel(
-      formaRostro: json['formaRostro'] as String,
-      proporcionesFaciales: ProporcionesFacialesModel.fromJson(
-        json['proporcionesFaciales'] as Map<String, dynamic>,
-      ),
+      formaRostro: json['formaRostro'] as String? ?? 'desconocido',
+      proporcionesFaciales: json['proporcionesFaciales'] != null
+          ? ProporcionesFacialesModel.fromJson(
+              json['proporcionesFaciales'] as Map<String, dynamic>,
+            )
+          : ProporcionesFacialesModel(
+              analisisPerfil: AnalisisPerfilModel(
+                perfilNariz: 'desconocido',
+                proyeccionMenton: 'desconocido',
+                inclinacionFrente: 'desconocido',
+                definicionMandibula: 'desconocido',
+              ),
+              analisisFrontal: AnalisisFrontalModel(
+                anchoFrente: 'desconocido',
+                largoRostro: 'desconocido',
+                anchoPomulos: 'desconocido',
+                anchoMandibula: 'desconocido',
+              ),
+            ),
     );
   }
 }
@@ -85,12 +117,26 @@ class ProporcionesFacialesModel {
 
   factory ProporcionesFacialesModel.fromJson(Map<String, dynamic> json) {
     return ProporcionesFacialesModel(
-      analisisPerfil: AnalisisPerfilModel.fromJson(
-        json['analisisPerfil'] as Map<String, dynamic>,
-      ),
-      analisisFrontal: AnalisisFrontalModel.fromJson(
-        json['analisisFrontal'] as Map<String, dynamic>,
-      ),
+      analisisPerfil: json['analisisPerfil'] != null
+          ? AnalisisPerfilModel.fromJson(
+              json['analisisPerfil'] as Map<String, dynamic>,
+            )
+          : AnalisisPerfilModel(
+              perfilNariz: 'desconocido',
+              proyeccionMenton: 'desconocido',
+              inclinacionFrente: 'desconocido',
+              definicionMandibula: 'desconocido',
+            ),
+      analisisFrontal: json['analisisFrontal'] != null
+          ? AnalisisFrontalModel.fromJson(
+              json['analisisFrontal'] as Map<String, dynamic>,
+            )
+          : AnalisisFrontalModel(
+              anchoFrente: 'desconocido',
+              largoRostro: 'desconocido',
+              anchoPomulos: 'desconocido',
+              anchoMandibula: 'desconocido',
+            ),
     );
   }
 }
@@ -110,10 +156,11 @@ class AnalisisPerfilModel {
 
   factory AnalisisPerfilModel.fromJson(Map<String, dynamic> json) {
     return AnalisisPerfilModel(
-      perfilNariz: json['perfilNariz'] as String,
-      proyeccionMenton: json['proyeccionMenton'] as String,
-      inclinacionFrente: json['inclinacionFrente'] as String,
-      definicionMandibula: json['definicionMandibula'] as String,
+      perfilNariz: json['perfilNariz'] as String? ?? 'desconocido',
+      proyeccionMenton: json['proyeccionMenton'] as String? ?? 'desconocido',
+      inclinacionFrente: json['inclinacionFrente'] as String? ?? 'desconocido',
+      definicionMandibula:
+          json['definicionMandibula'] as String? ?? 'desconocido',
     );
   }
 }
@@ -133,10 +180,10 @@ class AnalisisFrontalModel {
 
   factory AnalisisFrontalModel.fromJson(Map<String, dynamic> json) {
     return AnalisisFrontalModel(
-      anchoFrente: json['anchoFrente'] as String,
-      largoRostro: json['largoRostro'] as String,
-      anchoPomulos: json['anchoPomulos'] as String,
-      anchoMandibula: json['anchoMandibula'] as String,
+      anchoFrente: json['anchoFrente'] as String? ?? 'desconocido',
+      largoRostro: json['largoRostro'] as String? ?? 'desconocido',
+      anchoPomulos: json['anchoPomulos'] as String? ?? 'desconocido',
+      anchoMandibula: json['anchoMandibula'] as String? ?? 'desconocido',
     );
   }
 }
@@ -158,11 +205,12 @@ class RecommendedStyleModel {
 
   factory RecommendedStyleModel.fromJson(Map<String, dynamic> json) {
     return RecommendedStyleModel(
-      nombreEstilo: json['nombreEstilo'] as String,
-      puntuacionAdecuacion: json['puntuacionAdecuacion'] as int,
-      descripcion: json['descripcion'] as String,
-      dificultad: json['dificultad'] as String,
-      nivelMantenimiento: json['nivelMantenimiento'] as String,
+      nombreEstilo: json['nombreEstilo'] as String? ?? 'Sin nombre',
+      puntuacionAdecuacion: json['puntuacionAdecuacion'] as int? ?? 0,
+      descripcion: json['descripcion'] as String? ?? 'Sin descripción',
+      dificultad: json['dificultad'] as String? ?? 'desconocido',
+      nivelMantenimiento:
+          json['nivelMantenimiento'] as String? ?? 'desconocido',
     );
   }
 }
@@ -180,9 +228,9 @@ class DailyUsageModel {
 
   factory DailyUsageModel.fromJson(Map<String, dynamic> json) {
     return DailyUsageModel(
-      usedToday: json['usedToday'] as int,
-      remainingToday: json['remainingToday'] as int,
-      resetTime: json['resetTime'] as String,
+      usedToday: json['usedToday'] as int? ?? 0,
+      remainingToday: json['remainingToday'] as int? ?? 5,
+      resetTime: json['resetTime'] as String? ?? '',
     );
   }
 }

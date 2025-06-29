@@ -52,6 +52,13 @@ import '../../features/style_ai/features/analyze_face/domain/repositories/face_a
 import '../../features/style_ai/features/analyze_face/domain/usecases/analyze_face.dart';
 import '../../features/style_ai/features/analyze_face/presentation/bloc/analyze_face_bloc.dart';
 
+// Analyze Reference imports
+import '../../features/style_ai/features/analyze_reference/data/datasources/style_reference_remote_data_source.dart';
+import '../../features/style_ai/features/analyze_reference/data/repositories/style_reference_repository_impl.dart';
+import '../../features/style_ai/features/analyze_reference/domain/repositories/style_reference_repository.dart';
+import '../../features/style_ai/features/analyze_reference/domain/usecases/analyze_reference_image.dart';
+import '../../features/style_ai/features/analyze_reference/presentation/bloc/analyze_reference_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -188,6 +195,26 @@ Future<void> initializeDependencies() async {
     () => AnalyzeFaceBloc(
       analyzeFaceUseCase: sl<AnalyzeFace>(),
       remoteDataSource: sl<FaceAnalysisRemoteDataSource>(),
+    ),
+  );
+
+  // Analyze Reference dependencies
+  sl.registerLazySingleton<StyleReferenceRemoteDataSource>(
+    () =>
+        StyleReferenceRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<StyleReferenceRepository>(
+    () => StyleReferenceRepositoryImpl(sl<StyleReferenceRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<AnalyzeReferenceImage>(
+    () => AnalyzeReferenceImage(sl<StyleReferenceRepository>()),
+  );
+
+  sl.registerFactory<AnalyzeReferenceBloc>(
+    () => AnalyzeReferenceBloc(
+      analyzeReferenceImageUseCase: sl<AnalyzeReferenceImage>(),
     ),
   );
 }
