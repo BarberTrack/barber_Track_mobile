@@ -16,15 +16,6 @@ class StyleAiHomePage extends StatelessWidget {
       create: (context) =>
           sl<StyleAiHomeBloc>()..add(const LoadStyleHistoryEvent()),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Historial de Estilos IA',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

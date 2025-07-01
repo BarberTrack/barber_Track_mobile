@@ -65,8 +65,16 @@ class StyleDetailModal extends StatelessWidget {
                 children: [
                   _buildRecommendationsSection(context),
                   const SizedBox(height: 24),
-                  _buildVisagismoSection(context),
-                  const SizedBox(height: 24),
+                  // Show different sections based on analysis type
+                  if (analysis.analysisType == 'visagismo_facial' &&
+                      analysis.visagismo != null) ...[
+                    _buildVisagismoSection(context),
+                    const SizedBox(height: 24),
+                  ] else if (analysis.analysisType == 'style_description' &&
+                      analysis.styleDescription != null) ...[
+                    _buildStyleDescriptionSection(context),
+                    const SizedBox(height: 24),
+                  ],
                   _buildAnalysisInfo(context),
                 ],
               ),
@@ -113,6 +121,10 @@ class StyleDetailModal extends StatelessWidget {
   }
 
   Widget _buildVisagismoSection(BuildContext context) {
+    if (analysis.visagismo == null) return const SizedBox.shrink();
+
+    final visagismo = analysis.visagismo!;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -130,7 +142,7 @@ class StyleDetailModal extends StatelessWidget {
             _buildVisagismoItem(
               context,
               'Forma del Rostro',
-              analysis.visagismo.formaRostro.toUpperCase(),
+              visagismo.formaRostro.toUpperCase(),
               Icons.face,
               Colors.orange,
             ),
@@ -145,38 +157,22 @@ class StyleDetailModal extends StatelessWidget {
             _buildAnalysisRow(
               context,
               'Ancho Frente',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisFrontal
-                  .anchoFrente,
+              visagismo.proporcionesFaciales.analisisFrontal.anchoFrente,
             ),
             _buildAnalysisRow(
               context,
               'Largo Rostro',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisFrontal
-                  .largoRostro,
+              visagismo.proporcionesFaciales.analisisFrontal.largoRostro,
             ),
             _buildAnalysisRow(
               context,
               'Ancho Pómulos',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisFrontal
-                  .anchoPomulos,
+              visagismo.proporcionesFaciales.analisisFrontal.anchoPomulos,
             ),
             _buildAnalysisRow(
               context,
               'Ancho Mandíbula',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisFrontal
-                  .anchoMandibula,
+              visagismo.proporcionesFaciales.analisisFrontal.anchoMandibula,
             ),
             const SizedBox(height: 16),
             Text(
@@ -189,38 +185,22 @@ class StyleDetailModal extends StatelessWidget {
             _buildAnalysisRow(
               context,
               'Perfil Nariz',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisPerfil
-                  .perfilNariz,
+              visagismo.proporcionesFaciales.analisisPerfil.perfilNariz,
             ),
             _buildAnalysisRow(
               context,
               'Proyección Mentón',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisPerfil
-                  .proyeccionMenton,
+              visagismo.proporcionesFaciales.analisisPerfil.proyeccionMenton,
             ),
             _buildAnalysisRow(
               context,
               'Inclinación Frente',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisPerfil
-                  .inclinacionFrente,
+              visagismo.proporcionesFaciales.analisisPerfil.inclinacionFrente,
             ),
             _buildAnalysisRow(
               context,
               'Definición Mandíbula',
-              analysis
-                  .visagismo
-                  .proporcionesFaciales
-                  .analisisPerfil
-                  .definicionMandibula,
+              visagismo.proporcionesFaciales.analisisPerfil.definicionMandibula,
             ),
           ],
         ),
@@ -431,5 +411,89 @@ class StyleDetailModal extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  Widget _buildStyleDescriptionSection(BuildContext context) {
+    if (analysis.styleDescription == null) return const SizedBox.shrink();
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Análisis de Estilo',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.purple,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildStyleDescriptionItem(
+              context,
+              'Estilo Identificado',
+              analysis.styleDescription!.nombreEstilo,
+              Icons.auto_awesome,
+              Colors.purple,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Descripción Detallada',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+              child: Text(
+                analysis.styleDescription!.descripcionDetallada,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStyleDescriptionItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                value,
+                style: TextStyle(color: color, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

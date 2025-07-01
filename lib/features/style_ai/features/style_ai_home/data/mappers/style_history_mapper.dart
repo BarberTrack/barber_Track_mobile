@@ -18,10 +18,24 @@ class StyleHistoryMapper {
       id: model.id,
       analyzedAt: DateTime.parse(model.analyzedAt),
       analysisType: model.analysisType,
-      visagismo: _visagismoToEntity(model.visagismo),
+      visagismo: model.visagismo != null
+          ? _visagismoToEntity(model.visagismo!)
+          : null,
+      styleDescription: model.styleDescription != null
+          ? _styleDescriptionToEntity(model.styleDescription!)
+          : null,
       recommendedStyles: model.recommendedStyles
           .map((style) => _recommendedStyleToEntity(style))
           .toList(),
+    );
+  }
+
+  static StyleDescription _styleDescriptionToEntity(
+    StyleDescriptionModel model,
+  ) {
+    return StyleDescription(
+      nombreEstilo: model.nombreEstilo,
+      descripcionDetallada: model.descripcionDetallada,
     );
   }
 
