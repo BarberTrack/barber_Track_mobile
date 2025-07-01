@@ -21,14 +21,16 @@ class Analysis extends Equatable {
   final String id;
   final DateTime analyzedAt;
   final String analysisType;
-  final Visagismo visagismo;
+  final Visagismo? visagismo;
+  final StyleDescription? styleDescription;
   final List<RecommendedStyle> recommendedStyles;
 
   const Analysis({
     required this.id,
     required this.analyzedAt,
     required this.analysisType,
-    required this.visagismo,
+    this.visagismo,
+    this.styleDescription,
     required this.recommendedStyles,
   });
 
@@ -38,8 +40,22 @@ class Analysis extends Equatable {
     analyzedAt,
     analysisType,
     visagismo,
+    styleDescription,
     recommendedStyles,
   ];
+}
+
+class StyleDescription extends Equatable {
+  final String nombreEstilo;
+  final String descripcionDetallada;
+
+  const StyleDescription({
+    required this.nombreEstilo,
+    required this.descripcionDetallada,
+  });
+
+  @override
+  List<Object?> get props => [nombreEstilo, descripcionDetallada];
 }
 
 class Visagismo extends Equatable {

@@ -39,14 +39,27 @@ class StyleHistoryCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.face, color: Colors.blueAccent, size: 20),
-                  const SizedBox(width: 8),
-                  _buildFaceShapeChip(),
-                ],
-              ),
-              const SizedBox(height: 12),
+              if (analysis.analysisType == 'visagismo_facial' &&
+                  analysis.visagismo != null) ...[
+                Row(
+                  children: [
+                    Icon(Icons.face, color: Colors.blueAccent, size: 20),
+                    const SizedBox(width: 8),
+                    _buildFaceShapeChip(),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ] else if (analysis.analysisType == 'style_description' &&
+                  analysis.styleDescription != null) ...[
+                Row(
+                  children: [
+                    Icon(Icons.auto_awesome, color: Colors.purple, size: 20),
+                    const SizedBox(width: 8),
+                    _buildStyleDescriptionChip(),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
               Row(
                 children: [
                   Icon(Icons.content_cut, color: Colors.green, size: 20),
@@ -82,13 +95,13 @@ class StyleHistoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.blueAccent.withOpacity(0.1),
+        color: _getTypeColor().withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         _getTypeDisplayName(),
-        style: const TextStyle(
-          color: Colors.blueAccent,
+        style: TextStyle(
+          color: _getTypeColor(),
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -97,6 +110,8 @@ class StyleHistoryCard extends StatelessWidget {
   }
 
   Widget _buildFaceShapeChip() {
+    if (analysis.visagismo == null) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -104,11 +119,34 @@ class StyleHistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        analysis.visagismo.formaRostro.toUpperCase(),
+        analysis.visagismo!.formaRostro.toUpperCase(),
         style: const TextStyle(
           color: Colors.orange,
           fontSize: 12,
           fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStyleDescriptionChip() {
+    if (analysis.styleDescription == null) return const SizedBox.shrink();
+
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.purple.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          analysis.styleDescription!.nombreEstilo,
+          style: const TextStyle(
+            color: Colors.purple,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
@@ -138,12 +176,23 @@ class StyleHistoryCard extends StatelessWidget {
     );
   }
 
+  Color _getTypeColor() {
+    switch (analysis.analysisType) {
+      case 'visagismo_facial':
+        return Colors.blueAccent;
+      case 'style_description':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
   String _getTypeDisplayName() {
     switch (analysis.analysisType) {
       case 'visagismo_facial':
-        return 'Analisis facial';
+        return 'Análisis facial';
       case 'style_description':
-        return 'Analisis de referencia';
+        return 'Análisis de referencia';
       default:
         return analysis.analysisType.toUpperCase();
     }

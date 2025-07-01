@@ -29,14 +29,16 @@ class AnalysisModel {
   final String id;
   final String analyzedAt;
   final String analysisType;
-  final VisagismoModel visagismo;
+  final VisagismoModel? visagismo;
+  final StyleDescriptionModel? styleDescription;
   final List<RecommendedStyleModel> recommendedStyles;
 
   const AnalysisModel({
     required this.id,
     required this.analyzedAt,
     required this.analysisType,
-    required this.visagismo,
+    this.visagismo,
+    this.styleDescription,
     required this.recommendedStyles,
   });
 
@@ -48,23 +50,12 @@ class AnalysisModel {
       analysisType: json['analysisType'] as String? ?? 'unknown',
       visagismo: json['visagismo'] != null
           ? VisagismoModel.fromJson(json['visagismo'] as Map<String, dynamic>)
-          : VisagismoModel(
-              formaRostro: 'desconocido',
-              proporcionesFaciales: ProporcionesFacialesModel(
-                analisisPerfil: AnalisisPerfilModel(
-                  perfilNariz: 'desconocido',
-                  proyeccionMenton: 'desconocido',
-                  inclinacionFrente: 'desconocido',
-                  definicionMandibula: 'desconocido',
-                ),
-                analisisFrontal: AnalisisFrontalModel(
-                  anchoFrente: 'desconocido',
-                  largoRostro: 'desconocido',
-                  anchoPomulos: 'desconocido',
-                  anchoMandibula: 'desconocido',
-                ),
-              ),
-            ),
+          : null,
+      styleDescription: json['styleDescription'] != null
+          ? StyleDescriptionModel.fromJson(
+              json['styleDescription'] as Map<String, dynamic>,
+            )
+          : null,
       recommendedStyles: (json['recommendedStyles'] as List<dynamic>? ?? [])
           .map((e) => RecommendedStyleModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -231,6 +222,24 @@ class DailyUsageModel {
       usedToday: json['usedToday'] as int? ?? 0,
       remainingToday: json['remainingToday'] as int? ?? 5,
       resetTime: json['resetTime'] as String? ?? '',
+    );
+  }
+}
+
+class StyleDescriptionModel {
+  final String nombreEstilo;
+  final String descripcionDetallada;
+
+  const StyleDescriptionModel({
+    required this.nombreEstilo,
+    required this.descripcionDetallada,
+  });
+
+  factory StyleDescriptionModel.fromJson(Map<String, dynamic> json) {
+    return StyleDescriptionModel(
+      nombreEstilo: json['nombreEstilo'] as String? ?? 'Sin nombre',
+      descripcionDetallada:
+          json['descripcionDetallada'] as String? ?? 'Sin descripción',
     );
   }
 }
