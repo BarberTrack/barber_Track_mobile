@@ -1,7 +1,9 @@
 import '../models/review_model.dart';
 import '../models/business_review_response_model.dart';
+import '../models/moderation_logs_model.dart';
 import '../../domain/entities/review.dart';
 import '../../domain/entities/business_review_response.dart';
+import '../../domain/entities/moderation_logs.dart';
 
 class BusinessReviewMapper {
   static Review mapReviewModelToEntity(ReviewModel model) {
@@ -19,7 +21,9 @@ class BusinessReviewMapper {
       status: model.status,
       isFeatured: model.isFeatured,
       businessResponse: model.businessResponse,
-      moderationLogs: model.moderationLogs,
+      moderationLogs: model.moderationLogs != null
+          ? mapModerationLogsModelToEntity(model.moderationLogs!)
+          : null,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     );
@@ -35,6 +39,20 @@ class BusinessReviewMapper {
       averageRating: model.averageRating,
       totalReviews: model.totalReviews,
     );
+  }
+
+  static ModerationLogs mapModerationLogsModelToEntity(
+    ModerationLogsModel model,
+  ) {
+    return _ModerationLogsEntity(
+      moderation: model.moderation != null
+          ? mapModerationModelToEntity(model.moderation!)
+          : null,
+    );
+  }
+
+  static Moderation mapModerationModelToEntity(ModerationModel model) {
+    return _ModerationEntity(action: model.action, reason: model.reason);
   }
 }
 
@@ -65,4 +83,12 @@ class _BusinessReviewResponseEntity extends BusinessReviewResponse {
     required super.averageRating,
     required super.totalReviews,
   });
+}
+
+class _ModerationLogsEntity extends ModerationLogs {
+  const _ModerationLogsEntity({super.moderation});
+}
+
+class _ModerationEntity extends Moderation {
+  const _ModerationEntity({required super.action, required super.reason});
 }

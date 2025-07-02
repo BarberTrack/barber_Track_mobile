@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/review.dart';
+import 'moderation_info_widget.dart';
 
 class ReviewCard extends StatelessWidget {
   final Review review;
@@ -109,6 +110,11 @@ class ReviewCard extends StatelessWidget {
                   ],
                 ),
               ),
+            ],
+
+            // Moderation Info
+            if (review.moderationLogs != null) ...[
+              ModerationInfoWidget(moderationLogs: review.moderationLogs!),
             ],
           ],
         ),

@@ -1,3 +1,5 @@
+import 'moderation_logs_model.dart';
+
 class ReviewModel {
   final String id;
   final String appointmentId;
@@ -12,7 +14,7 @@ class ReviewModel {
   final String status;
   final bool isFeatured;
   final String? businessResponse;
-  final String? moderationLogs;
+  final ModerationLogsModel? moderationLogs;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -50,7 +52,9 @@ class ReviewModel {
       status: json['status'] ?? '',
       isFeatured: json['isFeatured'] ?? false,
       businessResponse: json['businessResponse'],
-      moderationLogs: json['moderationLogs'],
+      moderationLogs: json['moderationLogs'] != null
+          ? ModerationLogsModel.fromJson(json['moderationLogs'])
+          : null,
       createdAt: DateTime.parse(
         json['createdAt'] ?? DateTime.now().toIso8601String(),
       ),
@@ -75,7 +79,7 @@ class ReviewModel {
       'status': status,
       'isFeatured': isFeatured,
       'businessResponse': businessResponse,
-      'moderationLogs': moderationLogs,
+      'moderationLogs': moderationLogs?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
