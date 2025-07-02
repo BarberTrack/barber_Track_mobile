@@ -552,47 +552,47 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     );
   }
 
-  void _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
-    );
+  // void _selectDate(BuildContext context) async {
+  //   final DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now().add(const Duration(days: 1)),
+  //     firstDate: DateTime.now(),
+  //     lastDate: DateTime.now().add(const Duration(days: 30)),
+  //   );
 
-    if (picked != null) {
-      final bloc = context.read<CreateAppointmentBloc>();
-      final currentState = bloc.state;
+  //   if (picked != null) {
+  //     final bloc = context.read<CreateAppointmentBloc>();
+  //     final currentState = bloc.state;
 
-      // Actualizar la fecha seleccionada
-      bloc.add(SelectDate(picked));
+  //     // Actualizar la fecha seleccionada
+  //     bloc.add(SelectDate(picked));
 
-      // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
-      if (currentState is CreateAppointmentServiceSelected ||
-          currentState is CreateAppointmentDateSelected ||
-          currentState is CreateAppointmentAvailabilityLoaded ||
-          currentState is CreateAppointmentTimeSlotSelected ||
-          currentState is CreateAppointmentWithNotes) {
-        final service = _getSelectedService(currentState);
+  //     // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
+  //     if (currentState is CreateAppointmentServiceSelected ||
+  //         currentState is CreateAppointmentDateSelected ||
+  //         currentState is CreateAppointmentAvailabilityLoaded ||
+  //         currentState is CreateAppointmentTimeSlotSelected ||
+  //         currentState is CreateAppointmentWithNotes) {
+  //       final service = _getSelectedService(currentState);
 
-        // Obtener el primer barbero del servicio seleccionado
-        if (service.barberAssignments.isNotEmpty) {
-          final barberId = service.barberAssignments.first.barberId;
-          final dateString = DateFormat('yyyy-MM-dd').format(picked);
+  //       // Obtener el primer barbero del servicio seleccionado
+  //       if (service.barberAssignments.isNotEmpty) {
+  //         final barberId = service.barberAssignments.first.barberId;
+  //         final dateString = DateFormat('yyyy-MM-dd').format(picked);
 
-          // Cargar la disponibilidad para la nueva fecha
-          bloc.add(
-            LoadAvailability(
-              businessId: widget.businessId,
-              barberId: barberId,
-              date: dateString,
-              days: 3,
-            ),
-          );
-        }
-      }
-    }
-  }
+  //         // Cargar la disponibilidad para la nueva fecha
+  //         bloc.add(
+  //           LoadAvailability(
+  //             businessId: widget.businessId,
+  //             barberId: barberId,
+  //             date: dateString,
+  //             days: 3,
+  //           ),
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   void _showDebugModal(BuildContext context, CreateAppointmentState state) {
     showDialog(
@@ -880,7 +880,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
           children: [
             const Text(
               'Su cita ha sido agendada exitosamente.',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Container(
@@ -889,29 +889,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 color: const Color.fromARGB(255, 24, 59, 27),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.green.shade200),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.confirmation_number,
-                        color: Colors.green,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('Código de confirmación:'),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    state.response.confirmationCode,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
