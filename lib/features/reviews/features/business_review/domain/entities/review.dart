@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'moderation_logs.dart';
 
 abstract class Review extends Equatable {
   final String id;
@@ -14,7 +15,7 @@ abstract class Review extends Equatable {
   final String status;
   final bool isFeatured;
   final String? businessResponse;
-  final String? moderationLogs;
+  final ModerationLogs? moderationLogs;
   final DateTime createdAt;
   final DateTime updatedAt;
 
