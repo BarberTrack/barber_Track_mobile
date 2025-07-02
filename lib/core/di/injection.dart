@@ -59,6 +59,13 @@ import '../../features/style_ai/features/analyze_reference/domain/repositories/s
 import '../../features/style_ai/features/analyze_reference/domain/usecases/analyze_reference_image.dart';
 import '../../features/style_ai/features/analyze_reference/presentation/bloc/analyze_reference_bloc.dart';
 
+// Business Review imports
+import '../../features/reviews/features/business_review/data/datasources/business_review_remote_data_source.dart';
+import '../../features/reviews/features/business_review/data/repositories/business_review_repository_impl.dart';
+import '../../features/reviews/features/business_review/domain/repositories/business_review_repository.dart';
+import '../../features/reviews/features/business_review/domain/usecases/get_business_reviews.dart';
+import '../../features/reviews/features/business_review/presentation/bloc/business_review_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -216,5 +223,23 @@ Future<void> initializeDependencies() async {
     () => AnalyzeReferenceBloc(
       analyzeReferenceImageUseCase: sl<AnalyzeReferenceImage>(),
     ),
+  );
+
+  // Business Review dependencies
+  sl.registerLazySingleton<BusinessReviewRemoteDataSource>(
+    () =>
+        BusinessReviewRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<BusinessReviewRepository>(
+    () => BusinessReviewRepositoryImpl(sl<BusinessReviewRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetBusinessReviews>(
+    () => GetBusinessReviews(sl<BusinessReviewRepository>()),
+  );
+
+  sl.registerFactory<BusinessReviewBloc>(
+    () => BusinessReviewBloc(sl<GetBusinessReviews>()),
   );
 }
