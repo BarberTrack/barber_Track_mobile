@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../core/di/injection.dart';
 import '../bloc/barberdetails_bloc.dart';
 import '../../../../../appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
+import '../../../../../reviews/features/business_review/presentation/pages/business_review_page.dart';
 
 class BarberDetailsPage extends StatelessWidget {
   final String businessId;
 
   const BarberDetailsPage({super.key, required this.businessId});
-  
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -75,7 +76,7 @@ class BarberDetailsPage extends StatelessWidget {
                 ),
               );
             } else if (state is BarberdetailsLoaded) {
-              return _buildBusinessDetails(state.business);
+              return _buildBusinessDetails(context, state.business);
             } else if (state is BarberdetailsError) {
               return Center(
                 child: Container(
@@ -228,7 +229,7 @@ class BarberDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBusinessDetails(dynamic business) {
+  Widget _buildBusinessDetails(BuildContext context, dynamic business) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -332,6 +333,55 @@ class BarberDetailsPage extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 30),
+
+          // Botón para ver reseñas
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amber.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        BusinessReviewPage(businessId: businessId),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber.shade600,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.star, size: 22),
+              label: Text(
+                'Ver Reseñas del Negocio',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+
           const SizedBox(height: 100), // Espacio extra para el FAB
         ],
       ),
