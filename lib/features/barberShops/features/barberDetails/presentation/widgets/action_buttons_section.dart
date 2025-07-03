@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../../reviews/features/business_review/presentation/pages/business_review_page.dart';
+import '../../../../../barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 
 class ActionButtonsSection extends StatelessWidget {
   final String businessId;
@@ -28,6 +29,26 @@ class ActionButtonsSection extends StatelessWidget {
             label: 'Ver Reseñas del Negocio',
             backgroundColor: Colors.amber.shade600,
             shadowColor: Colors.amber.withOpacity(0.4),
+            iconColor: Colors.white,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Botón para ver barberos
+          _buildActionButton(
+            context: context,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BarberHomePage(businessId: businessId),
+                ),
+              );
+            },
+            icon: Icons.person_pin_rounded,
+            label: 'Ver Barberos',
+            backgroundColor: Colors.blue.shade600,
+            shadowColor: Colors.blue.withOpacity(0.4),
             iconColor: Colors.white,
           ),
         ],
