@@ -9,6 +9,7 @@ import '../../features/style_ai/features/style_ai_home/presentation/pages/style_
 import '../../features/style_ai/features/analyze_face/presentation/pages/analyze_face_page.dart';
 import '../../features/style_ai/features/analyze_reference/presentation/pages/analyze_reference_page.dart';
 import '../../features/reviews/features/business_review/presentation/pages/business_review_page.dart';
+import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -20,6 +21,7 @@ class AppRouter {
   static const String analyzeFace = '/analyze-face';
   static const String analyzeReference = '/analyze-reference';
   static const String businessReviews = '/business-reviews';
+  static const String barberHome = '/barber-home';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -82,6 +84,14 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) {
           final businessId = state.pathParameters['businessId'] ?? '';
           return BusinessReviewPage(businessId: businessId);
+        },
+      ),
+      GoRoute(
+        path: '$barberHome/:businessId',
+        name: 'barber-home',
+        builder: (BuildContext context, GoRouterState state) {
+          final businessId = state.pathParameters['businessId'] ?? '';
+          return BarberHomePage(businessId: businessId);
         },
       ),
     ],

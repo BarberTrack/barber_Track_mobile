@@ -66,6 +66,13 @@ import '../../features/reviews/features/business_review/domain/repositories/busi
 import '../../features/reviews/features/business_review/domain/usecases/get_business_reviews.dart';
 import '../../features/reviews/features/business_review/presentation/bloc/business_review_bloc.dart';
 
+// Barber Home imports
+import '../../features/barbers/features/barber_home/data/datasources/barber_remote_data_source.dart';
+import '../../features/barbers/features/barber_home/data/repositories/barber_repository_impl.dart';
+import '../../features/barbers/features/barber_home/domain/repositories/barber_repository.dart';
+import '../../features/barbers/features/barber_home/domain/usecases/get_barbers.dart';
+import '../../features/barbers/features/barber_home/presentation/bloc/barber_home_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -241,5 +248,22 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<BusinessReviewBloc>(
     () => BusinessReviewBloc(sl<GetBusinessReviews>()),
+  );
+
+  // Barber Home dependencies
+  sl.registerLazySingleton<BarberRemoteDataSource>(
+    () => BarberRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<BarberRepository>(
+    () => BarberRepositoryImpl(sl<BarberRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetBarbers>(
+    () => GetBarbers(sl<BarberRepository>()),
+  );
+
+  sl.registerFactory<BarberHomeBloc>(
+    () => BarberHomeBloc(getBarbers: sl<GetBarbers>()),
   );
 }
