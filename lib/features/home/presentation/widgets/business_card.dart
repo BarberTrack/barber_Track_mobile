@@ -5,8 +5,17 @@ import '../../../../core/router/app_router.dart';
 
 class BusinessCard extends StatelessWidget {
   final Business business;
+  final bool showFavoriteButton;
+  final VoidCallback? onFavoritePressed;
+  final bool isFavorite;
 
-  const BusinessCard({super.key, required this.business});
+  const BusinessCard({
+    super.key,
+    required this.business,
+    this.showFavoriteButton = false,
+    this.onFavoritePressed,
+    this.isFavorite = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +86,10 @@ class BusinessCard extends StatelessWidget {
 
         // Rating badge
         Positioned(top: 16, right: 16, child: _buildRatingBadge()),
+
+        // Favorite button (only show if enabled)
+        if (showFavoriteButton)
+          Positioned(top: 16, left: 16, child: _buildFavoriteButton()),
       ],
     );
   }
@@ -327,6 +340,37 @@ class BusinessCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFavoriteButton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onFavoritePressed,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : Colors.white,
+              size: 20,
+            ),
+          ),
+        ),
       ),
     );
   }

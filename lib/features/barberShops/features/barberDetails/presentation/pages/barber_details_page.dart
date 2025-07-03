@@ -10,11 +10,62 @@ import '../widgets/schedule_timeline_widget.dart';
 import '../widgets/action_buttons_section.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/error_widget.dart';
+import '../../../../../favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../../../favorites/presentation/bloc/favorites_event.dart';
+import '../../../../../favorites/presentation/bloc/favorites_state.dart';
+import '../../../../../favorites/domain/entities/favorite.dart';
+import '../../../../../../core/storage/favorites_storage.dart';
 
-class BarberDetailsPage extends StatelessWidget {
+class BarberDetailsPage extends StatefulWidget {
   final String businessId;
 
   const BarberDetailsPage({super.key, required this.businessId});
+
+  @override
+  State<BarberDetailsPage> createState() => _BarberDetailsPageState();
+}
+
+class _BarberDetailsPageState extends State<BarberDetailsPage> {
+  late FavoritesStorage _favoritesStorage;
+  List<Favorite> _currentFavorites = [];
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoritesStorage = sl<FavoritesStorage>();
+    _initializeFavoriteStatus();
+    // Usar el singleton global en lugar de crear una instancia local
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<FavoritesBloc>().add(const LoadFavorites());
+      }
+    });
+  }
+
+  // NO cerrar el bloc singleton
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // Inicializar estado de favorito desde storage local
+  Future<void> _initializeFavoriteStatus() async {
+    final isFavorite = await _favoritesStorage.isFavorite(widget.businessId);
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFavorite;
+      });
+    }
+  }
+
+  void _checkIfFavorite() {
+    setState(() {
+      _isFavorite = _currentFavorites.any(
+        (favorite) => favorite.businessId == widget.businessId,
+      );
+    });
+  }
 
   // Helper para validar si hay imágenes válidas
   bool _hasValidGalleryImages(dynamic galleryImages) {
@@ -45,7 +96,7 @@ class BarberDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          sl<BarberdetailsBloc>()..add(LoadBusinessDetails(businessId)),
+          sl<BarberdetailsBloc>()..add(LoadBusinessDetails(widget.businessId)),
       child: Scaffold(
         backgroundColor: Colors.black,
         body: BlocBuilder<BarberdetailsBloc, BarberdetailsState>(
@@ -59,7 +110,7 @@ class BarberDetailsPage extends StatelessWidget {
                 message: state.message,
                 onRetry: () {
                   context.read<BarberdetailsBloc>().add(
-                    LoadBusinessDetails(businessId),
+                    LoadBusinessDetails(widget.businessId),
                   );
                 },
               );
@@ -143,6 +194,11 @@ class BarberDetailsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
+                // Business Card con funcionalidad de favoritos
+                _buildFavoritesSection(context, business),
+
+                const SizedBox(height: 24),
+
                 // Botón de galería como sección destacada
                 if (_hasValidGalleryImages(business.galleryImages))
                   _buildGallerySection(
@@ -153,7 +209,7 @@ class BarberDetailsPage extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Action Buttons - Reviews y Ver barberos (después de galería)
-                ActionButtonsSection(businessId: businessId),
+                ActionButtonsSection(businessId: widget.businessId),
 
                 const SizedBox(height: 32),
 
@@ -171,6 +227,148 @@ class BarberDetailsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFavoritesSection(BuildContext context, dynamic business) {
+    return BlocListener<FavoritesBloc, FavoritesState>(
+      listener: (context, state) {
+        if (state is FavoritesLoaded) {
+          _currentFavorites = state.favorites;
+          _checkIfFavorite();
+        } else if (state is AddToFavoritesSuccess) {
+          // Actualizar inmediatamente desde storage local
+          _initializeFavoriteStatus();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Negocio agregado a favoritos exitosamente'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } else if (state is AddToFavoritesError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message.contains('Espera y vuelve a intentarlo')
+                    ? 'Espera y vuelve a intentarlo'
+                    : 'Error al agregar a favoritos',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } else if (state is RemoveFromFavoritesSuccess) {
+          // Actualizar inmediatamente desde storage local
+          _initializeFavoriteStatus();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Negocio eliminado de favoritos exitosamente'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } else if (state is RemoveFromFavoritesError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message.contains('Espera y vuelve a intentarlo')
+                    ? 'Espera y vuelve a intentarlo'
+                    : 'Error al quitar de favoritos',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+      child: _buildFavoriteButton(context, business),
+    );
+  }
+
+  Widget _buildFavoriteButton(BuildContext context, dynamic business) {
+    return BlocBuilder<FavoritesBloc, FavoritesState>(
+      builder: (context, state) {
+        final isLoading =
+            state is AddingToFavorites || state is RemovingFromFavorites;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: (_isFavorite ? Colors.grey : Colors.red).withOpacity(
+                  0.3,
+                ),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ElevatedButton.icon(
+            onPressed: isLoading
+                ? null
+                : () {
+                    if (_isFavorite) {
+                      // Quitar de favoritos
+                      context.read<FavoritesBloc>().add(
+                        RemoveFavoriteEvent(business.id ?? ''),
+                      );
+                    } else {
+                      // Agregar a favoritos
+                      context.read<FavoritesBloc>().add(
+                        AddFavoriteEvent(business.id ?? ''),
+                      );
+                    }
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isFavorite
+                  ? Colors.grey.shade600
+                  : Colors.red.shade600,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 0,
+            ),
+            icon: isLoading
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                    ),
+                  ),
+            label: Text(
+              isLoading
+                  ? 'Procesando...'
+                  : _isFavorite
+                  ? 'Quitar de Favoritos'
+                  : 'Agregar a Favoritos',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -455,7 +653,7 @@ class BarberDetailsPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CreateAppointmentPage(businessId: businessId),
+                        CreateAppointmentPage(businessId: widget.businessId),
                   ),
                 );
               },

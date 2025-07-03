@@ -14,16 +14,32 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<FavoritesBloc>()..add(const LoadFavorites()),
+      create: (context) => sl<FavoritesBloc>(),
       child: FavoritesView(onNavigateToHome: onNavigateToHome),
     );
   }
 }
 
-class FavoritesView extends StatelessWidget {
+class FavoritesView extends StatefulWidget {
   final VoidCallback? onNavigateToHome;
 
   const FavoritesView({super.key, this.onNavigateToHome});
+
+  @override
+  State<FavoritesView> createState() => _FavoritesViewState();
+}
+
+class _FavoritesViewState extends State<FavoritesView> {
+  @override
+  void initState() {
+    super.initState();
+    // Ejecutar LoadFavorites cada vez que se inicialice la página
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<FavoritesBloc>().add(const LoadFavorites());
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,32 +48,42 @@ class FavoritesView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.background,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          context.read<FavoritesBloc>().add(const RefreshFavorites());
+      body: BlocListener<FavoritesBloc, FavoritesState>(
+        listener: (context, state) {
+          // Escuchar cuando se agregan o quitan favoritos desde otras páginas
+          if (state is AddToFavoritesSuccess ||
+              state is RemoveFromFavoritesSuccess) {
+            // Recargar la lista de favoritos automáticamente
+            context.read<FavoritesBloc>().add(const RefreshFavorites());
+          }
         },
-        color: Colors.blueAccent,
-        backgroundColor: colorScheme.surface,
-        child: BlocBuilder<FavoritesBloc, FavoritesState>(
-          builder: (context, state) {
-            if (state is FavoritesLoading) {
-              return _buildLoadingState(context);
-            }
-
-            if (state is FavoritesError) {
-              return _buildErrorState(context, state.message);
-            }
-
-            if (state is FavoritesLoaded) {
-              if (state.favorites.isEmpty) {
-                return _buildEmptyState(context);
+        child: RefreshIndicator(
+          onRefresh: () async {
+            context.read<FavoritesBloc>().add(const RefreshFavorites());
+          },
+          color: Colors.blueAccent,
+          backgroundColor: colorScheme.surface,
+          child: BlocBuilder<FavoritesBloc, FavoritesState>(
+            builder: (context, state) {
+              if (state is FavoritesLoading) {
+                return _buildLoadingState(context);
               }
 
-              return _buildLoadedState(context, state);
-            }
+              if (state is FavoritesError) {
+                return _buildErrorState(context, state.message);
+              }
 
-            return const SizedBox.shrink();
-          },
+              if (state is FavoritesLoaded) {
+                if (state.favorites.isEmpty) {
+                  return _buildEmptyState(context);
+                }
+
+                return _buildLoadedState(context, state);
+              }
+
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
     );
@@ -139,7 +165,7 @@ class FavoritesView extends StatelessWidget {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: () {
-                context.read<FavoritesBloc>().add(const RefreshFavorites());
+                context.read<FavoritesBloc>().add(const LoadFavorites());
               },
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('Reintentar'),
@@ -199,7 +225,7 @@ class FavoritesView extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             ElevatedButton.icon(
-              onPressed: onNavigateToHome,
+              onPressed: widget.onNavigateToHome,
               icon: const Icon(Icons.explore_rounded),
               label: const Text('Explorar Barberías'),
               style: ElevatedButton.styleFrom(

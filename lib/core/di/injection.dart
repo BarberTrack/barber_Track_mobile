@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import '../network/dio_client.dart';
 import '../network/barber_dio_client.dart';
 import '../storage/token_storage.dart';
+import '../storage/favorites_storage.dart';
 import '../../features/login/data/datasources/login_remote_data_source.dart';
 import '../../features/login/data/repositories/login_repository_impl.dart';
 import '../../features/login/domain/repositories/login_repository.dart';
@@ -78,6 +79,8 @@ import '../../features/favorites/data/datasources/favorites_remote_data_source.d
 import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
 import '../../features/favorites/domain/repositories/favorites_repository.dart';
 import '../../features/favorites/domain/usecases/get_favorites.dart';
+import '../../features/favorites/domain/usecases/add_to_favorites.dart';
+import '../../features/favorites/domain/usecases/remove_from_favorites.dart';
 import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
 
 // Barber Home imports
@@ -94,6 +97,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<DioClient>(() => DioClient());
   sl.registerLazySingleton<BarberDioClient>(() => BarberDioClient());
   sl.registerLazySingleton<TokenStorage>(() => TokenStorage());
+  sl.registerLazySingleton<FavoritesStorage>(() => FavoritesStorage());
 
   // Login dependencies
   sl.registerLazySingleton<LoginRemoteDataSource>(
@@ -294,8 +298,21 @@ Future<void> initializeDependencies() async {
     () => GetFavorites(sl<FavoritesRepository>()),
   );
 
-  sl.registerFactory<FavoritesBloc>(
-    () => FavoritesBloc(getFavoritesUseCase: sl<GetFavorites>()),
+  sl.registerLazySingleton<AddToFavorites>(
+    () => AddToFavorites(sl<FavoritesRepository>()),
+  );
+
+  sl.registerLazySingleton<RemoveFromFavorites>(
+    () => RemoveFromFavorites(sl<FavoritesRepository>()),
+  );
+
+  sl.registerLazySingleton<FavoritesBloc>(
+    () => FavoritesBloc(
+      getFavoritesUseCase: sl<GetFavorites>(),
+      addToFavoritesUseCase: sl<AddToFavorites>(),
+      removeFromFavoritesUseCase: sl<RemoveFromFavorites>(),
+      favoritesStorage: sl<FavoritesStorage>(),
+    ),
   );
 
   // Barber Home dependencies

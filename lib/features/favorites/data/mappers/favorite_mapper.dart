@@ -1,34 +1,17 @@
 import '../../domain/entities/favorite.dart';
-import '../../domain/entities/favorites_response.dart';
-import '../models/favorites_response_model.dart';
 import '../models/favorite_model.dart';
 import '../../../home/data/mappers/business_mapper.dart';
+import '../../../home/data/models/business_model.dart';
 
-class FavoritesMapper {
-  static FavoritesResponse toEntity(FavoritesResponseModel model) {
-    return FavoritesResponse(
-      success: model.success,
-      message: model.message,
-      data: _mapFavoritesData(model.data),
-    );
-  }
-
-  static FavoritesData _mapFavoritesData(FavoritesDataModel model) {
-    return FavoritesData(
-      favorites: model.favorites
-          .map((favoriteModel) => _mapFavorite(favoriteModel))
-          .toList(),
-    );
-  }
-
-  static Favorite _mapFavorite(FavoriteModel model) {
+class FavoriteMapper {
+  static Favorite toEntity(FavoriteModel model) {
     return FavoriteEntity(
       id: model.id,
       userId: model.userId,
       businessId: model.businessId,
       createdAt: model.createdAt,
       addedAt: model.addedAt,
-      business: BusinessMapper.modelToEntity(model.business),
+      business: BusinessMapper.modelToEntity(model.business as BusinessModel),
       lastVisit: model.lastVisit,
       totalAppointments: model.totalAppointments,
     );

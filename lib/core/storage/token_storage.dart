@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'favorites_storage.dart';
 
 class TokenStorage {
   static const String _tokenKey = 'auth_token';
@@ -30,5 +31,8 @@ class TokenStorage {
 
   Future<void> logout() async {
     await deleteToken();
+    // También limpiar favoritos al cerrar sesión
+    final favoritesStorage = FavoritesStorage();
+    await favoritesStorage.clearFavorites();
   }
 }
