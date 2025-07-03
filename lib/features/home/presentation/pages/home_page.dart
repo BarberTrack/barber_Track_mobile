@@ -5,6 +5,7 @@ import '../bloc/home_bloc.dart';
 import '../widgets/business_card.dart';
 import '../../../appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
 import '../../../style_ai/features/style_ai_home/presentation/pages/style_ai_home_page.dart';
+import '../../../favorites/presentation/pages/favorites_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -66,6 +67,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   _animationController.forward();
                 },
               ),
+              FavoritesPage(
+                onNavigateToHome: () {
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
+                  _animationController.reset();
+                  _animationController.forward();
+                },
+              ),
               const StyleAiHomePage(),
             ],
           ),
@@ -88,6 +98,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ? 'Barber Track'
               : _selectedIndex == 1
               ? 'Mis Citas'
+              : _selectedIndex == 2
+              ? 'Mis Favoritos'
               : 'Estilo IA',
           key: ValueKey(_selectedIndex),
           style: const TextStyle(
@@ -129,6 +141,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today_rounded),
             label: 'Citas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_rounded),
+            label: 'Favoritos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.auto_fix_high_rounded),
