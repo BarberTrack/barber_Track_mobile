@@ -16,6 +16,31 @@ class BarberDetailsPage extends StatelessWidget {
 
   const BarberDetailsPage({super.key, required this.businessId});
 
+  // Helper para validar si hay imágenes válidas
+  bool _hasValidGalleryImages(dynamic galleryImages) {
+    if (galleryImages == null) return false;
+    if (galleryImages is! List) return false;
+
+    List<dynamic> images = galleryImages as List;
+    return images.any((img) {
+      if (img == null) return false;
+      String imageStr = img.toString().trim();
+      return imageStr.isNotEmpty;
+    });
+  }
+
+  // Helper para obtener lista limpia de imágenes
+  List<String> _getValidGalleryImages(dynamic galleryImages) {
+    if (galleryImages == null) return [];
+    if (galleryImages is! List) return [];
+
+    List<dynamic> images = galleryImages as List;
+    return images
+        .where((img) => img != null && img.toString().trim().isNotEmpty)
+        .map((img) => img.toString().trim())
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -118,10 +143,19 @@ class BarberDetailsPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Quick Actions - Acciones rápidas
-                //QuickActionsWidget(businessId: businessId),
+                // Botón de galería como sección destacada
+                if (_hasValidGalleryImages(business.galleryImages))
+                  _buildGallerySection(
+                    context,
+                    _getValidGalleryImages(business.galleryImages),
+                  ),
 
-                //const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Action Buttons - Reviews y Ver barberos (después de galería)
+                ActionButtonsSection(businessId: businessId),
+
+                const SizedBox(height: 32),
 
                 // Info Grid - Información de contacto compacta
                 InfoGridWidget(business: business),
@@ -131,17 +165,270 @@ class BarberDetailsPage extends StatelessWidget {
                 // Schedule Timeline - Horarios en formato timeline
                 ScheduleTimelineWidget(businessHours: business.businessHours),
 
-                const SizedBox(height: 32),
-
-                // Action Buttons - Botón de reseñas
-                ActionButtonsSection(businessId: businessId),
-
                 const SizedBox(height: 120), // Espacio para FAB
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGallerySection(
+    BuildContext context,
+    List<String> galleryImages,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.purple.withOpacity(0.1),
+            Colors.blue.withOpacity(0.1),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.purple.withOpacity(0.3), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.purple.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.photo_library_rounded,
+              color: Colors.purple.shade300,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Galería de Fotos',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${galleryImages.length} foto${galleryImages.length > 1 ? 's' : ''} disponible${galleryImages.length > 1 ? 's' : ''}',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.purple.shade600,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              onPressed: () => _showGalleryModal(context, galleryImages),
+              icon: Icon(Icons.arrow_forward_rounded, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showGalleryModal(BuildContext context, List<String> galleryImages) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(10),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.8,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                // Header del modal
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade900.withOpacity(0.8),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.photo_library_rounded,
+                        color: Colors.purple.shade300,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Galería de Fotos',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade800,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Galería de imágenes
+                Expanded(child: _buildImageGallery(galleryImages)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImageGallery(List<String> galleryImages) {
+    return PageView.builder(
+      itemCount: galleryImages.length,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              // Contador de imágenes
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade900.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${index + 1} de ${galleryImages.length}',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Imagen
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      galleryImages[index],
+                      fit: BoxFit.contain,
+                      width: double.infinity,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  color: Colors.purple.shade300,
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Cargando imagen...',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade800,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.image_not_supported_rounded,
+                                  color: Colors.grey.shade600,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Error al cargar imagen',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -243,6 +530,4 @@ class BarberDetailsPage extends StatelessWidget {
       ),
     );
   }
-
-
 }
