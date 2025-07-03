@@ -66,6 +66,13 @@ import '../../features/reviews/features/business_review/domain/repositories/busi
 import '../../features/reviews/features/business_review/domain/usecases/get_business_reviews.dart';
 import '../../features/reviews/features/business_review/presentation/bloc/business_review_bloc.dart';
 
+// Create Review imports
+import '../../features/reviews/features/create_review/data/datasources/create_review_remote_data_source.dart';
+import '../../features/reviews/features/create_review/data/repositories/create_review_repository_impl.dart';
+import '../../features/reviews/features/create_review/domain/repositories/create_review_repository.dart';
+import '../../features/reviews/features/create_review/domain/usecases/create_review.dart';
+import '../../features/reviews/features/create_review/presentation/bloc/create_review_bloc.dart';
+
 // Barber Home imports
 import '../../features/barbers/features/barber_home/data/datasources/barber_remote_data_source.dart';
 import '../../features/barbers/features/barber_home/data/repositories/barber_repository_impl.dart';
@@ -248,6 +255,23 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<BusinessReviewBloc>(
     () => BusinessReviewBloc(sl<GetBusinessReviews>()),
+  );
+
+  // Create Review dependencies
+  sl.registerLazySingleton<CreateReviewRemoteDataSource>(
+    () => CreateReviewRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<CreateReviewRepository>(
+    () => CreateReviewRepositoryImpl(sl<CreateReviewRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<CreateReview>(
+    () => CreateReview(sl<CreateReviewRepository>()),
+  );
+
+  sl.registerFactory<CreateReviewBloc>(
+    () => CreateReviewBloc(createReviewUseCase: sl<CreateReview>()),
   );
 
   // Barber Home dependencies

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/appointment.dart';
+import '../../../../../reviews/features/create_review/presentation/widgets/create_review_button.dart';
 
 class AppointmentCard extends StatelessWidget {
   final Appointment appointment;
@@ -337,6 +338,9 @@ class AppointmentCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 10),
+                  // Botón de crear reseña (solo si el status es completed)
+                  CreateReviewButton(appointment: appointment),
                 ],
               ),
             ),
