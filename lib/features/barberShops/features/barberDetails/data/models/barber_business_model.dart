@@ -111,11 +111,34 @@ class BarberBusinessModel {
       if (json['galleryImages'] != null) {
         try {
           if (json['galleryImages'] is List) {
-            galleryImages = List<String>.from(json['galleryImages']);
+            List<dynamic> imagesData = json['galleryImages'] as List;
+            galleryImages = imagesData
+                .map((item) {
+                  if (item is String) {
+                    // Si ya es un String, lo devolvemos tal como está
+                    return item;
+                  } else if (item is Map<String, dynamic>) {
+                    // Si es un objeto, intentamos extraer la URL
+                    // Posibles campos: url, imageUrl, path, src, etc.
+                    return item['url'] ??
+                        item['imageUrl'] ??
+                        item['path'] ??
+                        item['src'] ??
+                        item['link'] ??
+                        '';
+                  } else {
+                    // Si es otro tipo, lo convertimos a String
+                    return item.toString();
+                  }
+                })
+                .where((url) => url.isNotEmpty)
+                .toList()
+                .cast<String>();
           }
         } catch (e) {
           print('Warning: Error parsing galleryImages: $e');
-          galleryImages = null;
+          print('galleryImages data: ${json['galleryImages']}');
+          galleryImages = [];
         }
       }
 

@@ -10,11 +10,11 @@ class ActionButtonsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
           // Botón para ver reseñas
-          _buildActionButton(
+          _buildGalleryStyleButton(
             context: context,
             onPressed: () {
               Navigator.push(
@@ -26,16 +26,22 @@ class ActionButtonsSection extends StatelessWidget {
               );
             },
             icon: Icons.star_rounded,
-            label: 'Ver Reseñas del Negocio',
-            backgroundColor: Colors.amber.shade600,
-            shadowColor: Colors.amber.withOpacity(0.4),
-            iconColor: Colors.white,
+            title: 'Ver Reseñas',
+            subtitle: 'Opiniones de clientes',
+            gradientColors: [
+              Colors.amber.withOpacity(0.1),
+              Colors.orange.withOpacity(0.1),
+            ],
+            borderColor: Colors.amber.withOpacity(0.3),
+            iconBackgroundColor: Colors.amber.withOpacity(0.2),
+            iconColor: Colors.amber.shade300,
+            buttonColor: Colors.amber.shade600,
           ),
 
           const SizedBox(height: 16),
 
           // Botón para ver barberos
-          _buildActionButton(
+          _buildGalleryStyleButton(
             context: context,
             onPressed: () {
               Navigator.push(
@@ -46,64 +52,87 @@ class ActionButtonsSection extends StatelessWidget {
               );
             },
             icon: Icons.person_pin_rounded,
-            label: 'Ver Barberos',
-            backgroundColor: Colors.blue.shade600,
-            shadowColor: Colors.blue.withOpacity(0.4),
-            iconColor: Colors.white,
+            title: 'Ver Barberos',
+            subtitle: 'Conoce a nuestro equipo',
+            gradientColors: [
+              Colors.blue.withOpacity(0.1),
+              Colors.cyan.withOpacity(0.1),
+            ],
+            borderColor: Colors.blue.withOpacity(0.3),
+            iconBackgroundColor: Colors.blue.withOpacity(0.2),
+            iconColor: Colors.blue.shade300,
+            buttonColor: Colors.blue.shade600,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildGalleryStyleButton({
     required BuildContext context,
     required VoidCallback onPressed,
     required IconData icon,
-    required String label,
-    required Color backgroundColor,
-    required Color shadowColor,
+    required String title,
+    required String subtitle,
+    required List<Color> gradientColors,
+    required Color borderColor,
+    required Color iconBackgroundColor,
     required Color iconColor,
+    required Color buttonColor,
   }) {
     return Container(
-      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: iconBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: buttonColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              onPressed: onPressed,
+              icon: Icon(Icons.arrow_forward_rounded, color: Colors.white),
+            ),
           ),
         ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 0,
-        ),
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, size: 24, color: iconColor),
-        ),
-        label: Text(
-          label,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
       ),
     );
   }
