@@ -73,6 +73,13 @@ import '../../features/reviews/features/create_review/domain/repositories/create
 import '../../features/reviews/features/create_review/domain/usecases/create_review.dart';
 import '../../features/reviews/features/create_review/presentation/bloc/create_review_bloc.dart';
 
+// Favorites imports
+import '../../features/favorites/data/datasources/favorites_remote_data_source.dart';
+import '../../features/favorites/data/repositories/favorites_repository_impl.dart';
+import '../../features/favorites/domain/repositories/favorites_repository.dart';
+import '../../features/favorites/domain/usecases/get_favorites.dart';
+import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
+
 // Barber Home imports
 import '../../features/barbers/features/barber_home/data/datasources/barber_remote_data_source.dart';
 import '../../features/barbers/features/barber_home/data/repositories/barber_repository_impl.dart';
@@ -272,6 +279,23 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<CreateReviewBloc>(
     () => CreateReviewBloc(createReviewUseCase: sl<CreateReview>()),
+  );
+
+  // Favorites dependencies
+  sl.registerLazySingleton<FavoritesRemoteDataSource>(
+    () => FavoritesRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<FavoritesRepository>(
+    () => FavoritesRepositoryImpl(sl<FavoritesRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetFavorites>(
+    () => GetFavorites(sl<FavoritesRepository>()),
+  );
+
+  sl.registerFactory<FavoritesBloc>(
+    () => FavoritesBloc(getFavoritesUseCase: sl<GetFavorites>()),
   );
 
   // Barber Home dependencies

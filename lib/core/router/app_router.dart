@@ -10,6 +10,7 @@ import '../../features/style_ai/features/analyze_face/presentation/pages/analyze
 import '../../features/style_ai/features/analyze_reference/presentation/pages/analyze_reference_page.dart';
 import '../../features/reviews/features/business_review/presentation/pages/business_review_page.dart';
 import '../../features/reviews/features/create_review/presentation/pages/create_review_page.dart';
+import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 
 class AppRouter {
@@ -23,6 +24,7 @@ class AppRouter {
   static const String analyzeReference = '/analyze-reference';
   static const String businessReviews = '/business-reviews';
   static const String createReview = '/create-review';
+  static const String favorites = '/favorites';
   static const String barberHome = '/barber-home';
 
   static final GoRouter router = GoRouter(
@@ -95,6 +97,12 @@ class AppRouter {
           final appointmentId = state.pathParameters['appointmentId'] ?? '';
           return CreateReviewPage(appointmentId: appointmentId);
         },
+      ),
+      GoRoute(
+        path: favorites,
+        name: 'favorites',
+        builder: (BuildContext context, GoRouterState state) =>
+            const FavoritesPage(),
       ),
       GoRoute(
         path: '$barberHome/:businessId',

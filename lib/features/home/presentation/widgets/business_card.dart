@@ -207,7 +207,7 @@ class BusinessCard extends StatelessWidget {
           // Address
           _buildInfoRow(
             icon: Icons.location_on_rounded,
-            iconColor: Colors.red,
+            iconColor: Colors.cyan,
             text: business.address,
             context: context,
           ),
