@@ -54,49 +54,7 @@ class AppointmentCard extends StatelessWidget {
                   // Status y fecha
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStatusChip(context),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blueAccent,
-                              Colors.blueAccent.withOpacity(0.8),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.schedule_rounded,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _formatDateTime(appointment.scheduledDatetime),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    children: [_buildStatusChip(context)],
                   ),
                   const SizedBox(height: 20),
 
@@ -120,6 +78,18 @@ class AppointmentCard extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
+                        // Información de fecha y hora
+                        _buildInfoRow(
+                          context: context,
+                          icon: Icons.schedule_rounded,
+                          title: 'Fecha y Hora',
+                          subtitle: _formatDateTime(
+                            appointment.scheduledDatetime,
+                          ),
+                          color: Colors.blueAccent,
+                        ),
+                        const SizedBox(height: 20),
+
                         // Información del negocio
                         _buildInfoRow(
                           context: context,
