@@ -882,15 +882,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               'Su cita ha sido agendada exitosamente.',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 24, 59, 27),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-            ),
           ],
         ),
         actions: [

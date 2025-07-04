@@ -67,6 +67,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   _animationController.forward();
                 },
               ),
+              const StyleAiHomePage(),
               FavoritesPage(
                 onNavigateToHome: () {
                   setState(() {
@@ -76,7 +77,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   _animationController.forward();
                 },
               ),
-              const StyleAiHomePage(),
             ],
           ),
         ),
@@ -99,8 +99,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               : _selectedIndex == 1
               ? 'Mis Citas'
               : _selectedIndex == 2
-              ? 'Mis Favoritos'
-              : 'Estilo IA',
+              ? 'Estilo IA'
+              : 'Mis Favoritos',
           key: ValueKey(_selectedIndex),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
@@ -143,12 +143,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             label: 'Citas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_rounded),
-            label: 'Favoritos',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.auto_fix_high_rounded),
             label: 'Estilo IA',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_rounded),
+            label: 'Favoritos',
           ),
         ],
         currentIndex: _selectedIndex,

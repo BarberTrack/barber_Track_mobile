@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 import '../../domain/usecases/authenticate_user.dart';
+import '../../../../core/services/notification_service.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
@@ -22,6 +23,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         email: event.email,
         password: event.password,
       );
+
+      // Registrar token FCM después del login exitoso
+      await NotificationService.registerTokenInAPI();
+
       emit(LoginSuccess(user));
     } on DioException catch (e) {
       emit(LoginFailure(e.message ?? 'Error de conexión'));

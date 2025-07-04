@@ -29,3 +29,57 @@ class FavoritesError extends FavoritesState {
   @override
   List<Object> get props => [message];
 }
+
+// Estados específicos para agregar/quitar favoritos
+class AddingToFavorites extends FavoritesState {}
+
+class AddToFavoritesSuccess extends FavoritesState {
+  final String message;
+
+  const AddToFavoritesSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class AddToFavoritesError extends FavoritesState {
+  final String message;
+
+  const AddToFavoritesError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class RemovingFromFavorites extends FavoritesState {}
+
+class RemoveFromFavoritesSuccess extends FavoritesState {
+  final String message;
+
+  const RemoveFromFavoritesSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class RemoveFromFavoritesError extends FavoritesState {
+  final String message;
+
+  const RemoveFromFavoritesError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class FavoriteStatusChecked extends FavoritesState {
+  final String businessId;
+  final bool isFavorite;
+
+  const FavoriteStatusChecked({
+    required this.businessId,
+    required this.isFavorite,
+  });
+
+  @override
+  List<Object> get props => [businessId, isFavorite];
+}
