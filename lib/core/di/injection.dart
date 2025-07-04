@@ -90,9 +90,16 @@ import '../../features/barbers/features/barber_home/domain/repositories/barber_r
 import '../../features/barbers/features/barber_home/domain/usecases/get_barbers.dart';
 import '../../features/barbers/features/barber_home/presentation/bloc/barber_home_bloc.dart';
 
+// Notification imports
+import '../services/notification_service.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+
+  // Inicializar firebase
+  await NotificationService.initialize();
+
   // Core dependencies
   sl.registerLazySingleton<DioClient>(() => DioClient());
   sl.registerLazySingleton<BarberDioClient>(() => BarberDioClient());
