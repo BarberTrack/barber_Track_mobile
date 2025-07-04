@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import '../network/dio_client.dart';
 import '../network/barber_dio_client.dart';
 import '../storage/token_storage.dart';
@@ -93,10 +94,16 @@ import '../../features/barbers/features/barber_home/presentation/bloc/barber_hom
 // Notification imports
 import '../services/notification_service.dart';
 
+// Cancel Appointment imports
+import '../../features/appointments/features/cancel_appointment/data/datasources/cancel_appointment_remote_data_source.dart';
+import '../../features/appointments/features/cancel_appointment/data/repositories/cancel_appointment_repository_impl.dart';
+import '../../features/appointments/features/cancel_appointment/domain/repositories/cancel_appointment_repository.dart';
+import '../../features/appointments/features/cancel_appointment/domain/usecases/cancel_appointment.dart';
+import '../../features/appointments/features/cancel_appointment/presentation/bloc/cancel_appointment_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
-
   // Inicializar firebase
   await NotificationService.initialize();
 
@@ -105,6 +112,7 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<BarberDioClient>(() => BarberDioClient());
   sl.registerLazySingleton<TokenStorage>(() => TokenStorage());
   sl.registerLazySingleton<FavoritesStorage>(() => FavoritesStorage());
+  sl.registerLazySingleton<Logger>(() => Logger());
 
   // Login dependencies
   sl.registerLazySingleton<LoginRemoteDataSource>(
@@ -337,5 +345,30 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<BarberHomeBloc>(
     () => BarberHomeBloc(getBarbers: sl<GetBarbers>()),
+  );
+
+  // Cancel Appointment dependencies
+  sl.registerLazySingleton<CancelAppointmentRemoteDataSource>(
+    () => CancelAppointmentRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+      sl<Logger>(),
+    ),
+  );
+
+  sl.registerLazySingleton<CancelAppointmentRepository>(
+    () => CancelAppointmentRepositoryImpl(
+      sl<CancelAppointmentRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<CancelAppointment>(
+    () => CancelAppointment(sl<CancelAppointmentRepository>()),
+  );
+
+  sl.registerFactory<CancelAppointmentBloc>(
+    () => CancelAppointmentBloc(
+      cancelAppointmentUseCase: sl<CancelAppointment>(),
+    ),
   );
 }

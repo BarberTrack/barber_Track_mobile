@@ -4,14 +4,14 @@ import '../models/appointments_response_model.dart';
 class AppointmentsMapper {
   static AppointmentsResponse toEntity(AppointmentsResponseModel model) {
     return AppointmentsResponse(
-      appointments: model.data.appointments.map(_toAppointmentEntity).toList(),
+      appointments: model.data.appointments.map(toAppointmentEntity).toList(),
       total: model.data.total,
       page: model.data.page,
       totalPages: model.data.totalPages,
     );
   }
 
-  static Appointment _toAppointmentEntity(AppointmentModel model) {
+  static Appointment toAppointmentEntity(AppointmentModel model) {
     return Appointment(
       id: model.id,
       clientId: model.clientId,

@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/appointment.dart';
 import '../../../../../reviews/features/create_review/presentation/widgets/create_review_button.dart';
+import '../../../cancel_appointment/presentation/widgets/cancel_appointment_modal.dart';
 
 class AppointmentCard extends StatelessWidget {
   final Appointment appointment;
+  final VoidCallback? onAppointmentCancelled;
 
-  const AppointmentCard({super.key, required this.appointment});
+  const AppointmentCard({
+    super.key,
+    required this.appointment,
+    this.onAppointmentCancelled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -311,6 +317,12 @@ class AppointmentCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   // Botón de crear reseña (solo si el status es completed)
                   CreateReviewButton(appointment: appointment),
+
+                  // Botón de cancelar cita (solo si el status es scheduled)
+                  if (appointment.status.toLowerCase() == 'scheduled') ...[
+                    const SizedBox(height: 16),
+                    _buildCancelButton(context),
+                  ],
                 ],
               ),
             ),
@@ -492,5 +504,43 @@ class AppointmentCard extends StatelessWidget {
     } else {
       return '$date a las $time';
     }
+  }
+
+  Widget _buildCancelButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () async {
+          final result = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (dialogContext) =>
+                CancelAppointmentModal(appointment: appointment),
+          );
+
+          // Si se canceló exitosamente, resetear filtro y refrescar
+          if (result == true) {
+            onAppointmentCancelled?.call();
+          }
+        },
+        icon: Icon(Icons.cancel_rounded, color: Colors.red, size: 20),
+        label: Text(
+          'Cancelar Cita',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.red, width: 1.5),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 }

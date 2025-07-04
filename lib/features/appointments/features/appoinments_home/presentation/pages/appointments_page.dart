@@ -33,6 +33,15 @@ class AppointmentsView extends StatefulWidget {
 class _AppointmentsViewState extends State<AppointmentsView> {
   AppointmentStatus? _selectedStatus;
 
+  void _resetFilterAndRefresh() {
+    setState(() {
+      _selectedStatus = null;
+    });
+    context.read<AppointmentsBloc>().add(
+      const RefreshAppointments(status: null),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -307,6 +316,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                           padding: const EdgeInsets.only(bottom: 20),
                           child: AppointmentCard(
                             appointment: state.appointments[index],
+                            onAppointmentCancelled: _resetFilterAndRefresh,
                           ),
                         );
                       }, childCount: state.appointments.length),
