@@ -208,23 +208,7 @@ class ServiceCard extends StatelessWidget {
               ),
             ),
           ),
-          if (assignment.isPreferred)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Preferido',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.amber.shade300,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          const SizedBox(width: 8),
+
           Text(
             '\$${assignment.specialPrice.toStringAsFixed(0)}',
             style: TextStyle(

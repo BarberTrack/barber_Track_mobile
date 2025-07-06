@@ -377,10 +377,6 @@ class _AppointmentsViewState extends State<AppointmentsView> {
     switch (_selectedStatus!) {
       case AppointmentStatus.scheduled:
         return 'Citas Programadas';
-      case AppointmentStatus.confirmed:
-        return 'Citas Confirmadas';
-      case AppointmentStatus.inProgress:
-        return 'Citas en Progreso';
       case AppointmentStatus.completed:
         return 'Citas Completadas';
       case AppointmentStatus.cancelled:
