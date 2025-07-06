@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../../reviews/features/business_review/presentation/pages/business_review_page.dart';
 import '../../../../../barbers/features/barber_home/presentation/pages/barber_home_page.dart';
+import '../../../business_services/presentation/pages/business_services_page.dart';
 
 class ActionButtonsSection extends StatelessWidget {
   final String businessId;
@@ -62,6 +63,32 @@ class ActionButtonsSection extends StatelessWidget {
             iconBackgroundColor: Colors.blue.withOpacity(0.2),
             iconColor: Colors.blue.shade300,
             buttonColor: Colors.blue.shade600,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Botón para ver servicios
+          _buildGalleryStyleButton(
+            context: context,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BusinessServicesPage(businessId: businessId),
+                ),
+              );
+            },
+            icon: Icons.medical_services_rounded,
+            title: 'Ver Servicios',
+            subtitle: 'Servicios disponibles',
+            gradientColors: [
+              Colors.green.withOpacity(0.1),
+              Colors.teal.withOpacity(0.1),
+            ],
+            borderColor: Colors.green.withOpacity(0.3),
+            iconBackgroundColor: Colors.green.withOpacity(0.2),
+            iconColor: Colors.green.shade300,
+            buttonColor: Colors.green.shade600,
           ),
         ],
       ),
