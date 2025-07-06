@@ -4,7 +4,7 @@ import '../../../../../../core/di/injection.dart';
 import '../bloc/barberdetails_bloc.dart';
 import '../../../../../appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
 import '../widgets/hero_section_widget.dart';
-import '../widgets/quick_actions_widget.dart';
+//import '../widgets/quick_actions_widget.dart';
 import '../widgets/info_grid_widget.dart';
 import '../widgets/schedule_timeline_widget.dart';
 import '../widgets/action_buttons_section.dart';

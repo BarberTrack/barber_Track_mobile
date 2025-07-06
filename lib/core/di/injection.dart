@@ -101,6 +101,14 @@ import '../../features/appointments/features/cancel_appointment/domain/repositor
 import '../../features/appointments/features/cancel_appointment/domain/usecases/cancel_appointment.dart';
 import '../../features/appointments/features/cancel_appointment/presentation/bloc/cancel_appointment_bloc.dart';
 
+// Business Services imports
+import '../../features/barberShops/features/business_services/data/datasources/business_services_remote_data_source.dart';
+import '../../features/barberShops/features/business_services/data/repositories/business_services_repository_impl.dart';
+import '../../features/barberShops/features/business_services/domain/repositories/business_services_repository.dart';
+import '../../features/barberShops/features/business_services/domain/usecases/get_business_services.dart'
+    as business_services_usecase;
+import '../../features/barberShops/features/business_services/presentation/bloc/business_services_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -369,6 +377,32 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<CancelAppointmentBloc>(
     () => CancelAppointmentBloc(
       cancelAppointmentUseCase: sl<CancelAppointment>(),
+    ),
+  );
+
+  // Business Services dependencies
+  sl.registerLazySingleton<BusinessServicesRemoteDataSource>(
+    () => BusinessServicesRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+    ),
+  );
+
+  sl.registerLazySingleton<BusinessServicesRepository>(
+    () => BusinessServicesRepositoryImpl(
+      remoteDataSource: sl<BusinessServicesRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<business_services_usecase.GetBusinessServices>(
+    () => business_services_usecase.GetBusinessServices(
+      sl<BusinessServicesRepository>(),
+    ),
+  );
+
+  sl.registerFactory<BusinessServicesBloc>(
+    () => BusinessServicesBloc(
+      getBusinessServices: sl<business_services_usecase.GetBusinessServices>(),
     ),
   );
 }
