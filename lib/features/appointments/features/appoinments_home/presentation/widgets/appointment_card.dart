@@ -359,12 +359,6 @@ class AppointmentCard extends StatelessWidget {
         statusText = 'Cancelada';
         icon = Icons.cancel_rounded;
         break;
-      case 'in_progress':
-        backgroundColor = Colors.orange;
-        textColor = Colors.white;
-        statusText = 'En Progreso';
-        icon = Icons.hourglass_top_rounded;
-        break;
       case 'no_show':
         backgroundColor = Colors.red;
         textColor = Colors.white;
@@ -486,11 +480,13 @@ class AppointmentCard extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
+    // Convertir de UTC a GMT-6 (hora de México City)
+    final mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
     final now = DateTime.now();
-    final difference = dateTime.difference(now);
+    final difference = mexicoDateTime.difference(now);
 
-    String date = DateFormat('dd/MM/yyyy').format(dateTime);
-    String time = DateFormat('HH:mm').format(dateTime);
+    String date = DateFormat('dd/MM/yyyy').format(mexicoDateTime);
+    String time = DateFormat('HH:mm').format(mexicoDateTime);
 
     if (difference.inDays == 0) {
       return 'Hoy a las $time';
@@ -499,7 +495,7 @@ class AppointmentCard extends StatelessWidget {
     } else if (difference.inDays == -1) {
       return 'Ayer a las $time';
     } else if (difference.inDays > 0 && difference.inDays <= 7) {
-      String dayName = DateFormat('EEEE', 'es').format(dateTime);
+      String dayName = DateFormat('EEEE', 'es').format(mexicoDateTime);
       return '$dayName a las $time';
     } else {
       return '$date a las $time';

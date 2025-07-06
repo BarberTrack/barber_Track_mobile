@@ -4,9 +4,7 @@ enum AppointmentStatus {
   scheduled('scheduled', 'Programada'),
   completed('completed', 'Completada'),
   cancelled('cancelled', 'Cancelada'),
-  inProgress('in_progress', 'En Progreso'),
-  noShow('no_show', 'No Asistió'),
-  confirmed('confirmed', 'Confirmada');
+  noShow('no_show', 'No Asistió');
 
   const AppointmentStatus(this.value, this.displayName);
 

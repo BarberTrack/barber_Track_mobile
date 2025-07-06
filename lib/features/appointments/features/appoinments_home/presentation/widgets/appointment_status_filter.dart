@@ -64,10 +64,6 @@ class AppointmentStatusFilter extends StatelessWidget {
     switch (status) {
       case AppointmentStatus.scheduled:
         return Colors.blue;
-      case AppointmentStatus.confirmed:
-        return Colors.green;
-      case AppointmentStatus.inProgress:
-        return Colors.orange;
       case AppointmentStatus.completed:
         return Colors.teal;
       case AppointmentStatus.cancelled:
