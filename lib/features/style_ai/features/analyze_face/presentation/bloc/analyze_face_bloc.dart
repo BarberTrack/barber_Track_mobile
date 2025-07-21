@@ -94,15 +94,7 @@ class AnalyzeFaceBloc extends Bloc<AnalyzeFaceEvent, AnalyzeFaceState> {
         File profilePhotoToSend;
 
         try {
-          // Validar imágenes antes de procesar
-          await ApiDebugHelper.logFileInfo(
-            currentState.frontPhoto!,
-            'Foto Frontal Original',
-          );
-          await ApiDebugHelper.logFileInfo(
-            currentState.profilePhoto!,
-            'Foto Perfil Original',
-          );
+
 
           final frontIsValid = await ApiDebugHelper.isValidImageFile(
             currentState.frontPhoto!,
@@ -127,15 +119,7 @@ class AnalyzeFaceBloc extends Bloc<AnalyzeFaceEvent, AnalyzeFaceState> {
                 currentState.profilePhoto!,
               );
 
-          // Log de imágenes comprimidas
-          await ApiDebugHelper.logFileInfo(
-            frontPhotoToSend,
-            'Foto Frontal Comprimida',
-          );
-          await ApiDebugHelper.logFileInfo(
-            profilePhotoToSend,
-            'Foto Perfil Comprimida',
-          );
+
         } catch (compressionError) {
           // Si falla la compresión, usar imágenes originales
           frontPhotoToSend = currentState.frontPhoto!;

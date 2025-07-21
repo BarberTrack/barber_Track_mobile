@@ -265,7 +265,6 @@ class PhotoSelectorWidget extends StatelessWidget {
       }
     } catch (e) {
       // Handle error silently or show a snackbar
-      debugPrint('Error picking image: $e');
     }
   }
 }

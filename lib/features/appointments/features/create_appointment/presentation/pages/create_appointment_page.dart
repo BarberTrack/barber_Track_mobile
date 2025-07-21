@@ -68,17 +68,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             return const Center(child: Text('Cargando servicios...'));
           },
         ),
-        floatingActionButton:
-            BlocBuilder<CreateAppointmentBloc, CreateAppointmentState>(
-              builder: (context, state) {
-                return FloatingActionButton(
-                  backgroundColor: Colors.orange.shade600,
-                  foregroundColor: Colors.white,
-                  child: const Icon(Icons.info),
-                  onPressed: () => _showDebugModal(context, state),
-                );
-              },
-            ),
       ),
     );
   }

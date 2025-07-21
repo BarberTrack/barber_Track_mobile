@@ -91,9 +91,6 @@ class NotificationService {
   static Future<String?> getToken() async {
     try {
       String? token = await _firebaseMessaging.getToken();
-      log('=== FCM TOKEN ===');
-      log('$token');
-      log('================');
 
       // Registrar el token en la API
       if (token != null) {
@@ -142,19 +139,13 @@ class NotificationService {
         options: Options(headers: {'Authorization': 'Bearer $authToken'}),
         data: {'token': fcmToken, 'deviceId': deviceId, 'platform': 'android'},
       );
-      log('TOKEEEN✅: $fcmToken');
       if (response.statusCode == 201) {
-        log('✅ Token FCM registrado exitosamente en la API');
-        log('Respuesta: ${response.data}');
       } else {
-        log('⚠️ Error al registrar token FCM. Status: ${response.statusCode}');
-        log('Respuesta: ${response.data}');
       }
     } catch (e) {
       log('❌ Error registrando token FCM en la API: $e');
       if (e is DioException) {
         log('Status Code: ${e.response?.statusCode}');
-        log('Response Data: ${e.response?.data}');
       }
     }
   }
@@ -162,10 +153,7 @@ class NotificationService {
   static void _setupMessageHandlers() {
     // Cuando la app está en foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      log('📱 Notificación recibida en foreground');
-      log('Título: ${message.notification?.title}');
-      log('Cuerpo: ${message.notification?.body}');
-      log('Data: ${message.data}');
+
 
       if (message.notification != null) {
         _showLocalNotification(message);
@@ -175,7 +163,6 @@ class NotificationService {
     // Cuando la app está en background y se abre tocando la notificación
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       log('📱 App abierta desde notificación');
-      log('Data: ${message.data}');
       _handleNotificationClick(message);
     });
 
@@ -183,7 +170,6 @@ class NotificationService {
     _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         log('📱 App abierta desde notificación (estaba cerrada)');
-        log('Data: ${message.data}');
         _handleNotificationClick(message);
       }
     });

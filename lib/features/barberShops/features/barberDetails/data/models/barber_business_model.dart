@@ -136,8 +136,7 @@ class BarberBusinessModel {
                 .cast<String>();
           }
         } catch (e) {
-          print('Warning: Error parsing galleryImages: $e');
-          print('galleryImages data: ${json['galleryImages']}');
+
           galleryImages = [];
         }
       }
@@ -156,7 +155,6 @@ class BarberBusinessModel {
             products = List<Map<String, dynamic>>.from(json['products']);
           }
         } catch (e) {
-          print('Warning: Error parsing products: $e');
           products = null;
         }
       }
@@ -168,7 +166,6 @@ class BarberBusinessModel {
             promotions = List<Map<String, dynamic>>.from(json['promotions']);
           }
         } catch (e) {
-          print('Warning: Error parsing promotions: $e');
           promotions = null;
         }
       }
@@ -208,8 +205,6 @@ class BarberBusinessModel {
         updatedAt: updatedAt,
       );
     } catch (e) {
-      print('ERROR: Error in BarberBusinessModel.fromJson: $e');
-      print('JSON input: $json');
       rethrow;
     }
   }
