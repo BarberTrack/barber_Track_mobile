@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_router.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/business_card.dart';
 import '../../../appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
@@ -81,6 +83,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          context.go(AppRouter.map);
+        },
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.map_rounded),
+        label: const Text(
+          'Ver Mapa',
+          style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.5),
+        ),
+        elevation: 6,
+        tooltip: 'Abrir mapa de barberías',
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
@@ -126,6 +142,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ],
         ),
       ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            context.go(AppRouter.map);
+          },
+          icon: const Icon(Icons.map_rounded, color: Colors.white),
+          tooltip: 'Ver mapa de barberías',
+        ),
+      ],
     );
   }
 

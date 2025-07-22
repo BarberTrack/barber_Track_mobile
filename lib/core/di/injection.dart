@@ -109,6 +109,13 @@ import '../../features/barberShops/features/business_services/domain/usecases/ge
     as business_services_usecase;
 import '../../features/barberShops/features/business_services/presentation/bloc/business_services_bloc.dart';
 
+// Map imports
+import '../../features/map/data/datasources/map_remote_data_source.dart';
+import '../../features/map/data/repositories/map_repository_impl.dart';
+import '../../features/map/domain/repositories/map_repository.dart';
+import '../../features/map/domain/usecases/get_map_businesses.dart';
+import '../../features/map/presentation/bloc/map_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -329,7 +336,7 @@ Future<void> initializeDependencies() async {
     () => RemoveFromFavorites(sl<FavoritesRepository>()),
   );
 
-  sl.registerLazySingleton<FavoritesBloc>(
+  sl.registerFactory<FavoritesBloc>(
     () => FavoritesBloc(
       getFavoritesUseCase: sl<GetFavorites>(),
       addToFavoritesUseCase: sl<AddToFavorites>(),
@@ -404,5 +411,22 @@ Future<void> initializeDependencies() async {
     () => BusinessServicesBloc(
       getBusinessServices: sl<business_services_usecase.GetBusinessServices>(),
     ),
+  );
+
+  // Map dependencies
+  sl.registerLazySingleton<MapRemoteDataSource>(
+    () => MapRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<MapRepository>(
+    () => MapRepositoryImpl(remoteDataSource: sl<MapRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetMapBusinesses>(
+    () => GetMapBusinesses(sl<MapRepository>()),
+  );
+
+  sl.registerFactory<MapBloc>(
+    () => MapBloc(getMapBusinesses: sl<GetMapBusinesses>()),
   );
 }

@@ -35,10 +35,10 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     super.initState();
     _favoritesStorage = sl<FavoritesStorage>();
     _initializeFavoriteStatus();
-    // Usar el singleton global en lugar de crear una instancia local
+    // Cargar favoritos de manera segura
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<FavoritesBloc>().add(const LoadFavorites());
+        _safeAddFavoriteEvent(const LoadFavorites());
       }
     });
   }
@@ -56,6 +56,20 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
       setState(() {
         _isFavorite = isFavorite;
       });
+    }
+  }
+
+  // Función helper para agregar eventos de manera segura al FavoritesBloc
+  void _safeAddFavoriteEvent(FavoritesEvent event) {
+    if (mounted) {
+      try {
+        final favoritesBloc = context.read<FavoritesBloc>();
+        if (!favoritesBloc.isClosed) {
+          favoritesBloc.add(event);
+        }
+      } catch (e) {
+        debugPrint('Error adding favorite event: $e');
+      }
     }
   }
 
@@ -313,12 +327,12 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
                 : () {
                     if (_isFavorite) {
                       // Quitar de favoritos
-                      context.read<FavoritesBloc>().add(
+                      _safeAddFavoriteEvent(
                         RemoveFavoriteEvent(business.id ?? ''),
                       );
                     } else {
                       // Agregar a favoritos
-                      context.read<FavoritesBloc>().add(
+                      _safeAddFavoriteEvent(
                         AddFavoriteEvent(business.id ?? ''),
                       );
                     }

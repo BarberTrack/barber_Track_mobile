@@ -51,12 +51,19 @@ class _BusinessCardWithFavoritesState extends State<BusinessCardWithFavorites> {
   }
 
   void _toggleFavorite() {
-    final favoritesBloc = context.read<FavoritesBloc>();
+    if (!mounted) return;
 
-    if (_isFavorite) {
-      favoritesBloc.add(RemoveFavoriteEvent(widget.business.id));
-    } else {
-      favoritesBloc.add(AddFavoriteEvent(widget.business.id));
+    try {
+      final favoritesBloc = context.read<FavoritesBloc>();
+      if (!favoritesBloc.isClosed) {
+        if (_isFavorite) {
+          favoritesBloc.add(RemoveFavoriteEvent(widget.business.id));
+        } else {
+          favoritesBloc.add(AddFavoriteEvent(widget.business.id));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error toggling favorite: $e');
     }
   }
 

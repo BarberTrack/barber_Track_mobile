@@ -30,14 +30,26 @@ class FavoritesView extends StatefulWidget {
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
+  // Función helper para agregar eventos de manera segura al FavoritesBloc
+  void _safeAddFavoriteEvent(FavoritesEvent event) {
+    if (mounted) {
+      try {
+        final favoritesBloc = context.read<FavoritesBloc>();
+        if (!favoritesBloc.isClosed) {
+          favoritesBloc.add(event);
+        }
+      } catch (e) {
+        debugPrint('Error adding favorite event: $e');
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     // Ejecutar LoadFavorites cada vez que se inicialice la página
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<FavoritesBloc>().add(const LoadFavorites());
-      }
+      _safeAddFavoriteEvent(const LoadFavorites());
     });
   }
 
@@ -54,12 +66,12 @@ class _FavoritesViewState extends State<FavoritesView> {
           if (state is AddToFavoritesSuccess ||
               state is RemoveFromFavoritesSuccess) {
             // Recargar la lista de favoritos automáticamente
-            context.read<FavoritesBloc>().add(const RefreshFavorites());
+            _safeAddFavoriteEvent(const RefreshFavorites());
           }
         },
         child: RefreshIndicator(
           onRefresh: () async {
-            context.read<FavoritesBloc>().add(const RefreshFavorites());
+            _safeAddFavoriteEvent(const RefreshFavorites());
           },
           color: Colors.blueAccent,
           backgroundColor: colorScheme.surface,
@@ -165,7 +177,7 @@ class _FavoritesViewState extends State<FavoritesView> {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: () {
-                context.read<FavoritesBloc>().add(const LoadFavorites());
+                _safeAddFavoriteEvent(const LoadFavorites());
               },
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('Reintentar'),

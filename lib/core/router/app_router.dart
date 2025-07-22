@@ -12,6 +12,7 @@ import '../../features/reviews/features/business_review/presentation/pages/busin
 import '../../features/reviews/features/create_review/presentation/pages/create_review_page.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
+import '../../features/map/presentation/pages/map_page.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -26,6 +27,7 @@ class AppRouter {
   static const String createReview = '/create-review';
   static const String favorites = '/favorites';
   static const String barberHome = '/barber-home';
+  static const String map = '/map';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -111,6 +113,11 @@ class AppRouter {
           final businessId = state.pathParameters['businessId'] ?? '';
           return BarberHomePage(businessId: businessId);
         },
+      ),
+      GoRoute(
+        path: map,
+        name: 'map',
+        builder: (BuildContext context, GoRouterState state) => const MapPage(),
       ),
     ],
   );
