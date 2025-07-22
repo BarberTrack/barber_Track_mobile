@@ -104,12 +104,10 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             const SizedBox(height: 24),
           ],
 
-          // Selector de fecha
           if (state is CreateAppointmentServiceSelected) ...[
             const DateSelector(),
           ],
 
-          // Fecha seleccionada y disponibilidad
           if (state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
               state is CreateAppointmentTimeSlotSelected) ...[
@@ -123,7 +121,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             ],
           ],
 
-          // Horarios disponibles
           if (state is CreateAppointmentAvailabilityLoaded ||
               state is CreateAppointmentTimeSlotSelected) ...[
             TimeSlotsWidget(
@@ -134,7 +131,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             ),
           ],
 
-          // Fecha y hora seleccionada específica
           if (state is CreateAppointmentTimeSlotSelected) ...[
             const SizedBox(height: 24),
             _buildQuickDateTimeCard(context, state),
@@ -142,7 +138,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             _buildSelectedDateTimeSummary(context, state),
             const SizedBox(height: 16),
             _buildFinalSummary(context, state),
-            // Card de client notes
             if (showClientNotesCard) ...[
               const SizedBox(height: 16),
               ClientNotesCard(
@@ -166,7 +161,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     BuildContext context,
     CreateAppointmentTimeSlotSelected state,
   ) {
-    // Verificar si la fecha seleccionada es diferente a la fecha de búsqueda original
     final originalSearchDate = _getOriginalSearchDate(state);
     final isDifferentDate = !_isSameDateOnly(
       state.selectedDate,
@@ -349,7 +343,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
   }
 
   DateTime _getOriginalSearchDate(CreateAppointmentTimeSlotSelected state) {
-    // Intentar obtener la fecha original de búsqueda desde el availability
     if (state.availability.isNotEmpty) {
       try {
         return DateTime.parse(state.availability.first.date);
@@ -541,92 +534,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     );
   }
 
-  // void _selectDate(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now().add(const Duration(days: 1)),
-  //     firstDate: DateTime.now(),
-  //     lastDate: DateTime.now().add(const Duration(days: 30)),
-  //   );
 
-  //   if (picked != null) {
-  //     final bloc = context.read<CreateAppointmentBloc>();
-  //     final currentState = bloc.state;
 
-  //     // Actualizar la fecha seleccionada
-  //     bloc.add(SelectDate(picked));
-
-  //     // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
-  //     if (currentState is CreateAppointmentServiceSelected ||
-  //         currentState is CreateAppointmentDateSelected ||
-  //         currentState is CreateAppointmentAvailabilityLoaded ||
-  //         currentState is CreateAppointmentTimeSlotSelected ||
-  //         currentState is CreateAppointmentWithNotes) {
-  //       final service = _getSelectedService(currentState);
-
-  //       // Obtener el primer barbero del servicio seleccionado
-  //       if (service.barberAssignments.isNotEmpty) {
-  //         final barberId = service.barberAssignments.first.barberId;
-  //         final dateString = DateFormat('yyyy-MM-dd').format(picked);
-
-  //         // Cargar la disponibilidad para la nueva fecha
-  //         bloc.add(
-  //           LoadAvailability(
-  //             businessId: widget.businessId,
-  //             barberId: barberId,
-  //             date: dateString,
-  //             days: 3,
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-
-  void _showDebugModal(BuildContext context, CreateAppointmentState state) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Información de Debug'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Business ID: ${widget.businessId}'),
-              const SizedBox(height: 8),
-              if (state is CreateAppointmentServiceSelected ||
-                  state is CreateAppointmentDateSelected ||
-                  state is CreateAppointmentAvailabilityLoaded ||
-                  state is CreateAppointmentTimeSlotSelected) ...[
-                Text('Service ID: ${_getSelectedService(state).id}'),
-                Text(
-                  'Barber ID: ${_getBarberIdFromService(_getSelectedService(state))}',
-                ),
-                const SizedBox(height: 8),
-              ],
-              if (state is CreateAppointmentDateSelected ||
-                  state is CreateAppointmentAvailabilityLoaded ||
-                  state is CreateAppointmentTimeSlotSelected) ...[
-                Text('Date: ${_getFormattedDateTime(state)}'),
-                const SizedBox(height: 8),
-              ],
-              if (clientNotes.isNotEmpty) ...[
-                Text('Client Notes: $clientNotes'),
-                const SizedBox(height: 8),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Service _getSelectedService(CreateAppointmentState state) {
     if (state is CreateAppointmentServiceSelected) return state.selectedService;
@@ -647,40 +556,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     throw Exception('Estado no válido para obtener fecha seleccionada');
   }
 
-  String _getBarberIdFromService(Service service) {
-    return service.barberAssignments.isNotEmpty
-        ? service.barberAssignments.first.barberId
-        : 'No disponible';
-  }
 
-  String _getFormattedDateTime(CreateAppointmentState state) {
-    final selectedDate = _getSelectedDate(state);
 
-    // Si tenemos un time slot seleccionado, combinar fecha y hora
-    if (state is CreateAppointmentTimeSlotSelected) {
-      final timeSlot = state.selectedTimeSlot;
-      final timeParts = timeSlot.time.split(':');
-      if (timeParts.length >= 2) {
-        final hour = int.tryParse(timeParts[0]) ?? 0;
-        final minute = int.tryParse(timeParts[1]) ?? 0;
-
-        final combinedDateTime = DateTime(
-          selectedDate.year,
-          selectedDate.month,
-          selectedDate.day,
-          hour,
-          minute,
-        );
-
-        return combinedDateTime.toIso8601String();
-      }
-    }
-
-    // Si no hay time slot, mostrar solo la fecha
-    return selectedDate.toIso8601String();
-  }
-
-  // Helper para formatear fechas sin problemas de locale
   String _formatDateForDisplay(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -713,7 +590,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
       return '$weekday, ${date.day} de $month ${date.year}';
     } catch (e) {
-      // Fallback en caso de error
       return DateFormat('dd/MM/yyyy').format(DateTime.parse(dateString));
     }
   }
@@ -839,12 +715,10 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     CreateAppointmentBloc bloc,
     String notes,
   ) {
-    // Actualizar notas si no están vacías
     if (notes.isNotEmpty) {
       bloc.add(UpdateClientNotes(notes));
     }
 
-    // Crear la cita
     bloc.add(const CreateAppointment());
   }
 

@@ -29,6 +29,12 @@ class TimeSlotsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ...availability.map((dayAvailability) {
+      
+              final filteredSlots = _filterSlotsByCurrentTime(
+                dayAvailability.slots,
+                dayAvailability.date,
+              );
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -40,12 +46,12 @@ class TimeSlotsWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Solo mostrar horarios si hay slots disponibles
-                  if (dayAvailability.slots.isNotEmpty) ...[
+                   
+                  if (filteredSlots.isNotEmpty) ...[
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: dayAvailability.slots
+                      children: filteredSlots
                           .where((slot) => slot.available)
                           .map(
                             (slot) => _TimeSlotChip(
@@ -72,7 +78,9 @@ class TimeSlotsWidget extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Todos los horarios están libres',
+                            _isToday(dayAvailability.date)
+                                ? 'No hay horarios disponibles para hoy'
+                                : 'Todos los horarios están ocupados',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,
@@ -92,7 +100,55 @@ class TimeSlotsWidget extends StatelessWidget {
     );
   }
 
-  // Helper para formatear fechas sin problemas de locale
+  List<TimeSlot> _filterSlotsByCurrentTime(
+    List<TimeSlot> slots,
+    String slotDate,
+  ) {
+    try {
+      final now = DateTime.now();
+      final slotDateTime = DateTime.parse(slotDate);
+
+      if (!_isSameDay(now, slotDateTime)) {
+        return slots;
+      }
+
+      final currentTimeWithMargin = now.add(const Duration(minutes: 30));
+
+      return slots.where((slot) {
+        final slotTime = _parseTimeSlot(slot.time, slotDateTime);
+        return slotTime.isAfter(currentTimeWithMargin);
+      }).toList();
+    } catch (e) {
+      return slots;
+    }
+  }
+
+  bool _isToday(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final now = DateTime.now();
+      return _isSameDay(now, date);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  DateTime _parseTimeSlot(String timeString, DateTime date) {
+    final timeParts = timeString.split(':');
+    if (timeParts.length >= 2) {
+      final hour = int.tryParse(timeParts[0]) ?? 0;
+      final minute = int.tryParse(timeParts[1]) ?? 0;
+      return DateTime(date.year, date.month, date.day, hour, minute);
+    }
+    return date;
+  }
+
   String _formatDateForDisplay(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -125,7 +181,6 @@ class TimeSlotsWidget extends StatelessWidget {
 
       return '$weekday, ${date.day} de $month ${date.year}';
     } catch (e) {
-      // Fallback en caso de error
       return DateFormat('dd/MM/yyyy').format(DateTime.parse(dateString));
     }
   }
@@ -160,10 +215,8 @@ class _TimeSlotChip extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       onSelected: (selected) {
         if (selected) {
-          // Crear una nueva fecha combinando el día del slot con la hora seleccionada
           final selectedDateTime = _createDateTimeFromSlot(slotDate, slot.time);
 
-          // Usar el nuevo evento que maneja tanto el time slot como la fecha específica
           context.read<CreateAppointmentBloc>().add(
             SelectTimeSlotWithDate(
               timeSlot: slot,
@@ -189,7 +242,6 @@ class _TimeSlotChip extends StatelessWidget {
 
       return date;
     } catch (e) {
-      // En caso de error, devolver la fecha actual
       return DateTime.now();
     }
   }
