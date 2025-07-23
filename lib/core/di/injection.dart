@@ -116,6 +116,15 @@ import '../../features/map/domain/repositories/map_repository.dart';
 import '../../features/map/domain/usecases/get_map_businesses.dart';
 import '../../features/map/presentation/bloc/map_bloc.dart';
 
+// Repeat Appointment imports
+import '../../features/repeat_appointment/data/datasources/repeat_appointment_remote_data_source.dart';
+import '../../features/repeat_appointment/data/repositories/repeat_appointment_repository_impl.dart';
+import '../../features/repeat_appointment/domain/repositories/repeat_appointment_repository.dart';
+import '../../features/repeat_appointment/domain/usecases/get_business_availability.dart';
+import '../../features/repeat_appointment/domain/usecases/repeat_appointment.dart'
+    as repeat_usecase;
+import '../../features/repeat_appointment/presentation/bloc/repeat_appointment_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -428,5 +437,34 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<MapBloc>(
     () => MapBloc(getMapBusinesses: sl<GetMapBusinesses>()),
+  );
+
+  // Repeat Appointment dependencies
+  sl.registerLazySingleton<RepeatAppointmentRemoteDataSource>(
+    () => RepeatAppointmentRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+    ),
+  );
+
+  sl.registerLazySingleton<RepeatAppointmentRepository>(
+    () => RepeatAppointmentRepositoryImpl(
+      sl<RepeatAppointmentRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<GetBusinessAvailability>(
+    () => GetBusinessAvailability(sl<RepeatAppointmentRepository>()),
+  );
+
+  sl.registerLazySingleton<repeat_usecase.RepeatAppointment>(
+    () => repeat_usecase.RepeatAppointment(sl<RepeatAppointmentRepository>()),
+  );
+
+  sl.registerFactory<RepeatAppointmentBloc>(
+    () => RepeatAppointmentBloc(
+      getBusinessAvailability: sl<GetBusinessAvailability>(),
+      repeatAppointmentUseCase: sl<repeat_usecase.RepeatAppointment>(),
+    ),
   );
 }

@@ -13,6 +13,7 @@ import '../../features/reviews/features/create_review/presentation/pages/create_
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 import '../../features/map/presentation/pages/map_page.dart';
+import '../../features/repeat_appointment/presentation/pages/repeat_appointment_page.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -28,6 +29,7 @@ class AppRouter {
   static const String favorites = '/favorites';
   static const String barberHome = '/barber-home';
   static const String map = '/map';
+  static const String repeatAppointment = '/repeat-appointment';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -118,6 +120,23 @@ class AppRouter {
         path: map,
         name: 'map',
         builder: (BuildContext context, GoRouterState state) => const MapPage(),
+      ),
+      GoRoute(
+        path:
+            '$repeatAppointment/:businessId/:barberId/:serviceId/:appointmentId',
+        name: 'repeat-appointment',
+        builder: (BuildContext context, GoRouterState state) {
+          final businessId = state.pathParameters['businessId'] ?? '';
+          final barberId = state.pathParameters['barberId'] ?? '';
+          final serviceId = state.pathParameters['serviceId'] ?? '';
+          final appointmentId = state.pathParameters['appointmentId'] ?? '';
+          return RepeatAppointmentPage(
+            businessId: businessId,
+            barberId: barberId,
+            serviceId: serviceId,
+            appointmentId: appointmentId,
+          );
+        },
       ),
     ],
   );

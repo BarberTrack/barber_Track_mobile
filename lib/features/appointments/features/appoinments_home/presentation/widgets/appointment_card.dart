@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/entities/appointment.dart';
 import '../../../../../reviews/features/create_review/presentation/widgets/create_review_button.dart';
 import '../../../cancel_appointment/presentation/widgets/cancel_appointment_modal.dart';
@@ -318,6 +319,10 @@ class AppointmentCard extends StatelessWidget {
                   // Botón de crear reseña (solo si el status es completed)
                   CreateReviewButton(appointment: appointment),
 
+                  // Botón de repetir cita (disponible para todas las citas)
+                  const SizedBox(height: 16),
+                  _buildRepeatAppointmentButton(context),
+
                   // Botón de cancelar cita (solo si el status es scheduled)
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
@@ -500,6 +505,37 @@ class AppointmentCard extends StatelessWidget {
     } else {
       return '$date a las $time';
     }
+  }
+
+  Widget _buildRepeatAppointmentButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '/repeat-appointment/${appointment.businessId}/${appointment.barberId}/${appointment.serviceId}/${appointment.id}',
+          );
+        },
+        icon: Icon(Icons.repeat_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Repetir Cita',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildCancelButton(BuildContext context) {
