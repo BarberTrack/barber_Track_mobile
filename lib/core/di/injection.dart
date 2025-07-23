@@ -125,6 +125,16 @@ import '../../features/repeat_appointment/domain/usecases/repeat_appointment.dar
     as repeat_usecase;
 import '../../features/repeat_appointment/presentation/bloc/repeat_appointment_bloc.dart';
 
+// Update Appointment imports
+import '../../features/appointments/features/update_appointment/data/datasources/update_appointment_remote_data_source.dart';
+import '../../features/appointments/features/update_appointment/data/repositories/update_appointment_repository_impl.dart';
+import '../../features/appointments/features/update_appointment/domain/repositories/update_appointment_repository.dart';
+import '../../features/appointments/features/update_appointment/domain/usecases/get_availability.dart'
+    as update_availability;
+import '../../features/appointments/features/update_appointment/domain/usecases/update_appointment.dart'
+    as update_usecase;
+import '../../features/appointments/features/update_appointment/presentation/bloc/update_appointment_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -465,6 +475,36 @@ Future<void> initializeDependencies() async {
     () => RepeatAppointmentBloc(
       getBusinessAvailability: sl<GetBusinessAvailability>(),
       repeatAppointmentUseCase: sl<repeat_usecase.RepeatAppointment>(),
+    ),
+  );
+
+  // Update Appointment dependencies
+  sl.registerLazySingleton<UpdateAppointmentRemoteDataSource>(
+    () => UpdateAppointmentRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+    ),
+  );
+
+  sl.registerLazySingleton<UpdateAppointmentRepository>(
+    () => UpdateAppointmentRepositoryImpl(
+      sl<UpdateAppointmentRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<update_availability.GetAvailability>(
+    () =>
+        update_availability.GetAvailability(sl<UpdateAppointmentRepository>()),
+  );
+
+  sl.registerLazySingleton<update_usecase.UpdateAppointment>(
+    () => update_usecase.UpdateAppointment(sl<UpdateAppointmentRepository>()),
+  );
+
+  sl.registerFactory<UpdateAppointmentBloc>(
+    () => UpdateAppointmentBloc(
+      getAvailability: sl<update_availability.GetAvailability>(),
+      updateAppointmentUseCase: sl<update_usecase.UpdateAppointment>(),
     ),
   );
 }

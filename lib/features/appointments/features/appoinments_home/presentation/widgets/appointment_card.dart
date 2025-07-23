@@ -323,6 +323,12 @@ class AppointmentCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildRepeatAppointmentButton(context),
 
+                  // Botón de editar cita (solo si el status es scheduled)
+                  if (appointment.status.toLowerCase() == 'scheduled') ...[
+                    const SizedBox(height: 16),
+                    _buildEditAppointmentButton(context),
+                  ],
+
                   // Botón de cancelar cita (solo si el status es scheduled)
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
@@ -528,6 +534,38 @@ class AppointmentCard extends StatelessWidget {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditAppointmentButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '/update-appointment/${appointment.id}',
+            extra: appointment,
+          );
+        },
+        icon: Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Editar Cita',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange.shade600,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
