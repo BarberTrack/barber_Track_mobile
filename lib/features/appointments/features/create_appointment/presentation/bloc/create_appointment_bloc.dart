@@ -347,8 +347,19 @@ class CreateAppointmentBloc
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
 
-    final dateTime = DateTime(date.year, date.month, date.day, hour, minute);
-    return dateTime.toIso8601String();
+    // Crear el DateTime con la hora seleccionada (que ya está en hora de México)
+    final mexicoDateTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      hour,
+      minute,
+    );
+
+    // Convertir de hora de México (UTC-6) a UTC restando 6 horas
+    final utcDateTime = mexicoDateTime.subtract(const Duration(hours: 6));
+
+    return utcDateTime.toIso8601String();
   }
 
   Future<void> _onResetSelection(

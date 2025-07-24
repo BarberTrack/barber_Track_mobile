@@ -29,6 +29,7 @@ class Appointment extends Equatable {
   final String serviceId;
   final String? packageId;
   final DateTime scheduledDatetime;
+  final String scheduledDatetimeOriginal; // String original del API
   final int durationMinutes;
   final String totalPrice;
   final String status;
@@ -54,6 +55,7 @@ class Appointment extends Equatable {
     required this.serviceId,
     this.packageId,
     required this.scheduledDatetime,
+    required this.scheduledDatetimeOriginal,
     required this.durationMinutes,
     required this.totalPrice,
     required this.status,
@@ -81,6 +83,7 @@ class Appointment extends Equatable {
     serviceId,
     packageId,
     scheduledDatetime,
+    scheduledDatetimeOriginal,
     durationMinutes,
     totalPrice,
     status,

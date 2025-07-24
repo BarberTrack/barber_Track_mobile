@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../../core/router/app_router.dart';
 import '../../domain/entities/appointment.dart';
 import '../../../../../reviews/features/create_review/presentation/widgets/create_review_button.dart';
 import '../../../cancel_appointment/presentation/widgets/cancel_appointment_modal.dart';
@@ -323,6 +324,12 @@ class AppointmentCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildRepeatAppointmentButton(context),
 
+                  // Botón de cambiar servicio (solo si el status es scheduled)
+                  if (appointment.status.toLowerCase() == 'scheduled') ...[
+                    const SizedBox(height: 16),
+                    _buildChangeServiceButton(context),
+                  ],
+
                   // Botón de editar cita (solo si el status es scheduled)
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
@@ -534,6 +541,38 @@ class AppointmentCard extends StatelessWidget {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChangeServiceButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '${AppRouter.changeService}/${appointment.id}',
+            extra: appointment,
+          );
+        },
+        icon: Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Cambiar Servicio',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.purple.shade600,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(

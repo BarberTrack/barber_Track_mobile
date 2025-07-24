@@ -15,6 +15,7 @@ import '../../features/barbers/features/barber_home/presentation/pages/barber_ho
 import '../../features/map/presentation/pages/map_page.dart';
 import '../../features/repeat_appointment/presentation/pages/repeat_appointment_page.dart';
 import '../../features/appointments/features/update_appointment/presentation/pages/update_appointment_page.dart';
+import '../../features/appointments/features/change_service/presentation/pages/change_service_page.dart';
 import '../../features/appointments/features/appoinments_home/domain/entities/appointment.dart';
 
 class AppRouter {
@@ -33,6 +34,7 @@ class AppRouter {
   static const String map = '/map';
   static const String repeatAppointment = '/repeat-appointment';
   static const String updateAppointment = '/update-appointment';
+  static const String changeService = '/change-service';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -158,6 +160,28 @@ class AppRouter {
           }
 
           return UpdateAppointmentPage(appointment: appointment);
+        },
+      ),
+      GoRoute(
+        path: '$changeService/:appointmentId',
+        name: 'change-service',
+        builder: (BuildContext context, GoRouterState state) {
+          final appointmentId = state.pathParameters['appointmentId'] ?? '';
+          final appointment = state.extra as Appointment?;
+
+          if (appointment == null) {
+            // Si no se pasa la cita como extra, redirigir a appointments
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Información de cita no disponible'),
+              ),
+            );
+          }
+
+          return ChangeServicePage(
+            appointmentId: appointmentId,
+            appointment: appointment,
+          );
         },
       ),
     ],

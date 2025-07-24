@@ -20,6 +20,7 @@ class AppointmentsMapper {
       serviceId: model.serviceId,
       packageId: model.packageId,
       scheduledDatetime: DateTime.parse(model.scheduledDatetime),
+      scheduledDatetimeOriginal: model.scheduledDatetime,
       durationMinutes: model.durationMinutes,
       totalPrice: model.totalPrice,
       status: model.status,

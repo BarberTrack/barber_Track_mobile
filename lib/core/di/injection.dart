@@ -135,6 +135,18 @@ import '../../features/appointments/features/update_appointment/domain/usecases/
     as update_usecase;
 import '../../features/appointments/features/update_appointment/presentation/bloc/update_appointment_bloc.dart';
 
+// Change Service imports
+import '../../features/appointments/features/change_service/data/datasources/change_service_remote_data_source.dart';
+import '../../features/appointments/features/change_service/data/repositories/change_service_repository_impl.dart';
+import '../../features/appointments/features/change_service/domain/repositories/change_service_repository.dart';
+import '../../features/appointments/features/change_service/domain/usecases/get_business_services.dart'
+    as change_service_business_services;
+import '../../features/appointments/features/change_service/domain/usecases/get_availability.dart'
+    as change_service_availability;
+import '../../features/appointments/features/change_service/domain/usecases/change_service.dart'
+    as change_service_usecase;
+import '../../features/appointments/features/change_service/presentation/bloc/change_service_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -505,6 +517,43 @@ Future<void> initializeDependencies() async {
     () => UpdateAppointmentBloc(
       getAvailability: sl<update_availability.GetAvailability>(),
       updateAppointmentUseCase: sl<update_usecase.UpdateAppointment>(),
+    ),
+  );
+
+  // Change Service dependencies
+  sl.registerLazySingleton<ChangeServiceRemoteDataSource>(
+    () =>
+        ChangeServiceRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<ChangeServiceRepository>(
+    () => ChangeServiceRepositoryImpl(sl<ChangeServiceRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<
+    change_service_business_services.GetBusinessServices
+  >(
+    () => change_service_business_services.GetBusinessServices(
+      sl<ChangeServiceRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<change_service_availability.GetAvailability>(
+    () => change_service_availability.GetAvailability(
+      sl<ChangeServiceRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<change_service_usecase.ChangeService>(
+    () => change_service_usecase.ChangeService(sl<ChangeServiceRepository>()),
+  );
+
+  sl.registerFactory<ChangeServiceBloc>(
+    () => ChangeServiceBloc(
+      getBusinessServices:
+          sl<change_service_business_services.GetBusinessServices>(),
+      getAvailability: sl<change_service_availability.GetAvailability>(),
+      changeServiceUseCase: sl<change_service_usecase.ChangeService>(),
     ),
   );
 }
