@@ -14,6 +14,7 @@ import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/home/domain/usecases/get_businesses.dart';
+import '../../features/home/domain/usecases/get_businesses_with_filters.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 
 // BarberDetails imports
@@ -188,7 +189,13 @@ Future<void> initializeDependencies() async {
     () => GetBusinesses(sl<HomeRepository>()),
   );
 
-  sl.registerFactory<HomeBloc>(() => HomeBloc(sl<GetBusinesses>()));
+  sl.registerLazySingleton<GetBusinessesWithFilters>(
+    () => GetBusinessesWithFilters(sl<HomeRepository>()),
+  );
+
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(sl<GetBusinesses>(), sl<GetBusinessesWithFilters>()),
+  );
 
   // BarberDetails dependencies
   sl.registerLazySingleton<BarberDetailsRemoteDataSource>(

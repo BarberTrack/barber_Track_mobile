@@ -5,6 +5,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/business_card.dart';
+import '../widgets/business_filters_widget.dart';
+import '../../domain/entities/business_filters.dart';
 import '../../../appointments/features/appoinments_home/presentation/pages/appointments_page.dart';
 import '../../../style_ai/features/style_ai_home/presentation/pages/style_ai_home_page.dart';
 import '../../../favorites/presentation/pages/favorites_page.dart';
@@ -200,7 +202,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildHomeContent() {
     return BlocProvider(
-      create: (context) => sl<HomeBloc>()..add(const LoadBusinesses()),
+      create: (context) =>
+          sl<HomeBloc>()
+            ..add(const LoadBusinessesWithFilters(BusinessFilters())),
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
@@ -217,6 +221,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             }
 
             return _buildLoadedState(context, state);
+          }
+
+          if (state is HomeLoadedWithFilters) {
+            if (state.businesses.isEmpty) {
+              return _buildEmptyStateWithFilters(context, state);
+            }
+
+            return _buildLoadedStateWithFilters(context, state);
           }
 
           return const SizedBox.shrink();
@@ -493,6 +505,302 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyStateWithFilters(
+    BuildContext context,
+    HomeLoadedWithFilters state,
+  ) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          BusinessFiltersWidget(
+            initialFilters: state.currentFilters,
+            onFiltersChanged: (filters) {
+              context.read<HomeBloc>().add(LoadBusinessesWithFilters(filters));
+            },
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueAccent.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(
+                      Icons.search_off_rounded,
+                      size: 64,
+                      color: Colors.blueAccent.withOpacity(0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'No se encontraron barberías',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Intenta modificar los filtros de búsqueda',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey.withOpacity(0.7),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadedStateWithFilters(
+    BuildContext context,
+    HomeLoadedWithFilters state,
+  ) {
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
+            state.hasMore &&
+            !state.isLoadingMore) {
+          context.read<HomeBloc>().add(
+            LoadMoreBusinesses(state.currentFilters),
+          );
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+        onRefresh: () async {
+          context.read<HomeBloc>().add(
+            LoadBusinessesWithFilters(state.currentFilters.copyWith(page: 1)),
+          );
+        },
+        color: Colors.blueAccent,
+        backgroundColor: Theme.of(context).cardColor,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // Filtros
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                child: BusinessFiltersWidget(
+                  initialFilters: state.currentFilters,
+                  onFiltersChanged: (filters) {
+                    context.read<HomeBloc>().add(
+                      LoadBusinessesWithFilters(filters),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // Información de resultados
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.blueAccent.withOpacity(0.1),
+                      Colors.blueAccent.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.store_rounded,
+                        color: Colors.blueAccent,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Resultados encontrados',
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueAccent,
+                                ),
+                          ),
+                          Text(
+                            '${state.businesses.length} de ${state.total} barberías',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey.withOpacity(0.7)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (state.totalPages > 1)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Página ${state.page} de ${state.totalPages}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Lista de negocios
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final business = state.businesses[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: BusinessCard(business: business),
+                  );
+                }, childCount: state.businesses.length),
+              ),
+            ),
+
+            // Botón "Ver más barberías"
+            if (state.hasMore && !state.isLoadingMore)
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.all(20),
+                  child: Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<HomeBloc>().add(
+                          LoadMoreBusinesses(state.currentFilters),
+                        );
+                      },
+                      icon: const Icon(Icons.expand_more_rounded),
+                      label: const Text(
+                        'Ver más barberías',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
+                        shadowColor: Colors.blueAccent.withOpacity(0.3),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Indicador de carga para más elementos
+            if (state.isLoadingMore)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.blueAccent,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Mensaje de fin de resultados
+            if (!state.hasMore && state.businesses.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.grey.withOpacity(0.6),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Has visto todas las barberías',
+                        style: TextStyle(
+                          color: Colors.grey.withOpacity(0.7),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          ],
+        ),
       ),
     );
   }
