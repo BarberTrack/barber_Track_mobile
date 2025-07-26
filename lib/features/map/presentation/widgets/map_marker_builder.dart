@@ -15,8 +15,8 @@ class MapMarkerBuilder {
       if (business.latitude != null && business.longitude != null) {
         final marker = Marker(
           point: LatLng(business.latitude!, business.longitude!),
-          width: 60,
-          height: 60,
+          width: 40,
+          height: 40,
           child: _BusinessMarkerWidget(business: business),
         );
         markers.add(marker);
@@ -72,7 +72,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
               color: Colors.red.withOpacity(0.3),
@@ -84,15 +84,15 @@ class _BusinessMarkerWidget extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: Colors.red,
+            color: Colors.blue,
             borderRadius: BorderRadius.circular(21),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.red.shade400, Colors.red.shade600],
+              colors: [Colors.blue.shade400, Colors.blue.shade600],
             ),
           ),
-          child: const Icon(Icons.cut, color: Colors.white, size: 28),
+          child: const Icon(Icons.cut, color: Colors.white, size: 24),
         ),
       ),
     );

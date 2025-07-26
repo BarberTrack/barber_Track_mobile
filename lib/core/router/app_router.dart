@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/login/presentation/pages/login_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -13,10 +14,13 @@ import '../../features/reviews/features/create_review/presentation/pages/create_
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 import '../../features/map/presentation/pages/map_page.dart';
+import '../../features/map/presentation/bloc/map_bloc.dart';
+import '../../features/map/presentation/bloc/map_event.dart';
 import '../../features/repeat_appointment/presentation/pages/repeat_appointment_page.dart';
 import '../../features/appointments/features/update_appointment/presentation/pages/update_appointment_page.dart';
 import '../../features/appointments/features/change_service/presentation/pages/change_service_page.dart';
 import '../../features/appointments/features/appoinments_home/domain/entities/appointment.dart';
+import '../di/injection.dart';
 
 class AppRouter {
   static const String login = '/login';
@@ -124,7 +128,10 @@ class AppRouter {
       GoRoute(
         path: map,
         name: 'map',
-        builder: (BuildContext context, GoRouterState state) => const MapPage(),
+        builder: (BuildContext context, GoRouterState state) => BlocProvider(
+          create: (context) => sl<MapBloc>()..add(const LoadMapBusinesses()),
+          child: const MapPage(),
+        ),
       ),
       GoRoute(
         path:

@@ -115,6 +115,7 @@ import '../../features/map/data/datasources/map_remote_data_source.dart';
 import '../../features/map/data/repositories/map_repository_impl.dart';
 import '../../features/map/domain/repositories/map_repository.dart';
 import '../../features/map/domain/usecases/get_map_businesses.dart';
+import '../../features/map/domain/usecases/get_map_businesses_with_filters.dart';
 import '../../features/map/presentation/bloc/map_bloc.dart';
 
 // Repeat Appointment imports
@@ -464,8 +465,15 @@ Future<void> initializeDependencies() async {
     () => GetMapBusinesses(sl<MapRepository>()),
   );
 
+  sl.registerLazySingleton<GetMapBusinessesWithFilters>(
+    () => GetMapBusinessesWithFilters(sl<MapRepository>()),
+  );
+
   sl.registerFactory<MapBloc>(
-    () => MapBloc(getMapBusinesses: sl<GetMapBusinesses>()),
+    () => MapBloc(
+      getMapBusinesses: sl<GetMapBusinesses>(),
+      getMapBusinessesWithFilters: sl<GetMapBusinessesWithFilters>(),
+    ),
   );
 
   // Repeat Appointment dependencies

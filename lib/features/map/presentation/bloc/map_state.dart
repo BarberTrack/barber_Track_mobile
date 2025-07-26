@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/map_businesses_response.dart';
+import '../../domain/entities/map_business_filters.dart';
 
 abstract class MapState extends Equatable {
   const MapState();
@@ -18,11 +19,22 @@ class MapLoading extends MapState {
 
 class MapLoaded extends MapState {
   final MapBusinessesResponse response;
+  final MapBusinessFilters? currentFilters;
 
-  const MapLoaded(this.response);
+  const MapLoaded(this.response, {this.currentFilters});
 
   @override
-  List<Object?> get props => [response];
+  List<Object?> get props => [response, currentFilters];
+}
+
+class MapLoadedWithFilters extends MapState {
+  final MapBusinessesResponse response;
+  final MapBusinessFilters filters;
+
+  const MapLoadedWithFilters(this.response, this.filters);
+
+  @override
+  List<Object?> get props => [response, filters];
 }
 
 class MapError extends MapState {

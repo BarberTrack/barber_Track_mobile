@@ -1,4 +1,5 @@
 import '../../domain/entities/map_businesses_response.dart';
+import '../../domain/entities/map_business_filters.dart';
 import '../../domain/repositories/map_repository.dart';
 import '../datasources/map_remote_data_source.dart';
 import '../mappers/map_business_mapper.dart';
@@ -12,6 +13,31 @@ class MapRepositoryImpl implements MapRepository {
   Future<MapBusinessesResponse> getBusinesses() async {
     try {
       final responseModel = await remoteDataSource.getBusinesses();
+
+      // Mapear modelos a entidades directamente aquí
+      final mappedBusinesses = responseModel.businesses
+          .map((businessModel) => MapBusinessMapper.toEntity(businessModel))
+          .toList();
+
+      return MapBusinessesResponseEntity(
+        businesses: mappedBusinesses,
+        total: responseModel.total,
+        page: responseModel.page,
+        totalPages: responseModel.totalPages,
+      );
+    } catch (e) {
+      throw Exception('Repository error: $e');
+    }
+  }
+
+  @override
+  Future<MapBusinessesResponse> getBusinessesWithFilters(
+    MapBusinessFilters filters,
+  ) async {
+    try {
+      final responseModel = await remoteDataSource.getBusinessesWithFilters(
+        filters,
+      );
 
       // Mapear modelos a entidades directamente aquí
       final mappedBusinesses = responseModel.businesses

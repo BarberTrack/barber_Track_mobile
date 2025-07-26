@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
+import '../../domain/entities/map_business_filters.dart';
 import '../bloc/map_bloc.dart';
 import '../bloc/map_event.dart';
 import '../bloc/map_state.dart';
 import '../widgets/interactive_map_widget.dart';
+import '../widgets/map_filters_dialog.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -15,6 +17,8 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  MapBusinessFilters _currentFilters = const MapBusinessFilters();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,6 +43,17 @@ class _MapPageState extends State<MapPage> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: _showFiltersDialog,
+            icon: const Icon(
+              Icons.filter_list_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+            tooltip: 'Filtros',
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -56,8 +71,14 @@ class _MapPageState extends State<MapPage> {
           ),
         ),
       ),
-      body: BlocProvider(
-        create: (context) => sl<MapBloc>()..add(const LoadMapBusinesses()),
+      body: BlocListener<MapBloc, MapState>(
+        listener: (context, state) {
+          if (state is MapLoadedWithFilters) {
+            setState(() {
+              _currentFilters = state.filters;
+            });
+          }
+        },
         child: BlocBuilder<MapBloc, MapState>(
           builder: (context, state) {
             if (state is MapLoading) {
@@ -72,10 +93,45 @@ class _MapPageState extends State<MapPage> {
               return _buildLoadedState(context, state);
             }
 
+            if (state is MapLoadedWithFilters) {
+              return _buildLoadedStateWithFilters(context, state);
+            }
+
             return _buildInitialState();
           },
         ),
       ),
+      floatingActionButton: _buildFloatingActionButton(context),
+    );
+  }
+
+  Widget _buildFloatingActionButton(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        // FAB secundario para limpiar filtros (solo visible cuando hay filtros activos)
+        if (_currentFilters.hasActiveFilters)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: FloatingActionButton(
+              heroTag: 'clear_filters',
+              onPressed: _clearFilters,
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.clear_all_rounded),
+              tooltip: 'Limpiar filtros',
+            ),
+          ),
+        // FAB principal para filtros
+        FloatingActionButton(
+          heroTag: 'filters',
+          onPressed: _showFiltersDialog,
+          backgroundColor: Colors.blueAccent,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.filter_list_rounded),
+          tooltip: 'Aplicar filtros',
+        ),
+      ],
     );
   }
 
@@ -223,5 +279,96 @@ class _MapPageState extends State<MapPage> {
       backgroundColor: Theme.of(context).cardColor,
       child: InteractiveMapWidget(businesses: state.response.businesses),
     );
+  }
+
+  Widget _buildLoadedStateWithFilters(
+    BuildContext context,
+    MapLoadedWithFilters state,
+  ) {
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: () async {
+            context.read<MapBloc>().add(
+              LoadMapBusinessesWithFilters(_currentFilters),
+            );
+          },
+          color: Colors.blueAccent,
+          backgroundColor: Theme.of(context).cardColor,
+          child: InteractiveMapWidget(businesses: state.response.businesses),
+        ),
+        // Indicador flotante de filtros activos
+        Positioned(
+          top: 16,
+          left: 16,
+          right: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.blueAccent.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.filter_list_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${state.response.total} resultados con filtros',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: _clearFilters,
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showFiltersDialog() {
+    final mapBloc = context.read<MapBloc>();
+    showDialog(
+      context: context,
+      builder: (context) => BlocProvider.value(
+        value: mapBloc,
+        child: MapFiltersDialog(
+          initialFilters: _currentFilters,
+          mapBloc: mapBloc,
+        ),
+      ),
+    );
+  }
+
+  void _clearFilters() {
+    setState(() {
+      _currentFilters = const MapBusinessFilters();
+    });
+    context.read<MapBloc>().add(const ClearMapFilters());
   }
 }
