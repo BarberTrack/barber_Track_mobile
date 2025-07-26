@@ -20,6 +20,7 @@ import '../../features/repeat_appointment/presentation/pages/repeat_appointment_
 import '../../features/appointments/features/update_appointment/presentation/pages/update_appointment_page.dart';
 import '../../features/appointments/features/change_service/presentation/pages/change_service_page.dart';
 import '../../features/appointments/features/appoinments_home/domain/entities/appointment.dart';
+import '../../features/promotions/presentation/pages/promotions_page.dart';
 import '../di/injection.dart';
 
 class AppRouter {
@@ -39,6 +40,7 @@ class AppRouter {
   static const String repeatAppointment = '/repeat-appointment';
   static const String updateAppointment = '/update-appointment';
   static const String changeService = '/change-service';
+  static const String promotions = '/promotions';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -189,6 +191,14 @@ class AppRouter {
             appointmentId: appointmentId,
             appointment: appointment,
           );
+        },
+      ),
+      GoRoute(
+        path: '$promotions/:businessId',
+        name: 'promotions',
+        builder: (BuildContext context, GoRouterState state) {
+          final businessId = state.pathParameters['businessId'] ?? '';
+          return PromotionsPage(businessId: businessId);
         },
       ),
     ],

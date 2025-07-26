@@ -149,6 +149,13 @@ import '../../features/appointments/features/change_service/domain/usecases/chan
     as change_service_usecase;
 import '../../features/appointments/features/change_service/presentation/bloc/change_service_bloc.dart';
 
+// Promotions imports
+import '../../features/promotions/data/datasources/promotions_remote_data_source.dart';
+import '../../features/promotions/data/repositories/promotions_repository_impl.dart';
+import '../../features/promotions/domain/repositories/promotions_repository.dart';
+import '../../features/promotions/domain/usecases/get_business_promotions.dart';
+import '../../features/promotions/presentation/bloc/promotions_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -569,6 +576,25 @@ Future<void> initializeDependencies() async {
           sl<change_service_business_services.GetBusinessServices>(),
       getAvailability: sl<change_service_availability.GetAvailability>(),
       changeServiceUseCase: sl<change_service_usecase.ChangeService>(),
+    ),
+  );
+
+  // Promotions dependencies
+  sl.registerLazySingleton<PromotionsRemoteDataSource>(
+    () => PromotionsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<PromotionsRepository>(
+    () => PromotionsRepositoryImpl(sl<PromotionsRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetBusinessPromotions>(
+    () => GetBusinessPromotions(sl<PromotionsRepository>()),
+  );
+
+  sl.registerFactory<PromotionsBloc>(
+    () => PromotionsBloc(
+      getBusinessPromotions: sl<GetBusinessPromotions>(),
     ),
   );
 }

@@ -223,7 +223,10 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
                 const SizedBox(height: 24),
 
                 // Action Buttons - Reviews y Ver barberos (después de galería)
-                ActionButtonsSection(businessId: widget.businessId),
+                ActionButtonsSection(
+                  businessId: widget.businessId,
+                  isFavorite: _isFavorite,
+                ),
 
                 const SizedBox(height: 32),
 
