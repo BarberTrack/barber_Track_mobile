@@ -82,6 +82,15 @@ class UpdateClientNotes extends CreateAppointmentEvent {
   List<Object> get props => [notes];
 }
 
+class ValidateClientNotes extends CreateAppointmentEvent {
+  final String notes;
+
+  const ValidateClientNotes(this.notes);
+
+  @override
+  List<Object> get props => [notes];
+}
+
 class CreateAppointment extends CreateAppointmentEvent {
   const CreateAppointment();
 }

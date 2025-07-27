@@ -145,6 +145,40 @@ class CreateAppointmentWithNotes extends CreateAppointmentState {
   ];
 }
 
+class CreateAppointmentNotesError extends CreateAppointmentState {
+  final List<Service> services;
+  final String businessId;
+  final Service selectedService;
+  final DateTime selectedDate;
+  final List<Availability> availability;
+  final TimeSlot selectedTimeSlot;
+  final String clientNotes;
+  final String errorMessage;
+
+  const CreateAppointmentNotesError({
+    required this.services,
+    required this.businessId,
+    required this.selectedService,
+    required this.selectedDate,
+    required this.availability,
+    required this.selectedTimeSlot,
+    required this.clientNotes,
+    required this.errorMessage,
+  });
+
+  @override
+  List<Object> get props => [
+    services,
+    businessId,
+    selectedService,
+    selectedDate,
+    availability,
+    selectedTimeSlot,
+    clientNotes,
+    errorMessage,
+  ];
+}
+
 class CreateAppointmentCreating extends CreateAppointmentState {}
 
 class CreateAppointmentSuccess extends CreateAppointmentState {

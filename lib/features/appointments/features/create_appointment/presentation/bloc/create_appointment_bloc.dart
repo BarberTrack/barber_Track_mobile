@@ -8,6 +8,7 @@ import '../../domain/entities/appointment.dart';
 import '../../domain/usecases/get_business_services.dart';
 import '../../domain/usecases/get_availability.dart';
 import '../../domain/usecases/create_appointment.dart' as appointment_usecase;
+import '../../../../../../core/utils/notes_validator.dart';
 
 part 'create_appointment_event.dart';
 part 'create_appointment_state.dart';
@@ -31,6 +32,7 @@ class CreateAppointmentBloc
     on<SelectTimeSlot>(_onSelectTimeSlot);
     on<SelectTimeSlotWithDate>(_onSelectTimeSlotWithDate);
     on<UpdateClientNotes>(_onUpdateClientNotes);
+    on<ValidateClientNotes>(_onValidateClientNotes);
     on<CreateAppointment>(_onCreateAppointment);
     on<ResetSelection>(_onResetSelection);
   }
@@ -276,6 +278,140 @@ class CreateAppointmentBloc
           clientNotes: event.notes,
         ),
       );
+    }
+  }
+
+  Future<void> _onValidateClientNotes(
+    ValidateClientNotes event,
+    Emitter<CreateAppointmentState> emit,
+  ) async {
+    final currentState = state;
+
+    // Solo validar si tenemos un time slot seleccionado
+    if (currentState is! CreateAppointmentTimeSlotSelected &&
+        currentState is! CreateAppointmentWithNotes &&
+        currentState is! CreateAppointmentNotesError) {
+      return;
+    }
+
+    // Validar las notas
+    final validationError = NotesValidator.validateNotes(event.notes);
+
+    if (validationError != null) {
+      // Hay error de validación
+      if (currentState is CreateAppointmentTimeSlotSelected) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      } else if (currentState is CreateAppointmentWithNotes) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      } else if (currentState is CreateAppointmentNotesError) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      }
+    } else {
+      // No hay errores de validación
+      if (currentState is CreateAppointmentTimeSlotSelected) {
+        // Si las notas están vacías, mantener el estado actual
+        if (event.notes.trim().isEmpty) {
+          // No hacer nada, mantener CreateAppointmentTimeSlotSelected
+          return;
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      } else if (currentState is CreateAppointmentWithNotes) {
+        if (event.notes.trim().isEmpty) {
+          // Volver al estado TimeSlotSelected si no hay notas
+          emit(
+            CreateAppointmentTimeSlotSelected(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+            ),
+          );
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      } else if (currentState is CreateAppointmentNotesError) {
+        if (event.notes.trim().isEmpty) {
+          // Volver al estado TimeSlotSelected si no hay notas
+          emit(
+            CreateAppointmentTimeSlotSelected(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+            ),
+          );
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      }
     }
   }
 

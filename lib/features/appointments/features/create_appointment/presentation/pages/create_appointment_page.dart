@@ -6,6 +6,7 @@ import '../../../../../../core/di/injection.dart';
 import '../../../../../../core/router/app_router.dart';
 import '../bloc/create_appointment_bloc.dart';
 import '../../domain/entities/service.dart';
+import '../../domain/entities/availability.dart';
 import '../../domain/entities/time_slot.dart';
 import '../widgets/widgets.dart';
 
@@ -48,6 +49,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               _showSuccessDialog(context, state);
             } else if (state is CreateAppointmentError) {
               _showErrorDialog(context, state.message);
+            } else if (state is CreateAppointmentNotesError) {
+              // No necesitamos mostrar nada aquí, el error se muestra en el widget
             }
           },
           builder: (context, state) {
@@ -62,7 +65,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 state is CreateAppointmentDateSelected ||
                 state is CreateAppointmentAvailabilityLoaded ||
                 state is CreateAppointmentTimeSlotSelected ||
-                state is CreateAppointmentWithNotes) {
+                state is CreateAppointmentWithNotes ||
+                state is CreateAppointmentNotesError) {
               return _buildAppointmentFlow(context, state);
             }
             return const Center(child: Text('Cargando servicios...'));
@@ -96,7 +100,9 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
           if (state is CreateAppointmentServiceSelected ||
               state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             ServiceSummary(
               service: _getSelectedService(state),
               businessId: widget.businessId,
@@ -110,7 +116,9 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
           if (state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             DateSummary(
               date: _getSelectedDate(state),
               businessId: widget.businessId,
@@ -122,31 +130,46 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
           ],
 
           if (state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             TimeSlotsWidget(
               availability: state is CreateAppointmentAvailabilityLoaded
                   ? state.availability
-                  : (state as CreateAppointmentTimeSlotSelected).availability,
+                  : _getAvailability(state),
               state: state,
             ),
           ],
 
-          if (state is CreateAppointmentTimeSlotSelected) ...[
+          if (state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             const SizedBox(height: 24),
-            _buildQuickDateTimeCard(context, state),
+            _buildQuickDateTimeCard(context, _getTimeSlotSelectedState(state)),
             const SizedBox(height: 16),
-            _buildSelectedDateTimeSummary(context, state),
+            _buildSelectedDateTimeSummary(
+              context,
+              _getTimeSlotSelectedState(state),
+            ),
             const SizedBox(height: 16),
-            _buildFinalSummary(context, state),
+            _buildFinalSummary(context, _getTimeSlotSelectedState(state)),
             if (showClientNotesCard) ...[
               const SizedBox(height: 16),
               ClientNotesCard(
                 notesController: _notesController,
                 clientNotes: clientNotes,
+                errorMessage: state is CreateAppointmentNotesError
+                    ? state.errorMessage
+                    : null,
+                hasValidationError: state is CreateAppointmentNotesError,
                 onNotesChanged: (value) {
                   setState(() {
                     clientNotes = value;
                   });
+                  // Disparar validación en tiempo real
+                  context.read<CreateAppointmentBloc>().add(
+                    ValidateClientNotes(value),
+                  );
                 },
                 onConfirmPressed: () => _showConfirmationModal(context),
               ),
@@ -534,9 +557,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     );
   }
 
-
-
-
   Service _getSelectedService(CreateAppointmentState state) {
     if (state is CreateAppointmentServiceSelected) return state.selectedService;
     if (state is CreateAppointmentDateSelected) return state.selectedService;
@@ -545,6 +565,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentTimeSlotSelected)
       return state.selectedService;
     if (state is CreateAppointmentWithNotes) return state.selectedService;
+    if (state is CreateAppointmentNotesError) return state.selectedService;
     throw Exception('Estado no válido para obtener servicio seleccionado');
   }
 
@@ -553,10 +574,43 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentAvailabilityLoaded) return state.selectedDate;
     if (state is CreateAppointmentTimeSlotSelected) return state.selectedDate;
     if (state is CreateAppointmentWithNotes) return state.selectedDate;
+    if (state is CreateAppointmentNotesError) return state.selectedDate;
     throw Exception('Estado no válido para obtener fecha seleccionada');
   }
 
+  List<Availability> _getAvailability(CreateAppointmentState state) {
+    if (state is CreateAppointmentTimeSlotSelected) return state.availability;
+    if (state is CreateAppointmentWithNotes) return state.availability;
+    if (state is CreateAppointmentNotesError) return state.availability;
+    throw Exception('Estado no válido para obtener disponibilidad');
+  }
 
+  CreateAppointmentTimeSlotSelected _getTimeSlotSelectedState(
+    CreateAppointmentState state,
+  ) {
+    if (state is CreateAppointmentTimeSlotSelected) return state;
+    if (state is CreateAppointmentWithNotes) {
+      return CreateAppointmentTimeSlotSelected(
+        services: state.services,
+        businessId: state.businessId,
+        selectedService: state.selectedService,
+        selectedDate: state.selectedDate,
+        availability: state.availability,
+        selectedTimeSlot: state.selectedTimeSlot,
+      );
+    }
+    if (state is CreateAppointmentNotesError) {
+      return CreateAppointmentTimeSlotSelected(
+        services: state.services,
+        businessId: state.businessId,
+        selectedService: state.selectedService,
+        selectedDate: state.selectedDate,
+        availability: state.availability,
+        selectedTimeSlot: state.selectedTimeSlot,
+      );
+    }
+    throw Exception('Estado no válido para obtener TimeSlotSelected');
+  }
 
   String _formatDateForDisplay(String dateString) {
     try {
@@ -599,7 +653,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     final state = bloc.state;
 
     if (state is! CreateAppointmentTimeSlotSelected &&
-        state is! CreateAppointmentWithNotes) {
+        state is! CreateAppointmentWithNotes &&
+        state is! CreateAppointmentNotesError) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor complete todos los datos de la cita'),
@@ -613,6 +668,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     final selectedDate = _getSelectedDate(state);
     final timeSlot = _getSelectedTimeSlot(state);
     final notes = state is CreateAppointmentWithNotes
+        ? state.clientNotes
+        : state is CreateAppointmentNotesError
         ? state.clientNotes
         : clientNotes;
 
@@ -798,6 +855,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentTimeSlotSelected)
       return state.selectedTimeSlot;
     if (state is CreateAppointmentWithNotes) return state.selectedTimeSlot;
+    if (state is CreateAppointmentNotesError) return state.selectedTimeSlot;
     throw Exception('Estado no válido para obtener time slot seleccionado');
   }
 }
