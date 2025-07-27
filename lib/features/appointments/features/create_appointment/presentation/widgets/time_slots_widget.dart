@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../bloc/create_appointment_bloc.dart';
 import '../../domain/entities/time_slot.dart';
 import '../../domain/entities/availability.dart';
+import '../../domain/entities/service.dart';
 
 class TimeSlotsWidget extends StatelessWidget {
   final List<Availability> availability;
@@ -29,7 +30,6 @@ class TimeSlotsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ...availability.map((dayAvailability) {
-      
               final filteredSlots = _filterSlotsByCurrentTime(
                 dayAvailability.slots,
                 dayAvailability.date,
@@ -46,7 +46,7 @@ class TimeSlotsWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                   
+
                   if (filteredSlots.isNotEmpty) ...[
                     Wrap(
                       spacing: 8,
@@ -108,18 +108,117 @@ class TimeSlotsWidget extends StatelessWidget {
       final now = DateTime.now();
       final slotDateTime = DateTime.parse(slotDate);
 
+      // Si no es el día actual, no aplicar filtros adicionales
       if (!_isSameDay(now, slotDateTime)) {
         return slots;
       }
 
       final currentTimeWithMargin = now.add(const Duration(minutes: 30));
 
-      return slots.where((slot) {
+      // Filtrar slots anteriores a la hora actual + 30 minutos
+      List<TimeSlot> filteredByTime = slots.where((slot) {
         final slotTime = _parseTimeSlot(slot.time, slotDateTime);
         return slotTime.isAfter(currentTimeWithMargin);
       }).toList();
+
+      // Solo para la fecha actual, aplicar validación de duración del servicio
+      if (_isToday(slotDate)) {
+        filteredByTime = _filterSlotsByServiceDuration(
+          filteredByTime,
+          slotDateTime,
+        );
+      }
+
+      return filteredByTime;
     } catch (e) {
       return slots;
+    }
+  }
+
+  List<TimeSlot> _filterSlotsByServiceDuration(
+    List<TimeSlot> slots,
+    DateTime slotDate,
+  ) {
+    try {
+      // Obtener el servicio seleccionado
+      final selectedService = _getSelectedService();
+      if (selectedService == null) {
+        // Si no hay servicio seleccionado, mantener comportamiento actual
+        return slots;
+      }
+
+      // Si no hay slots disponibles, retornar lista vacía
+      if (slots.isEmpty) {
+        return slots;
+      }
+
+      // Encontrar el último slot disponible del día
+      final lastAvailableSlot = _findLastAvailableSlot(slots);
+      if (lastAvailableSlot == null) {
+        return slots;
+      }
+
+      // Calcular el tiempo de fin del último slot disponible
+      final lastSlotTime = _parseTimeSlot(lastAvailableSlot.time, slotDate);
+
+      // Filtrar slots que no permitan completar el servicio antes del cierre
+      return slots.where((slot) {
+        final slotStartTime = _parseTimeSlot(slot.time, slotDate);
+        final serviceEndTime = slotStartTime.add(
+          Duration(minutes: selectedService.durationMinutes),
+        );
+
+        // El servicio debe terminar antes o igual al tiempo del último slot disponible
+        return serviceEndTime.isBefore(
+              lastSlotTime.add(const Duration(minutes: 30)),
+            ) ||
+            serviceEndTime.isAtSameMomentAs(
+              lastSlotTime.add(const Duration(minutes: 30)),
+            );
+      }).toList();
+    } catch (e) {
+      // En caso de error, mantener la lista original
+      return slots;
+    }
+  }
+
+  TimeSlot? _findLastAvailableSlot(List<TimeSlot> slots) {
+    // Filtrar solo slots disponibles y encontrar el último por tiempo
+    final availableSlots = slots.where((slot) => slot.available).toList();
+    if (availableSlots.isEmpty) {
+      return null;
+    }
+
+    // Ordenar por tiempo y tomar el último
+    availableSlots.sort((a, b) {
+      final timeA = a.time.replaceAll(':', '');
+      final timeB = b.time.replaceAll(':', '');
+      return timeA.compareTo(timeB);
+    });
+
+    return availableSlots.last;
+  }
+
+  Service? _getSelectedService() {
+    try {
+      if (state is CreateAppointmentServiceSelected) {
+        return (state as CreateAppointmentServiceSelected).selectedService;
+      }
+      if (state is CreateAppointmentDateSelected) {
+        return (state as CreateAppointmentDateSelected).selectedService;
+      }
+      if (state is CreateAppointmentAvailabilityLoaded) {
+        return (state as CreateAppointmentAvailabilityLoaded).selectedService;
+      }
+      if (state is CreateAppointmentTimeSlotSelected) {
+        return (state as CreateAppointmentTimeSlotSelected).selectedService;
+      }
+      if (state is CreateAppointmentWithNotes) {
+        return (state as CreateAppointmentWithNotes).selectedService;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 

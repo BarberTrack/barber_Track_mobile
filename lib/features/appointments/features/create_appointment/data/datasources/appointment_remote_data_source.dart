@@ -114,7 +114,7 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         throw Exception('No authentication token found');
       }
 
-      logger.d('Creating appointment with data: ${request.toJson()}');
+      //logger.d('Creating appointment with data: ${request.toJson()}');
 
       final response = await dioClient.dio.post(
         '/appointments',
@@ -122,14 +122,20 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      logger.d(
-        'Create appointment response: ${response.statusCode} - ${response.data}',
-      );
+      //logger.d('Create appointment response: ${response.data}');
 
       if (response.statusCode == 201) {
-        return CreateAppointmentResponseModel.fromJson(
-          response.data as Map<String, dynamic>,
-        );
+        try {
+          return CreateAppointmentResponseModel.fromJson(
+            response.data as Map<String, dynamic>,
+          );      
+        } catch (parseError) {
+          logger.e('Error parsing appointment response: $parseError');
+          logger.e('Response data: ${response.data}');
+          throw Exception(
+            'Error al procesar respuesta del servidor: $parseError',
+          );
+        }
       } else {
         throw Exception('Error al crear cita: ${response.statusCode}');
       }

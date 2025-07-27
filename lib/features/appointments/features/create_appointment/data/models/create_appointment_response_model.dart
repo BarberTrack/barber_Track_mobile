@@ -13,8 +13,8 @@ class CreateAppointmentResponseModel extends Equatable {
 
   factory CreateAppointmentResponseModel.fromJson(Map<String, dynamic> json) {
     return CreateAppointmentResponseModel(
-      success: json['success'] as bool,
-      message: json['message'] as String,
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
       data: CreateAppointmentDataModel.fromJson(
         json['data'] as Map<String, dynamic>,
       ),
@@ -45,8 +45,8 @@ class CreateAppointmentDataModel extends Equatable {
       appointment: AppointmentModel.fromJson(
         json['appointment'] as Map<String, dynamic>,
       ),
-      created: json['created'] as bool,
-      confirmationCode: json['confirmationCode'] as String,
+      created: json['created'] as bool? ?? false,
+      confirmationCode: json['confirmationCode'] as String? ?? '',
     );
   }
 
@@ -115,28 +115,36 @@ class AppointmentModel extends Equatable {
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
     return AppointmentModel(
-      id: json['id'] as String,
-      clientId: json['clientId'] as String,
-      businessId: json['businessId'] as String,
-      barberId: json['barberId'] as String,
-      serviceId: json['serviceId'] as String,
+      id: json['id'] as String? ?? '',
+      clientId: json['clientId'] as String? ?? '',
+      businessId: json['businessId'] as String? ?? '',
+      barberId: json['barberId'] as String? ?? '',
+      serviceId: json['serviceId'] as String? ?? '',
       packageId: json['packageId'] as String?,
-      scheduledDatetime: json['scheduledDatetime'] as String,
-      durationMinutes: json['durationMinutes'] as int,
-      totalPrice: json['totalPrice'] as String,
-      status: json['status'] as String,
+      scheduledDatetime: json['scheduledDatetime'] as String? ?? '',
+      durationMinutes: json['durationMinutes'] is int
+          ? json['durationMinutes'] as int
+          : int.tryParse(json['durationMinutes'].toString()) ?? 0,
+      totalPrice: json['totalPrice'] is String
+          ? json['totalPrice'] as String
+          : json['totalPrice'].toString(),
+      status: json['status'] as String? ?? '',
       clientNotes: json['clientNotes'] as String?,
       barberNotes: json['barberNotes'] as String?,
-      statusHistory: (json['statusHistory'] as List<dynamic>)
-          .map((e) => StatusHistoryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
+      statusHistory: json['statusHistory'] is List<dynamic>
+          ? (json['statusHistory'] as List<dynamic>)
+                .map(
+                  (e) => StatusHistoryModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+          : <StatusHistoryModel>[],
+      createdAt: json['createdAt'] as String? ?? '',
+      updatedAt: json['updatedAt'] as String? ?? '',
       cancelledAt: json['cancelledAt'] as String?,
       cancelledById: json['cancelledById'] as String?,
       reminder24hSentAt: json['reminder24hSentAt'] as String?,
       reminder2hSentAt: json['reminder2hSentAt'] as String?,
-      remindersEnabled: json['remindersEnabled'] as bool,
+      remindersEnabled: json['remindersEnabled'] as bool? ?? true,
       business: AppointmentBusinessModel.fromJson(
         json['business'] as Map<String, dynamic>,
       ),
@@ -222,10 +230,10 @@ class StatusHistoryModel extends Equatable {
 
   factory StatusHistoryModel.fromJson(Map<String, dynamic> json) {
     return StatusHistoryModel(
-      reason: json['reason'] as String,
-      toStatus: json['toStatus'] as String,
-      changedBy: json['changedBy'] as String,
-      timestamp: json['timestamp'] as String,
+      reason: json['reason'] as String? ?? '',
+      toStatus: json['toStatus'] as String? ?? '',
+      changedBy: json['changedBy'] as String? ?? '',
+      timestamp: json['timestamp'] as String? ?? '',
       fromStatus: json['fromStatus'] as String?,
     );
   }
@@ -263,9 +271,11 @@ class AppointmentBusinessModel extends Equatable {
 
   factory AppointmentBusinessModel.fromJson(Map<String, dynamic> json) {
     return AppointmentBusinessModel(
-      name: json['name'] as String,
-      address: json['address'] as String,
-      phone: json['phone'] as String,
+      name: json['name'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      phone: json['phone'] is String
+          ? json['phone'] as String
+          : json['phone']?.toString() ?? '',
     );
   }
 
@@ -292,10 +302,12 @@ class AppointmentBarberModel extends Equatable {
 
   factory AppointmentBarberModel.fromJson(Map<String, dynamic> json) {
     return AppointmentBarberModel(
-      name: json['name'] as String,
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      specialties: (json['specialties'] as List<dynamic>).cast<String>(),
+      name: json['name'] as String? ?? '',
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      specialties: json['specialties'] is List<dynamic>
+          ? (json['specialties'] as List<dynamic>).cast<String>()
+          : <String>[],
     );
   }
 
@@ -327,10 +339,14 @@ class AppointmentServiceModel extends Equatable {
 
   factory AppointmentServiceModel.fromJson(Map<String, dynamic> json) {
     return AppointmentServiceModel(
-      name: json['name'] as String,
-      duration: json['duration'] as int,
-      price: json['price'] as String,
-      description: json['description'] as String,
+      name: json['name'] as String? ?? '',
+      duration: json['duration'] is int
+          ? json['duration'] as int
+          : int.tryParse(json['duration'].toString()) ?? 0,
+      price: json['price'] is String
+          ? json['price'] as String
+          : json['price'].toString(),
+      description: json['description'] as String? ?? '',
     );
   }
 
