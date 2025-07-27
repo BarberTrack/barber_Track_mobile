@@ -25,6 +25,38 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
     super.dispose();
   }
 
+  String? _validateReason(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor ingresa el motivo de cancelación';
+    }
+
+    final trimmedValue = value.trim();
+
+    if (trimmedValue.isEmpty) {
+      return 'El motivo debe contener al menos una letra o número';
+    }
+
+    if (trimmedValue.length < 10) {
+      return 'El motivo debe tener entre 10 y 200 caracteres';
+    }
+
+    if (trimmedValue.length > 200) {
+      return 'El motivo debe tener entre 10 y 200 caracteres';
+    }
+
+    final allowedPattern = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s\.,]+$');
+    if (!allowedPattern.hasMatch(trimmedValue)) {
+      return 'El motivo solo puede contener letras, números y signos de puntuación básicos';
+    }
+
+    final hasLetterOrNumber = RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]');
+    if (!hasLetterOrNumber.hasMatch(trimmedValue)) {
+      return 'El motivo debe contener al menos una letra o número';
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -57,8 +89,12 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Container(
-            padding: const EdgeInsets.all(24),
+            width: double.maxFinite,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
+            ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
@@ -70,9 +106,11 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                 ],
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 // Header
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -194,15 +232,8 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                       TextFormField(
                         controller: _reasonController,
                         maxLines: 3,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Por favor ingresa el motivo de cancelación';
-                          }
-                          if (value.trim().length < 6) {
-                            return 'El motivo debe tener al menos 6 caracteres';
-                          }
-                          return null;
-                        },
+                        maxLength: 200,
+                        validator: _validateReason,
                         decoration: InputDecoration(
                           hintText:
                               'Explica brevemente por qué cancelas la cita...',
@@ -302,7 +333,8 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                     );
                   },
                 ),
-              ],
+                ],
+            ),
             ),
           ),
         ),
