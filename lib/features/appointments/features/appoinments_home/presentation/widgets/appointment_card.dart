@@ -501,18 +501,29 @@ class AppointmentCard extends StatelessWidget {
     // Convertir de UTC a GMT-6 (hora de México City)
     final mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
     final now = DateTime.now();
-    final difference = mexicoDateTime.difference(now);
+
+    // Obtener solo las fechas (sin tiempo) para comparación correcta
+    final appointmentDate = DateTime(
+      mexicoDateTime.year,
+      mexicoDateTime.month,
+      mexicoDateTime.day,
+    );
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    final difference = appointmentDate.difference(today).inDays;
 
     String date = DateFormat('dd/MM/yyyy').format(mexicoDateTime);
     String time = DateFormat('HH:mm').format(mexicoDateTime);
 
-    if (difference.inDays == 0) {
+    if (appointmentDate == today) {
       return 'Hoy a las $time';
-    } else if (difference.inDays == 1) {
+    } else if (appointmentDate == tomorrow) {
       return 'Mañana a las $time';
-    } else if (difference.inDays == -1) {
+    } else if (appointmentDate == yesterday) {
       return 'Ayer a las $time';
-    } else if (difference.inDays > 0 && difference.inDays <= 7) {
+    } else if (difference > 0 && difference <= 7) {
       String dayName = DateFormat('EEEE', 'es').format(mexicoDateTime);
       return '$dayName a las $time';
     } else {
