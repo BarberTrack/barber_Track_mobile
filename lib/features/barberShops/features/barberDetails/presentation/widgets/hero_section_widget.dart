@@ -7,8 +7,20 @@ class HeroSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
+    // Calcular altura dinámica basada en la descripción
+    final hasDescription =
+        business.description != null && business.description.isNotEmpty;
+    final estimatedHeight = _calculateContainerHeight(
+      isSmallScreen,
+      hasDescription,
+      business.description,
+    );
+
     return Container(
-      height: 280,
+      height: estimatedHeight,
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
@@ -77,7 +89,7 @@ class HeroSectionWidget extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -89,7 +101,7 @@ class HeroSectionWidget extends StatelessWidget {
                       child: Icon(
                         Icons.content_cut_rounded,
                         color: Colors.white,
-                        size: 32,
+                        size: isSmallScreen ? 28 : 32,
                       ),
                     ),
                     const Spacer(),
@@ -123,7 +135,7 @@ class HeroSectionWidget extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: isSmallScreen ? 12 : 14,
                             ),
                           ),
                         ],
@@ -132,57 +144,53 @@ class HeroSectionWidget extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: isSmallScreen ? 16 : 20),
 
-                // Nombre del negocio
+                // Nombre del negocio - Compacto
                 Text(
-                  business.name,
+                  business.name ?? 'Barbería',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: isSmallScreen ? 22 : 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.5,
+                    height: 1.1,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Descripción
-                if (business.description.isNotEmpty)
-                  Text(
-                    business.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
-                      height: 1.4,
+                // Descripción - Expandida para mostrar más texto
+                if (hasDescription)
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        business.description,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 13 : 15,
+                          color: Colors.white.withOpacity(0.95),
+                          height: 1.5,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: isSmallScreen ? 4 : 5,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.justify,
+                      ),
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
                   ),
 
-                const Spacer(),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Quick stats
+                // Rating section - Ahora muestra el rating real
                 Row(
                   children: [
-                    _buildQuickStat(
-                      icon: Icons.star_rounded,
-                      label: '4.8',
-                      subtitle: 'Rating',
-                    ),
-                    const SizedBox(width: 24),
-                    _buildQuickStat(
-                      icon: Icons.schedule_rounded,
-                      label: '25min',
-                      subtitle: 'Promedio',
-                    ),
-                    const SizedBox(width: 24),
-                    _buildQuickStat(
-                      icon: Icons.location_on_rounded,
-                      label: '2.1km',
-                      subtitle: 'Distancia',
+                    _buildRatingStat(
+                      rating: business.ratingAverage?.toDouble() ?? 0.0,
+                      totalReviews: business.totalReviews ?? 0,
+                      isSmallScreen: isSmallScreen,
                     ),
                   ],
                 ),
@@ -194,33 +202,93 @@ class HeroSectionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStat({
-    required IconData icon,
-    required String label,
-    required String subtitle,
+  double _calculateContainerHeight(
+    bool isSmallScreen,
+    bool hasDescription,
+    String? description,
+  ) {
+    double baseHeight = isSmallScreen ? 280 : 260;
+
+    if (hasDescription && description != null) {
+      // Estimar líneas basado en la longitud del texto
+      int estimatedLines = (description.length / (isSmallScreen ? 35 : 45))
+          .ceil();
+      estimatedLines = estimatedLines.clamp(1, isSmallScreen ? 4 : 5);
+
+      // Agregar altura extra por línea de descripción
+      double extraHeight = estimatedLines * (isSmallScreen ? 18 : 20);
+      return baseHeight + extraHeight;
+    }
+
+    return baseHeight;
+  }
+
+  Widget _buildRatingStat({
+    required double rating,
+    required int totalReviews,
+    required bool isSmallScreen,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 16),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+    // Formatear el rating para mostrar máximo 1 decimal
+    String formattedRating = rating.toStringAsFixed(1);
+
+    // Si termina en .0, mostrar sin decimales
+    if (formattedRating.endsWith('.0')) {
+      formattedRating = rating.toStringAsFixed(0);
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16,
+        vertical: isSmallScreen ? 8 : 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Estrella con fondo
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.amber.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        Text(
-          subtitle,
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
-        ),
-      ],
+            child: Icon(
+              Icons.star_rounded,
+              color: Colors.white,
+              size: isSmallScreen ? 14 : 16,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+          // Rating y reviews
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                formattedRating,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 16 : 18,
+                ),
+              ),
+              if (totalReviews > 0)
+                Text(
+                  '$totalReviews reseña${totalReviews != 1 ? 's' : ''}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: isSmallScreen ? 10 : 12,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
