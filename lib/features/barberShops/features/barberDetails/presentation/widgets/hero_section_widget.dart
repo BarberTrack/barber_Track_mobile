@@ -19,6 +19,9 @@ class HeroSectionWidget extends StatelessWidget {
       business.description,
     );
 
+    // Determinar si está abierto o cerrado
+    final businessStatus = _getBusinessStatus();
+
     return Container(
       height: estimatedHeight,
       margin: const EdgeInsets.all(16),
@@ -111,7 +114,9 @@ class HeroSectionWidget extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.9),
+                        color: businessStatus['isOpen']
+                            ? Colors.green.withOpacity(0.9)
+                            : Colors.red.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.3),
@@ -131,7 +136,7 @@ class HeroSectionWidget extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Abierto',
+                            businessStatus['text'],
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -200,6 +205,123 @@ class HeroSectionWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Determina el estado actual del negocio (abierto/cerrado)
+  Map<String, dynamic> _getBusinessStatus() {
+    // Verificar si el negocio está activo
+    if (business.isActive != true) {
+      print('DEBUG: Negocio inactivo');
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    // Verificar si tenemos horarios
+    if (business.businessHours == null) {
+      print('DEBUG: Sin horarios definidos');
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    // Obtener el día actual
+    final now = DateTime.now();
+    final currentDay = _getCurrentDayKey(now.weekday);
+    print(
+      'DEBUG: Día actual: $currentDay, Hora actual: ${now.hour}:${now.minute}',
+    );
+
+    // Obtener datos del día actual
+    final dayData = business.businessHours[currentDay] as Map<String, dynamic>?;
+    print('DEBUG: Datos del día: $dayData');
+
+    // Si no hay datos para el día o está marcado como cerrado
+    if (dayData == null || dayData['closed'] == true) {
+      print('DEBUG: Día marcado como cerrado');
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    // Obtener horarios de apertura y cierre
+    final openTime = dayData['open'] as String?;
+    final closeTime = dayData['close'] as String?;
+    print('DEBUG: Horario - Abre: $openTime, Cierra: $closeTime');
+
+    // Si no hay horarios definidos
+    if (openTime == null || closeTime == null) {
+      print('DEBUG: Horarios no definidos');
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    // Verificar si está dentro del horario
+    final isWithinHours = _isWithinBusinessHours(now, openTime, closeTime);
+    print('DEBUG: ¿Está dentro del horario? $isWithinHours');
+
+    return {
+      'isOpen': isWithinHours,
+      'text': isWithinHours ? 'Abierto' : 'Cerrado',
+    };
+  }
+
+  /// Obtiene la clave del día actual para los horarios
+  String _getCurrentDayKey(int weekday) {
+    final dayMap = {
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday',
+      7: 'sunday',
+    };
+    return dayMap[weekday] ?? 'monday';
+  }
+
+  /// Verifica si la hora actual está dentro del horario de negocio
+  bool _isWithinBusinessHours(DateTime now, String openTime, String closeTime) {
+    try {
+      // Parsear horarios (formato esperado: "HH:mm")
+      final openParts = openTime.split(':');
+      final closeParts = closeTime.split(':');
+
+      if (openParts.length != 2 || closeParts.length != 2) {
+        return false;
+      }
+
+      final openHour = int.parse(openParts[0]);
+      final openMinute = int.parse(openParts[1]);
+      final closeHour = int.parse(closeParts[0]);
+      final closeMinute = int.parse(closeParts[1]);
+
+      // Crear DateTime para horarios de hoy
+      final today = DateTime(now.year, now.month, now.day);
+      final openDateTime = DateTime(
+        today.year,
+        today.month,
+        today.day,
+        openHour,
+        openMinute,
+      );
+      var closeDateTime = DateTime(
+        today.year,
+        today.month,
+        today.day,
+        closeHour,
+        closeMinute,
+      );
+
+      // Si el horario de cierre es antes que el de apertura,
+      // significa que cierra al día siguiente (ej: 22:00 - 02:00)
+      if (closeDateTime.isBefore(openDateTime) ||
+          (closeHour < openHour) ||
+          (closeHour == openHour && closeMinute <= openMinute)) {
+        closeDateTime = closeDateTime.add(const Duration(days: 1));
+      }
+
+      // Verificar si la hora actual está dentro del rango (inclusivo)
+      return (now.isAtSameMomentAs(openDateTime) ||
+              now.isAfter(openDateTime)) &&
+          (now.isAtSameMomentAs(closeDateTime) || now.isBefore(closeDateTime));
+    } catch (e) {
+      // En caso de error, asumir que está cerrado
+      return false;
+    }
   }
 
   double _calculateContainerHeight(
