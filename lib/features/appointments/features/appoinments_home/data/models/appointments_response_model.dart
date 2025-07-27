@@ -13,11 +13,16 @@ class AppointmentsResponseModel extends Equatable {
 
   factory AppointmentsResponseModel.fromJson(Map<String, dynamic> json) {
     return AppointmentsResponseModel(
-      success: json['success'] as bool,
-      message: json['message'] as String,
-      data: AppointmentsDataModel.fromJson(
-        json['data'] as Map<String, dynamic>,
-      ),
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      data: json['data'] != null
+          ? AppointmentsDataModel.fromJson(json['data'] as Map<String, dynamic>)
+          : AppointmentsDataModel(
+              appointments: [],
+              total: 0,
+              page: 1,
+              totalPages: 1,
+            ),
     );
   }
 
@@ -44,12 +49,14 @@ class AppointmentsDataModel extends Equatable {
 
   factory AppointmentsDataModel.fromJson(Map<String, dynamic> json) {
     return AppointmentsDataModel(
-      appointments: (json['appointments'] as List<dynamic>)
-          .map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      total: json['total'] as int,
-      page: json['page'] as int,
-      totalPages: json['totalPages'] as int,
+      appointments:
+          (json['appointments'] as List<dynamic>?)
+              ?.map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      total: json['total'] as int? ?? 0,
+      page: json['page'] as int? ?? 1,
+      totalPages: json['totalPages'] as int? ?? 1,
     );
   }
 
@@ -119,37 +126,57 @@ class AppointmentModel extends Equatable {
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
     return AppointmentModel(
-      id: json['id'] as String,
-      clientId: json['clientId'] as String,
-      businessId: json['businessId'] as String,
-      barberId: json['barberId'] as String,
-      serviceId: json['serviceId'] as String,
+      id: json['id'] as String? ?? '',
+      clientId: json['clientId'] as String? ?? '',
+      businessId: json['businessId'] as String? ?? '',
+      barberId: json['barberId'] as String? ?? '',
+      serviceId: json['serviceId'] as String? ?? '',
       packageId: json['packageId'] as String?,
-      scheduledDatetime: json['scheduledDatetime'] as String,
-      durationMinutes: json['durationMinutes'] as int,
-      totalPrice: json['totalPrice'] as String,
-      status: json['status'] as String,
+      scheduledDatetime: json['scheduledDatetime'] as String? ?? '',
+      durationMinutes: json['durationMinutes'] as int? ?? 0,
+      totalPrice: json['totalPrice'] as String? ?? '0.00',
+      status: json['status'] as String? ?? '',
       clientNotes: json['clientNotes'] as String?,
       barberNotes: json['barberNotes'] as String?,
-      statusHistory: (json['statusHistory'] as List<dynamic>)
-          .map((e) => StatusHistoryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
+      statusHistory:
+          (json['statusHistory'] as List<dynamic>?)
+              ?.map(
+                (e) => StatusHistoryModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      createdAt: json['createdAt'] as String? ?? '',
+      updatedAt: json['updatedAt'] as String? ?? '',
       cancelledAt: json['cancelledAt'] as String?,
       cancelledById: json['cancelledById'] as String?,
       reminder24hSentAt: json['reminder24hSentAt'] as String?,
       reminder2hSentAt: json['reminder2hSentAt'] as String?,
-      remindersEnabled: json['remindersEnabled'] as bool,
-      business: AppointmentBusinessModel.fromJson(
-        json['business'] as Map<String, dynamic>,
-      ),
-      barber: AppointmentBarberModel.fromJson(
-        json['barber'] as Map<String, dynamic>,
-      ),
-      service: AppointmentServiceModel.fromJson(
-        json['service'] as Map<String, dynamic>,
-      ),
+      remindersEnabled: json['remindersEnabled'] as bool? ?? true,
+      business: json['business'] != null
+          ? AppointmentBusinessModel.fromJson(
+              json['business'] as Map<String, dynamic>,
+            )
+          : AppointmentBusinessModel(name: '', address: '', phone: ''),
+      barber: json['barber'] != null
+          ? AppointmentBarberModel.fromJson(
+              json['barber'] as Map<String, dynamic>,
+            )
+          : AppointmentBarberModel(
+              name: '',
+              firstName: '',
+              lastName: '',
+              specialties: [],
+            ),
+      service: json['service'] != null
+          ? AppointmentServiceModel.fromJson(
+              json['service'] as Map<String, dynamic>,
+            )
+          : AppointmentServiceModel(
+              name: '',
+              duration: 0,
+              price: '0.00',
+              description: '',
+            ),
     );
   }
 
@@ -226,10 +253,10 @@ class StatusHistoryModel extends Equatable {
 
   factory StatusHistoryModel.fromJson(Map<String, dynamic> json) {
     return StatusHistoryModel(
-      reason: json['reason'] as String,
-      toStatus: json['toStatus'] as String,
-      changedBy: json['changedBy'] as String,
-      timestamp: json['timestamp'] as String,
+      reason: json['reason'] as String? ?? '',
+      toStatus: json['toStatus'] as String? ?? '',
+      changedBy: json['changedBy'] as String? ?? '',
+      timestamp: json['timestamp'] as String? ?? '',
       fromStatus: json['fromStatus'] as String?,
     );
   }
@@ -267,9 +294,9 @@ class AppointmentBusinessModel extends Equatable {
 
   factory AppointmentBusinessModel.fromJson(Map<String, dynamic> json) {
     return AppointmentBusinessModel(
-      name: json['name'] as String,
-      address: json['address'] as String,
-      phone: json['phone'] as String,
+      name: json['name'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
     );
   }
 
@@ -296,10 +323,11 @@ class AppointmentBarberModel extends Equatable {
 
   factory AppointmentBarberModel.fromJson(Map<String, dynamic> json) {
     return AppointmentBarberModel(
-      name: json['name'] as String,
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      specialties: (json['specialties'] as List<dynamic>).cast<String>(),
+      name: json['name'] as String? ?? '',
+      firstName: json['firstName'] as String? ?? '',
+      lastName: json['lastName'] as String? ?? '',
+      specialties:
+          (json['specialties'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 
@@ -331,10 +359,10 @@ class AppointmentServiceModel extends Equatable {
 
   factory AppointmentServiceModel.fromJson(Map<String, dynamic> json) {
     return AppointmentServiceModel(
-      name: json['name'] as String,
-      duration: json['duration'] as int,
-      price: json['price'] as String,
-      description: json['description'] as String,
+      name: json['name'] as String? ?? '',
+      duration: json['duration'] as int? ?? 0,
+      price: json['price'] as String? ?? '0.00',
+      description: json['description'] as String? ?? '',
     );
   }
 
