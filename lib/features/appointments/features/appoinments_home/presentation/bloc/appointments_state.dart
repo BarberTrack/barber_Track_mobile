@@ -17,6 +17,8 @@ class AppointmentsLoaded extends AppointmentsState {
   final int page;
   final int totalPages;
   final String? currentFilter;
+  final bool hasReachedMax;
+  final bool isLoadingMore;
 
   const AppointmentsLoaded({
     required this.appointments,
@@ -24,7 +26,29 @@ class AppointmentsLoaded extends AppointmentsState {
     required this.page,
     required this.totalPages,
     this.currentFilter,
+    this.hasReachedMax = false,
+    this.isLoadingMore = false,
   });
+
+  AppointmentsLoaded copyWith({
+    List<Appointment>? appointments,
+    int? total,
+    int? page,
+    int? totalPages,
+    String? currentFilter,
+    bool? hasReachedMax,
+    bool? isLoadingMore,
+  }) {
+    return AppointmentsLoaded(
+      appointments: appointments ?? this.appointments,
+      total: total ?? this.total,
+      page: page ?? this.page,
+      totalPages: totalPages ?? this.totalPages,
+      currentFilter: currentFilter ?? this.currentFilter,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -33,6 +57,8 @@ class AppointmentsLoaded extends AppointmentsState {
     page,
     totalPages,
     currentFilter,
+    hasReachedMax,
+    isLoadingMore,
   ];
 }
 
