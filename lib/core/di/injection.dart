@@ -156,6 +156,13 @@ import '../../features/promotions/domain/repositories/promotions_repository.dart
 import '../../features/promotions/domain/usecases/get_business_promotions.dart';
 import '../../features/promotions/presentation/bloc/promotions_bloc.dart';
 
+// Register imports
+import '../../features/register/data/datasources/register_remote_data_source.dart';
+import '../../features/register/data/repositories/register_repository_impl.dart';
+import '../../features/register/domain/repositories/register_repository.dart';
+import '../../features/register/domain/usecases/register_user.dart';
+import '../../features/register/presentation/bloc/register_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -593,8 +600,23 @@ Future<void> initializeDependencies() async {
   );
 
   sl.registerFactory<PromotionsBloc>(
-    () => PromotionsBloc(
-      getBusinessPromotions: sl<GetBusinessPromotions>(),
-    ),
+    () => PromotionsBloc(getBusinessPromotions: sl<GetBusinessPromotions>()),
+  );
+
+  // Register dependencies
+  sl.registerLazySingleton<RegisterRemoteDataSource>(
+    () => RegisterRemoteDataSourceImpl(sl<DioClient>()),
+  );
+
+  sl.registerLazySingleton<RegisterRepository>(
+    () => RegisterRepositoryImpl(sl<RegisterRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<RegisterUser>(
+    () => RegisterUser(sl<RegisterRepository>()),
+  );
+
+  sl.registerFactory<RegisterBloc>(
+    () => RegisterBloc(registerUserUseCase: sl<RegisterUser>()),
   );
 }

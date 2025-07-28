@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:secure_application/secure_application.dart';
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
+import 'core/services/security_service.dart';
 import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 
 void main() async {
@@ -16,29 +18,44 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<FavoritesBloc>(
-      create: (context) => sl<FavoritesBloc>(),
-      child: MaterialApp.router(
-        title: 'BarberTrack',
-        debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('es', 'ES'), // Español
-          Locale('en', 'US'), // Inglés
-        ],
-        locale: const Locale('es', 'ES'),
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-        ),
-        routerConfig: AppRouter.router,
+    return SecureApplication(
+      onNeedUnlock: (secureApplicationController) async {
+        // Auto-unlock - permitir acceso normal
+        secureApplicationController?.unlock();
+        return null;
+      },
+      child: Builder(
+        builder: (context) {
+          // Inicializar el servicio de seguridad
+          final secureController = SecureApplicationProvider.of(context);
+          SecurityService.instance.initialize(secureController);
+
+          return BlocProvider<FavoritesBloc>(
+            create: (context) => sl<FavoritesBloc>(),
+            child: MaterialApp.router(
+              title: 'BarberTrack',
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('es', 'ES'), // Español
+                Locale('en', 'US'), // Inglés
+              ],
+              locale: const Locale('es', 'ES'),
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: Colors.blue,
+                  brightness: Brightness.dark,
+                ),
+                useMaterial3: true,
+              ),
+              routerConfig: AppRouter.router,
+            ),
+          );
+        },
       ),
     );
   }

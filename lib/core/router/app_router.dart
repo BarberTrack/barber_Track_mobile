@@ -21,10 +21,12 @@ import '../../features/appointments/features/update_appointment/presentation/pag
 import '../../features/appointments/features/change_service/presentation/pages/change_service_page.dart';
 import '../../features/appointments/features/appoinments_home/domain/entities/appointment.dart';
 import '../../features/promotions/presentation/pages/promotions_page.dart';
+import '../../features/register/presentation/pages/register_page.dart';
 import '../di/injection.dart';
 
 class AppRouter {
   static const String login = '/login';
+  static const String register = '/register';
   static const String home = '/home';
   static const String barberDetails = '/barber-details';
   static const String createAppointment = '/create-appointment';
@@ -50,6 +52,12 @@ class AppRouter {
         name: 'login',
         builder: (BuildContext context, GoRouterState state) =>
             const LoginPage(),
+      ),
+      GoRoute(
+        path: register,
+        name: 'register',
+        builder: (BuildContext context, GoRouterState state) =>
+            const RegisterPage(),
       ),
       GoRoute(
         path: home,
