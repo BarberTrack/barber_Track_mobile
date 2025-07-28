@@ -326,24 +326,22 @@ class _FavoritesViewState extends State<FavoritesView> {
           ),
         ),
 
-        // Grid de favoritos
+        // Lista de favoritos
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 0.75,
-              mainAxisSpacing: 20,
-            ),
+          sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               final favorite = state.favorites[index];
-              return FavoriteCard(favorite: favorite);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: FavoriteCard(favorite: favorite),
+              );
             }, childCount: state.favorites.length),
           ),
         ),
 
         // Espacio final
-        //const SliverToBoxAdapter(child: SizedBox(height: 20)),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
     );
   }
