@@ -367,6 +367,22 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
                     const SizedBox(height: 16),
                     TimeSlotsGrid(
                       availability: availability,
+                      selectedTimeSlot:
+                          state is UpdateAppointmentTimeSlotSelected
+                          ? state.selectedTimeSlot
+                          : state is UpdateAppointmentWithNotes
+                          ? state.selectedTimeSlot
+                          : null,
+                      selectedDate: state is UpdateAppointmentTimeSlotSelected
+                          ? state.selectedDate
+                          : state is UpdateAppointmentWithNotes
+                          ? state.selectedDate
+                          : null,
+                      originalAppointmentDate:
+                          widget.appointment.scheduledDatetime,
+                      originalAppointmentTime: _extractTimeFromDateTime(
+                        widget.appointment.scheduledDatetime,
+                      ),
                       onTimeSlotSelected: (timeSlot, date) {
                         context.read<UpdateAppointmentBloc>().add(
                           SelectTimeSlot(
@@ -378,6 +394,61 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Leyenda de estados
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Leyenda:',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildLegendItem(
+                          context,
+                          icon: Icons.schedule_rounded,
+                          color: Colors.orange.shade600,
+                          label: 'Horario Actual',
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildLegendItem(
+                          context,
+                          icon: Icons.check_circle_rounded,
+                          color: Colors.green.shade600,
+                          label: 'Seleccionado',
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildLegendItem(
+                          context,
+                          icon: Icons.access_time_rounded,
+                          color: Colors.blue.shade600,
+                          label: 'Disponible',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -490,8 +561,8 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
         businessId: widget.appointment.businessId,
         barberId: widget.appointment.barberId,
         serviceId: widget.appointment.serviceId,
-        date: '${formattedDate}T00:00:00.000Z',
-        days: 3,
+        date: formattedDate,
+        days: 1,
       ),
     );
   }
@@ -523,28 +594,57 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
           children: [
             Icon(Icons.update_rounded, color: Colors.blue),
             SizedBox(width: 8),
-            Text('Confirmar Actualización'),
+            Flexible(
+              child: Text(
+                'Confirmar Actualización',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Se actualizará tu cita con los siguientes datos:',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow(
-              'Nueva fecha:',
-              _formatSelectedDateTime(selectedDateTime!, selectedTimeSlot!.time),
-            ),
-            _buildDetailRow('Barbero:', widget.appointment.barber.name),
-            _buildDetailRow('Servicio:', widget.appointment.service.name),
-            _buildDetailRow('Precio:', '\$${widget.appointment.totalPrice}'),
-            if (notes != null && notes.isNotEmpty)
-              _buildDetailRow('Notas:', notes),
-          ],
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Se actualizará tu cita con los siguientes datos:',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailRow(
+                        'Nueva fecha:',
+                        _formatSelectedDateTime(
+                          selectedDateTime!,
+                          selectedTimeSlot!.time,
+                        ),
+                      ),
+                      _buildDetailRow(
+                        'Barbero:',
+                        widget.appointment.barber.name,
+                      ),
+                      _buildDetailRow(
+                        'Servicio:',
+                        widget.appointment.service.name,
+                      ),
+                      _buildDetailRow(
+                        'Precio:',
+                        '\$${widget.appointment.totalPrice}',
+                      ),
+                      if (notes != null && notes.isNotEmpty)
+                        _buildDetailRow('Notas:', notes),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -585,18 +685,20 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
             child: Text(
               label,
               style: const TextStyle(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: Text(value, softWrap: true, overflow: TextOverflow.visible),
+          ),
         ],
       ),
     );
   }
 
   String _formatCurrentDateTime(DateTime dateTime) {
-    final mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
-    final date = DateFormat('dd/MM/yyyy').format(mexicoDateTime);
-    final time = DateFormat('HH:mm').format(mexicoDateTime);
+    final date = DateFormat('dd/MM/yyyy').format(dateTime);
+    final time = DateFormat('HH:mm').format(dateTime);
     return '$date a las $time';
   }
 
@@ -662,6 +764,36 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 4),
       ),
+    );
+  }
+
+  String _extractTimeFromDateTime(DateTime dateTime) {
+    final timeFormat = DateFormat('HH:mm');
+    return timeFormat.format(dateTime);
+  }
+
+  Widget _buildLegendItem(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String label,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Colors.grey.shade600,
+              fontSize: 11,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

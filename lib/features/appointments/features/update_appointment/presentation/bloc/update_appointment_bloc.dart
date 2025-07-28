@@ -199,13 +199,11 @@ class UpdateAppointmentBloc
   }
 
   String _formatDateTime(DateTime date, String time) {
-    // Combinar fecha y hora en formato ISO 8601
     final timeParts = time.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
 
-    // Crear el DateTime con la hora seleccionada (que ya está en hora de México)
-    final mexicoDateTime = DateTime(
+    final localDateTime = DateTime(
       date.year,
       date.month,
       date.day,
@@ -213,8 +211,7 @@ class UpdateAppointmentBloc
       minute,
     );
 
-    // Convertir de hora de México (UTC-6) a UTC restando 6 horas
-    final utcDateTime = mexicoDateTime.subtract(const Duration(hours: 6));
+    final utcDateTime = localDateTime.add(const Duration(hours: 6));
 
     return utcDateTime.toIso8601String();
   }

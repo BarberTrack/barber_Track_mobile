@@ -35,7 +35,7 @@ class UpdateAppointmentRemoteDataSourceImpl
     required String barberId,
     required String serviceId,
     required String date,
-    int days = 3,
+    int days = 1,
   }) async {
     try {
       final token = await tokenStorage.getToken();
@@ -89,9 +89,7 @@ class UpdateAppointmentRemoteDataSourceImpl
         throw Exception('No authentication token found');
       }
 
-      logger.d(
-        'Updating appointment $appointmentId with data: ${request.toJson()}',
-      );
+
 
       final response = await dioClient.dio.put(
         '/appointments/$appointmentId',

@@ -5,11 +5,19 @@ import '../../domain/entities/availability.dart';
 class TimeSlotsGrid extends StatelessWidget {
   final List<Availability> availability;
   final Function(TimeSlot, DateTime) onTimeSlotSelected;
+  final TimeSlot? selectedTimeSlot;
+  final DateTime? selectedDate;
+  final DateTime? originalAppointmentDate;
+  final String? originalAppointmentTime;
 
   const TimeSlotsGrid({
     super.key,
     required this.availability,
     required this.onTimeSlotSelected,
+    this.selectedTimeSlot,
+    this.selectedDate,
+    this.originalAppointmentDate,
+    this.originalAppointmentTime,
   });
 
   @override
@@ -149,6 +157,8 @@ class TimeSlotsGrid extends StatelessWidget {
     DateTime date,
   ) {
     final theme = Theme.of(context);
+    final isSelected = _isSlotSelected(slot, date);
+    final isOriginalSlot = _isOriginalSlot(slot, date);
 
     return Material(
       color: Colors.transparent,
@@ -158,7 +168,21 @@ class TimeSlotsGrid extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            gradient: slot.available
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      Colors.green.withOpacity(0.2),
+                      Colors.green.withOpacity(0.1),
+                    ],
+                  )
+                : isOriginalSlot
+                ? LinearGradient(
+                    colors: [
+                      Colors.orange.withOpacity(0.15),
+                      Colors.orange.withOpacity(0.08),
+                    ],
+                  )
+                : slot.available
                 ? LinearGradient(
                     colors: [
                       Colors.blue.withOpacity(0.1),
@@ -173,21 +197,33 @@ class TimeSlotsGrid extends StatelessWidget {
                   ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: slot.available
+              color: isSelected
+                  ? Colors.green.withOpacity(0.5)
+                  : isOriginalSlot
+                  ? Colors.orange.withOpacity(0.4)
+                  : slot.available
                   ? Colors.blue.withOpacity(0.3)
                   : Colors.grey.withOpacity(0.3),
-              width: 1,
+              width: isSelected ? 2 : (isOriginalSlot ? 2 : 1),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                slot.available
+                isSelected
+                    ? Icons.check_circle_rounded
+                    : isOriginalSlot
+                    ? Icons.schedule_rounded
+                    : slot.available
                     ? Icons.access_time_rounded
                     : Icons.block_rounded,
                 size: 16,
-                color: slot.available
+                color: isSelected
+                    ? Colors.green.shade600
+                    : isOriginalSlot
+                    ? Colors.orange.shade600
+                    : slot.available
                     ? Colors.blue.shade600
                     : Colors.grey.shade400,
               ),
@@ -196,11 +232,43 @@ class TimeSlotsGrid extends StatelessWidget {
                 slot.time,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: slot.available
+                  color: isSelected
+                      ? Colors.green.shade700
+                      : isOriginalSlot
+                      ? Colors.orange.shade700
+                      : slot.available
                       ? Colors.blue.shade700
                       : Colors.grey.shade400,
                 ),
               ),
+              if (isOriginalSlot) ...[
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Horario actual de tu cita',
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.orange.withOpacity(0.5),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'ACTUAL',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               if (!slot.available && slot.blockReason != null) ...[
                 const SizedBox(width: 8),
                 Tooltip(
@@ -217,6 +285,31 @@ class TimeSlotsGrid extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool _isSlotSelected(TimeSlot slot, DateTime date) {
+    if (selectedTimeSlot == null || selectedDate == null) return false;
+
+    final isSameDate =
+        selectedDate!.year == date.year &&
+        selectedDate!.month == date.month &&
+        selectedDate!.day == date.day;
+
+    return isSameDate && selectedTimeSlot!.time == slot.time;
+  }
+
+  bool _isOriginalSlot(TimeSlot slot, DateTime date) {
+    if (originalAppointmentDate == null || originalAppointmentTime == null) {
+      return false;
+    }
+
+    final originalDate = originalAppointmentDate!;
+    final isSameDate =
+        date.year == originalDate.year &&
+        date.month == originalDate.month &&
+        date.day == originalDate.day;
+
+    return isSameDate && originalAppointmentTime == slot.time;
   }
 
   List<TimeSlot> _filterAvailableSlots(List<TimeSlot> slots, DateTime date) {

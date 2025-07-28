@@ -19,7 +19,7 @@ class LoadAvailability extends UpdateAppointmentEvent {
     required this.barberId,
     required this.serviceId,
     required this.date,
-    this.days = 3,
+    this.days = 1,
   });
 
   @override

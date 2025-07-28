@@ -36,6 +36,13 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
       create: (_) => sl<RepeatAppointmentBloc>(),
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              context.go('/appointments');
+            },
+            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Regresar a mis citas',
+          ),
           title: const Text('Repetir Cita'),
           centerTitle: true,
           backgroundColor: Colors.blue.shade700,

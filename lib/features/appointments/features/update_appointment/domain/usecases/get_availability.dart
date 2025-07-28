@@ -11,7 +11,7 @@ class GetAvailability {
     required String barberId,
     required String serviceId,
     required String date,
-    int days = 3,
+    int days = 1,
   }) {
     return repository.getAvailability(
       businessId: businessId,
