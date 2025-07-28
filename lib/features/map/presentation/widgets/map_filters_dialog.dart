@@ -43,232 +43,244 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header con icono y título
-            Row(
-              children: [
-                const Icon(
-                  Icons.filter_list_rounded,
-                  color: Colors.blueAccent,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Filtros del Mapa',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header con icono y título
+              Row(
+                children: [
+                  const Icon(
+                    Icons.filter_list_rounded,
                     color: Colors.blueAccent,
+                    size: 24,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            // Campo de búsqueda con validación y botón de limpiar
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Buscar barberías',
-                hintText: 'Ingresa el nombre de la barbería...',
-                prefixIcon: const Icon(Icons.search_rounded),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _currentFilters = _currentFilters.copyWith(
-                              clearSearch: true,
-                            );
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.blueAccent),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Filtros del Mapa',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  if (value.isEmpty) {
-                    _currentFilters = _currentFilters.copyWith(
-                      clearSearch: true,
-                    );
-                  } else {
-                    _currentFilters = _currentFilters.copyWith(search: value);
-                  }
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            // Selector de rating con chips
-            Text(
-              'Rating mínimo',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                _buildRatingChip(null, 'Todos'),
-                for (int i = 1; i <= 5; i++) _buildRatingChip(i, '$i⭐'),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Selector de fecha con validación
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => _selectDate(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today_rounded,
-                            color: Colors.blueAccent,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _currentFilters.date ?? 'Seleccionar fecha',
-                            style: TextStyle(
-                              color: _currentFilters.date != null
-                                  ? Colors.black87
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              const SizedBox(height: 24),
+              // Campo de búsqueda con validación y botón de limpiar
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  labelText: 'Buscar barberías',
+                  hintText: 'Ingresa el nombre de la barbería...',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _currentFilters = _currentFilters.copyWith(
+                                clearSearch: true,
+                              );
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.blueAccent),
                   ),
                 ),
-                if (_currentFilters.date != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.clear_rounded),
-                    onPressed: () {
-                      setState(() {
-                        _currentFilters = _currentFilters.copyWith(
-                          clearDate: true,
-                        );
-                      });
-                    },
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Selector de hora con validación
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => _selectTime(),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.access_time_rounded,
-                            color: Colors.blueAccent,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _currentFilters.time ?? 'Seleccionar hora',
-                            style: TextStyle(
-                              color: _currentFilters.time != null
-                                  ? Colors.black87
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                if (_currentFilters.time != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.clear_rounded),
-                    onPressed: () {
-                      setState(() {
-                        _currentFilters = _currentFilters.copyWith(
-                          clearTime: true,
-                        );
-                      });
-                    },
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 24),
-            // Botones de acción
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.cancel_rounded),
-                    label: const Text('Cancelar'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      widget.mapBloc.add(
-                        LoadMapBusinessesWithFilters(_currentFilters),
+                onChanged: (value) {
+                  setState(() {
+                    if (value.isEmpty) {
+                      _currentFilters = _currentFilters.copyWith(
+                        clearSearch: true,
                       );
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.search_rounded),
-                    label: const Text('Aplicar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    } else {
+                      _currentFilters = _currentFilters.copyWith(search: value);
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              // Selector de rating con chips
+              Text(
+                'Rating mínimo',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  _buildRatingChip(null, 'Todos'),
+                  for (int i = 1; i <= 5; i++) _buildRatingChip(i, '$i⭐'),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Selector de fecha con validación
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectDate(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_rounded,
+                              color: Colors.blueAccent,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _currentFilters.date ?? 'Seleccionar fecha',
+                              style: TextStyle(
+                                color: _currentFilters.date != null
+                                    ? Colors.black87
+                                    : Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  if (_currentFilters.date != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      onPressed: () {
+                        setState(() {
+                          _currentFilters = _currentFilters.copyWith(
+                            clearDate: true,
+                          );
+                        });
+                      },
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Selector de hora con validación
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _selectTime(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.access_time_rounded,
+                              color: Colors.blueAccent,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _currentFilters.time ?? 'Seleccionar hora',
+                              style: TextStyle(
+                                color: _currentFilters.time != null
+                                    ? Colors.black87
+                                    : Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (_currentFilters.time != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.clear_rounded),
+                      onPressed: () {
+                        setState(() {
+                          _currentFilters = _currentFilters.copyWith(
+                            clearTime: true,
+                          );
+                        });
+                      },
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Botones de acción
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.cancel_rounded),
+                      label: const Text('Cancelar'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        widget.mapBloc.add(
+                          LoadMapBusinessesWithFilters(_currentFilters),
+                        );
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.search_rounded),
+                      label: const Text('Aplicar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
