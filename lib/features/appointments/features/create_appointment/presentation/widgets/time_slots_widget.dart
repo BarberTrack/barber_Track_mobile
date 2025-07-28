@@ -18,84 +18,217 @@ class TimeSlotsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.grey.shade800, Colors.grey.shade900],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Horarios disponibles:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            // Encabezado con icono
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.green.shade600, Colors.green.shade800],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.access_time,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Horarios disponibles',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Selecciona el horario que prefieras',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+
+            // Lista de días con horarios
             ...availability.map((dayAvailability) {
               final filteredSlots = _filterSlotsByCurrentTime(
                 dayAvailability.slots,
                 dayAvailability.date,
               );
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatDateForDisplay(dayAvailability.date),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  if (filteredSlots.isNotEmpty) ...[
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: filteredSlots
-                          .where((slot) => slot.available)
-                          .map(
-                            (slot) => _TimeSlotChip(
-                              slot: slot,
-                              state: state,
-                              slotDate: dayAvailability.date,
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ] else ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.grey.shade600,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _isToday(dayAvailability.date)
-                                ? 'No hay horarios disponibles para hoy'
-                                : 'Todos los horarios están ocupados',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
+              return Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade900,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                ],
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Encabezado del día
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blue.shade800,
+                              Colors.blue.shade900,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blue.shade600,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.blue.shade300,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _formatDateForDisplay(dayAvailability.date),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade200,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      if (filteredSlots.isNotEmpty) ...[
+                        // Usar Wrap en lugar de GridView para mejor manejo del overflow
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final availableSlots = filteredSlots
+                                .where((slot) => slot.available)
+                                .toList();
+
+                            if (availableSlots.isEmpty) {
+                              return _buildNoSlotsMessage();
+                            }
+
+                            return Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: availableSlots.map((slot) {
+                                return SizedBox(
+                                  width:
+                                      (constraints.maxWidth - 16) /
+                                      3, // 3 columnas con spacing
+                                  child: _TimeSlotChip(
+                                    slot: slot,
+                                    state: state,
+                                    slotDate: dayAvailability.date,
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ] else ...[
+                        _buildNoSlotsMessage(),
+                      ],
+                    ],
+                  ),
+                ),
               );
             }).toList(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoSlotsMessage() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade900.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade600, width: 1),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: Colors.orange.shade300, size: 24),
+          const SizedBox(width: 16),
+          const Expanded(
+            child: Text(
+              'No hay horarios disponibles',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -307,23 +440,81 @@ class _TimeSlotChip extends StatelessWidget {
           slotDate,
         );
 
-    return ChoiceChip(
-      label: Text(slot.time),
-      selected: isSelected,
-      selectedColor: const Color.fromARGB(255, 66, 135, 190),
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-      onSelected: (selected) {
-        if (selected) {
-          final selectedDateTime = _createDateTimeFromSlot(slotDate, slot.time);
-
-          context.read<CreateAppointmentBloc>().add(
-            SelectTimeSlotWithDate(
-              timeSlot: slot,
-              selectedDate: selectedDateTime,
+    return Container(
+      height: 50, // Altura fija para evitar overflow
+      decoration: BoxDecoration(
+        gradient: isSelected
+            ? LinearGradient(
+                colors: [Colors.blue.shade600, Colors.blue.shade700],
+              )
+            : LinearGradient(
+                colors: [Colors.grey.shade700, Colors.grey.shade800],
+              ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: Colors.blue.withOpacity(0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+        border: Border.all(
+          color: isSelected ? Colors.blue.shade300 : Colors.grey.shade500,
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            final selectedDateTime = _createDateTimeFromSlot(
+              slotDate,
+              slot.time,
+            );
+            context.read<CreateAppointmentBloc>().add(
+              SelectTimeSlotWithDate(
+                timeSlot: slot,
+                selectedDate: selectedDateTime,
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.schedule,
+                  size: 16,
+                  color: isSelected ? Colors.white : Colors.grey.shade300,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    slot.time,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : Colors.grey.shade200,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
-          );
-        }
-      },
+          ),
+        ),
+      ),
     );
   }
 
