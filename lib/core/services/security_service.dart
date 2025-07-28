@@ -13,6 +13,10 @@ class SecurityService {
 
   void enableScreenSecurity() {
     try {
+      if (_controller == null) {
+        return;
+      }
+
       _controller?.secure();
     } catch (e) {
       throw Exception('Error al activar la protección de pantalla: $e');
@@ -21,6 +25,10 @@ class SecurityService {
 
   void disableScreenSecurity() {
     try {
+      if (_controller == null) {
+        return;
+      }
+
       _controller?.open();
     } catch (e) {
       throw Exception('Error al desactivar la protección de pantalla: $e');

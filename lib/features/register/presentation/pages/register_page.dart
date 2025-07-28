@@ -6,6 +6,7 @@ import '../bloc/register_event.dart';
 import '../bloc/register_state.dart';
 import '../widgets/register_form.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/services/security_service.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -19,17 +20,29 @@ class RegisterPage extends StatelessWidget {
   }
 }
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  @override
+  void initState() {
+    super.initState();
+    SecurityService.instance.enableScreenSecurity();
+  }
+
+  @override
+  void dispose() {
+    SecurityService.instance.disableScreenSecurity();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Cuenta'),
-        centerTitle: true,
-        elevation: 0,
-      ),
       body: BlocConsumer<RegisterBloc, RegisterState>(
         listener: (context, state) {
           if (state is RegisterSuccess) {
@@ -45,6 +58,24 @@ class RegisterView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Botón de regresar manual
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => context.go('/login'),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      const Text(
+                        'Crear Cuenta',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
                   // Logo o imagen opcional
                   const Icon(Icons.person_add, size: 80, color: Colors.blue),
                   const SizedBox(height: 24),

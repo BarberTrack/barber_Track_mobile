@@ -152,6 +152,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           icon: const Icon(Icons.map_rounded, color: Colors.white),
           tooltip: 'Ver mapa de barberías',
         ),
+        IconButton(
+          onPressed: () {
+            context.go(AppRouter.login);
+          },
+          icon: const Icon(Icons.logout_rounded, color: Colors.white),
+          tooltip: 'Cerrar sesión',
+        ),
       ],
     );
   }
