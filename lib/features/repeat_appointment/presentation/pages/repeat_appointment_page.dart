@@ -44,7 +44,7 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
         body: BlocConsumer<RepeatAppointmentBloc, RepeatAppointmentState>(
           listener: (context, state) {
             if (state is RepeatAppointmentSuccess) {
-              _showSuccessMessage(context);
+              _showSuccessMessage(context, state.response);
             } else if (state is RepeatAppointmentError) {
               _showErrorMessage(context, state.message);
             }
@@ -271,23 +271,30 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
     );
   }
 
-  void _showSuccessMessage(BuildContext context) {
+  void _showSuccessMessage(BuildContext context, dynamic response) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white),
             SizedBox(width: 8),
-            Text('Cita repetida exitosamente'),
+            Expanded(
+              child: Text(
+                'Cita repetida exitosamente. ¡Nos vemos pronto!',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
         backgroundColor: Colors.green.shade600,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
 
     // Navegar de vuelta a la pantalla de citas después de un breve delay
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (context.mounted) {
         context.go('/appointments');
       }
@@ -301,11 +308,18 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
           children: [
             const Icon(Icons.error_outline, color: Colors.white),
             const SizedBox(width: 8),
-            Expanded(child: Text(message)),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
         backgroundColor: Colors.red.shade600,
         duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

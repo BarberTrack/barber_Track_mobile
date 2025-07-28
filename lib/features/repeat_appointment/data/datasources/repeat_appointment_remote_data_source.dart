@@ -54,7 +54,6 @@ class RepeatAppointmentRemoteDataSourceImpl
         },
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
- 
 
       if (response.statusCode == 200) {
         final availabilityResponse = AvailabilityResponseModel.fromJson(
@@ -67,7 +66,6 @@ class RepeatAppointmentRemoteDataSourceImpl
         );
       }
     } catch (e) {
-       
       if (e is DioException) {
         if (e.response != null) {
           final errorData = e.response!.data;
@@ -92,19 +90,24 @@ class RepeatAppointmentRemoteDataSourceImpl
         throw Exception('No authentication token found');
       }
 
- 
       final response = await dioClient.dio.post(
         '/appointments/$appointmentId/repeat',
         data: request.toJson(),
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
- 
 
       if (response.statusCode == 201) {
-        return RepeatAppointmentResponseModel.fromJson(
-          response.data as Map<String, dynamic>,
-        );
+        try {
+          return RepeatAppointmentResponseModel.fromJson(
+            response.data as Map<String, dynamic>,
+          );
+        } catch (parseError) {
+
+          throw Exception(
+            'Error al procesar la respuesta del servidor: $parseError',
+          );
+        }
       } else {
         throw Exception('Error al repetir cita: ${response.statusCode}');
       }

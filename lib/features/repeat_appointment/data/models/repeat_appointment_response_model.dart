@@ -122,23 +122,26 @@ class RepeatedAppointmentModel extends Equatable {
       serviceId: json['serviceId'] as String,
       packageId: json['packageId'] as String?,
       scheduledDatetime: json['scheduledDatetime'] as String,
-      durationMinutes: json['durationMinutes'] as int,
+      durationMinutes: (json['durationMinutes'] as num?)?.toInt() ?? 0,
       totalPrice: json['totalPrice'] as String,
       status: json['status'] as String,
       clientNotes: json['clientNotes'] as String?,
       barberNotes: json['barberNotes'] as String?,
-      statusHistory: (json['statusHistory'] as List<dynamic>)
-          .map(
-            (item) => StatusHistoryModel.fromJson(item as Map<String, dynamic>),
-          )
-          .toList(),
+      statusHistory:
+          (json['statusHistory'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    StatusHistoryModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
       createdAt: json['createdAt'] as String,
       updatedAt: json['updatedAt'] as String,
       cancelledAt: json['cancelledAt'] as String?,
       cancelledById: json['cancelledById'] as String?,
       reminder24hSentAt: json['reminder24hSentAt'] as String?,
       reminder2hSentAt: json['reminder2hSentAt'] as String?,
-      remindersEnabled: json['remindersEnabled'] as bool,
+      remindersEnabled: (json['remindersEnabled'] as bool?) ?? true,
       business: AppointmentBusinessModel.fromJson(
         json['business'] as Map<String, dynamic>,
       ),
@@ -330,7 +333,7 @@ class AppointmentServiceModel extends Equatable {
   factory AppointmentServiceModel.fromJson(Map<String, dynamic> json) {
     return AppointmentServiceModel(
       name: json['name'] as String,
-      duration: json['duration'] as int,
+      duration: (json['duration'] as num?)?.toInt() ?? 0,
       price: json['price'] as String,
       description: json['description'] as String,
     );
