@@ -14,7 +14,7 @@ class MapRepositoryImpl implements MapRepository {
     try {
       final responseModel = await remoteDataSource.getBusinesses();
 
-      // Mapear modelos a entidades directamente aquí
+     
       final mappedBusinesses = responseModel.businesses
           .map((businessModel) => MapBusinessMapper.toEntity(businessModel))
           .toList();
@@ -39,7 +39,7 @@ class MapRepositoryImpl implements MapRepository {
         filters,
       );
 
-      // Mapear modelos a entidades directamente aquí
+     
       final mappedBusinesses = responseModel.businesses
           .map((businessModel) => MapBusinessMapper.toEntity(businessModel))
           .toList();
@@ -56,7 +56,7 @@ class MapRepositoryImpl implements MapRepository {
   }
 }
 
-// Implementación concreta de la entidad abstracta MapBusinessesResponse
+
 class MapBusinessesResponseEntity extends MapBusinessesResponse {
   const MapBusinessesResponseEntity({
     required super.businesses,

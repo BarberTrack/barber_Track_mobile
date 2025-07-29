@@ -20,14 +20,12 @@ class MapRemoteDataSourceImpl implements MapRemoteDataSource {
   @override
   Future<MapBusinessesResponseModel> getBusinesses() async {
     try {
-      // Obtener el token del almacenamiento
       final token = await tokenStorage.getToken();
 
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
-      // Configurar el header de autorización
       final response = await dioClient.dio.get(
         '/businesses',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
@@ -52,17 +50,14 @@ class MapRemoteDataSourceImpl implements MapRemoteDataSource {
     MapBusinessFilters filters,
   ) async {
     try {
-      // Obtener el token del almacenamiento
       final token = await tokenStorage.getToken();
 
       if (token == null) {
         throw Exception('No authentication token found');
       }
-
-      // Convertir filtros a parámetros de consulta
+  
       final queryParameters = filters.toQueryParameters();
 
-      // Configurar el header de autorización
       final response = await dioClient.dio.get(
         '/businesses',
         queryParameters: queryParameters,

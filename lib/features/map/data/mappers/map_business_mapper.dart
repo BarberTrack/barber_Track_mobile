@@ -53,7 +53,7 @@ class MapBusinessMapper {
   }
 }
 
-// Implementación concreta de la entidad abstracta
+
 class MapBusinessEntity extends MapBusiness {
   const MapBusinessEntity({
     required super.id,

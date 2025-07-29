@@ -3,15 +3,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/map_business.dart';
-import '../../../../core/router/app_router.dart';
 
 class MapMarkerBuilder {
-  /// Convierte una lista de negocios en marcadores para el mapa
+ 
   static List<Marker> buildBusinessMarkers(List<MapBusiness> businesses) {
     final List<Marker> markers = [];
 
     for (final business in businesses) {
-      // Solo crear marcadores para negocios con coordenadas válidas
+     
       if (business.latitude != null && business.longitude != null) {
         final marker = Marker(
           point: LatLng(business.latitude!, business.longitude!),
@@ -26,7 +25,7 @@ class MapMarkerBuilder {
     return markers;
   }
 
-  /// Crea un marcador personalizado para ubicaciones tocadas por el usuario
+ 
   static Marker buildCustomMarker(LatLng point, String label) {
     return Marker(
       point: point,
@@ -36,7 +35,7 @@ class MapMarkerBuilder {
     );
   }
 
-  /// Obtiene el número de negocios con coordenadas válidas
+ 
   static int getBusinessesWithCoordinatesCount(List<MapBusiness> businesses) {
     return businesses
         .where(
@@ -45,7 +44,7 @@ class MapMarkerBuilder {
         .length;
   }
 
-  /// Obtiene la información de un negocio por sus coordenadas
+ 
   static MapBusiness? getBusinessByCoordinates(
     List<MapBusiness> businesses,
     LatLng coordinates,
@@ -59,7 +58,7 @@ class MapMarkerBuilder {
   }
 }
 
-/// Widget personalizado para marcadores de negocios
+ 
 class _BusinessMarkerWidget extends StatelessWidget {
   final MapBusiness business;
 
@@ -121,7 +120,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header con título
+               
               Row(
                 children: [
                   Container(
@@ -146,7 +145,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Descripción
+               
               if (business.description.isNotEmpty) ...[
                 Text(
                   business.description,
@@ -156,8 +155,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-
-              // Dirección
+ 
               Row(
                 children: [
                   Icon(
@@ -178,7 +176,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              // Teléfono
+         
               if (business.phone.isNotEmpty) ...[
                 Row(
                   children: [
@@ -199,7 +197,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
                 const SizedBox(height: 8),
               ],
 
-              // Rating y estado
+              
               Row(
                 children: [
                   Icon(
@@ -235,7 +233,6 @@ class _BusinessMarkerWidget extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Botón para navegar a detalles de la barbería
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -275,7 +272,6 @@ class _BusinessMarkerWidget extends StatelessWidget {
   }
 }
 
-/// Widget personalizado para marcadores agregados por el usuario
 class _CustomMarkerWidget extends StatelessWidget {
   final String label;
 

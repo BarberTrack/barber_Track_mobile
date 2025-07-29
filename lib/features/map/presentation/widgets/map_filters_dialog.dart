@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/map_business_filters.dart';
 import '../bloc/map_bloc.dart';
 import '../bloc/map_event.dart';
@@ -52,7 +51,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header con icono y título
+             
               Row(
                 children: [
                   const Icon(
@@ -73,7 +72,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
                 ],
               ),
               const SizedBox(height: 24),
-              // Campo de búsqueda con validación y botón de limpiar
+             
               TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -114,7 +113,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
                 },
               ),
               const SizedBox(height: 20),
-              // Selector de rating con chips
+             
               Text(
                 'Rating mínimo',
                 style: Theme.of(
@@ -130,7 +129,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Selector de fecha con validación
+             
               Row(
                 children: [
                   Expanded(
@@ -184,7 +183,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Selector de hora con validación
+             
               Row(
                 children: [
                   Expanded(
@@ -238,7 +237,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
                 ],
               ),
               const SizedBox(height: 24),
-              // Botones de acción
+             
               Row(
                 children: [
                   Expanded(
@@ -286,7 +285,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
     );
   }
 
-  // Método para construir chips de rating
+ 
   Widget _buildRatingChip(int? rating, String label) {
     final isSelected = _currentFilters.rating == rating;
     return FilterChip(
@@ -309,7 +308,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
     );
   }
 
-  // Método para seleccionar fecha
+ 
   Future<void> _selectDate() async {
     final now = DateTime.now();
     final selectedDate = await showDatePicker(
@@ -330,7 +329,7 @@ class _MapFiltersDialogState extends State<MapFiltersDialog> {
     }
   }
 
-  // Método para seleccionar hora
+ 
   Future<void> _selectTime() async {
     final selectedTime = await showTimePicker(
       context: context,
