@@ -18,7 +18,7 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  // Regex patterns para validaciones
+ 
   static final RegExp _emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
@@ -32,7 +32,7 @@ class _LoginFormState extends State<LoginForm> {
   static final RegExp _dangerousChars = RegExp(r'[<>"' + "'" + r';&|\\\/]');
   static final RegExp _consecutiveDots = RegExp(r'\.{2,}');
 
-  // Lista de passwords comunes
+  
   static const List<String> _commonPasswords = [
     '12345678',
     'password',
@@ -112,7 +112,7 @@ class _LoginFormState extends State<LoginForm> {
     return null;
   }
 
-  // Método auxiliar para validar fortaleza de password
+  
   String? _validatePasswordStrength(String password) {
     if (!_passwordRegex.hasMatch(password)) {
       return 'La contraseña debe contener al menos una mayúscula, una minúscula y un número';
@@ -130,10 +130,10 @@ class _LoginFormState extends State<LoginForm> {
       return 'Por favor ingresa tu email';
     }
 
-    // Remover espacios al inicio y final para validación
+    
     final email = value.trim();
 
-    // Validaciones en cascada: formato → longitud → contenido → regex
+    
     String? formatError = _validateEmailFormat(email);
     if (formatError != null) return formatError;
 
@@ -156,7 +156,7 @@ class _LoginFormState extends State<LoginForm> {
       return 'Por favor ingresa tu contraseña';
     }
 
-    // Validaciones en cascada: formato → longitud → contenido → regex
+    
     String? formatError = _validatePasswordFormat(value);
     if (formatError != null) return formatError;
 
@@ -296,7 +296,7 @@ class _LoginFormState extends State<LoginForm> {
 
                   const SizedBox(height: 24),
 
-                  // Enlace para ir al registro
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

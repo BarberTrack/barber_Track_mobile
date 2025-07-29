@@ -24,7 +24,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         password: event.password,
       );
 
-      // Registrar token FCM después del login exitoso
+      
       await NotificationService.registerTokenInAPI();
 
       emit(LoginSuccess(user));
