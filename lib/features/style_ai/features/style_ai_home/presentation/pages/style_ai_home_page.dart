@@ -30,11 +30,9 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Subscribe to route changes only after initialization
     if (_hasInitialized) {
       final route = ModalRoute.of(context);
       if (route is PageRoute) {
-        // This will be called when we return from other pages
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             _bloc.add(const LoadStyleHistoryEvent());
@@ -54,7 +52,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    // Reload history when app comes back to foreground (resumed from background)
     if (state == AppLifecycleState.resumed && mounted) {
       _bloc.add(const LoadStyleHistoryEvent());
     }
@@ -62,7 +59,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
 
   @override
   void didPopNext() {
-    // Called when returning from another route via Navigator.pop()
     super.didPopNext();
     if (mounted) {
       _bloc.add(const LoadStyleHistoryEvent());
@@ -129,7 +125,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
       },
       child: Column(
         children: [
-          // Daily Usage Info
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
@@ -185,10 +180,8 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
             ),
           ),
 
-          // Available Analysis Section
           _buildAnalysisSection(context),
 
-          // History List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(bottom: 16),
@@ -210,10 +203,8 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
   Widget _buildEmptyState(BuildContext context) {
     return Column(
       children: [
-        // Available Analysis Section
         _buildAnalysisSection(context),
 
-        // Empty State Message
         Expanded(
           child: Center(
             child: Column(
@@ -386,7 +377,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
               ),
               const SizedBox(height: 12),
 
-              // Tarjeta de límite alcanzado
               if (hasReachedLimit && state is StyleAiHomeSuccess) ...[
                 Container(
                   width: double.infinity,
@@ -444,7 +434,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
 
               Row(
                 children: [
-                  // Analyze Face Button
                   Expanded(
                     child: _buildAnalysisButton(
                       context: context,
@@ -457,7 +446,6 @@ class _StyleAiHomePageState extends State<StyleAiHomePage>
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Analyze Reference Button
                   Expanded(
                     child: _buildAnalysisButton(
                       context: context,
