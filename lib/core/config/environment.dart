@@ -2,8 +2,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Environment {
   static String get apiBaseUrl {
-    return dotenv.env['API_BASE_URL'] ??
-        'https://barbertrack-gateway.up.railway.app/api/v1';
+    final url = dotenv.env['API_BASE_URL'];
+    if (url == null || url.isEmpty) {
+      throw Exception(
+        'API_BASE_URL environment variable is required but not found',
+      );
+    }
+    return url;
   }
 
   static int get connectTimeout {
