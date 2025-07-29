@@ -41,7 +41,7 @@ class TimeSlotsWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Encabezado con icono
+            
             Row(
               children: [
                 Container(
@@ -90,7 +90,7 @@ class TimeSlotsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Lista de días con horarios
+            
             ...availability.map((dayAvailability) {
               final filteredSlots = _filterSlotsByCurrentTime(
                 dayAvailability.slots,
@@ -119,7 +119,7 @@ class TimeSlotsWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Encabezado del día
+                      
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -163,7 +163,7 @@ class TimeSlotsWidget extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       if (filteredSlots.isNotEmpty) ...[
-                        // Usar Wrap en lugar de GridView para mejor manejo del overflow
+                        
                         LayoutBuilder(
                           builder: (context, constraints) {
                             final availableSlots = filteredSlots
@@ -181,7 +181,7 @@ class TimeSlotsWidget extends StatelessWidget {
                                 return SizedBox(
                                   width:
                                       (constraints.maxWidth - 16) /
-                                      3, // 3 columnas con spacing
+                                      3, 
                                   child: _TimeSlotChip(
                                     slot: slot,
                                     state: state,
@@ -241,20 +241,20 @@ class TimeSlotsWidget extends StatelessWidget {
       final now = DateTime.now();
       final slotDateTime = DateTime.parse(slotDate);
 
-      // Si no es el día actual, no aplicar filtros adicionales
+      
       if (!_isSameDay(now, slotDateTime)) {
         return slots;
       }
 
       final currentTimeWithMargin = now.add(const Duration(minutes: 30));
 
-      // Filtrar slots anteriores a la hora actual + 30 minutos
+      
       List<TimeSlot> filteredByTime = slots.where((slot) {
         final slotTime = _parseTimeSlot(slot.time, slotDateTime);
         return slotTime.isAfter(currentTimeWithMargin);
       }).toList();
 
-      // Solo para la fecha actual, aplicar validación de duración del servicio
+      
       if (_isToday(slotDate)) {
         filteredByTime = _filterSlotsByServiceDuration(
           filteredByTime,
@@ -273,35 +273,35 @@ class TimeSlotsWidget extends StatelessWidget {
     DateTime slotDate,
   ) {
     try {
-      // Obtener el servicio seleccionado
+      
       final selectedService = _getSelectedService();
       if (selectedService == null) {
-        // Si no hay servicio seleccionado, mantener comportamiento actual
+        
         return slots;
       }
 
-      // Si no hay slots disponibles, retornar lista vacía
+      
       if (slots.isEmpty) {
         return slots;
       }
 
-      // Encontrar el último slot disponible del día
+
       final lastAvailableSlot = _findLastAvailableSlot(slots);
       if (lastAvailableSlot == null) {
         return slots;
       }
 
-      // Calcular el tiempo de fin del último slot disponible
+      
       final lastSlotTime = _parseTimeSlot(lastAvailableSlot.time, slotDate);
 
-      // Filtrar slots que no permitan completar el servicio antes del cierre
+      
       return slots.where((slot) {
         final slotStartTime = _parseTimeSlot(slot.time, slotDate);
         final serviceEndTime = slotStartTime.add(
           Duration(minutes: selectedService.durationMinutes),
         );
 
-        // El servicio debe terminar antes o igual al tiempo del último slot disponible
+        
         return serviceEndTime.isBefore(
               lastSlotTime.add(const Duration(minutes: 30)),
             ) ||
@@ -310,19 +310,19 @@ class TimeSlotsWidget extends StatelessWidget {
             );
       }).toList();
     } catch (e) {
-      // En caso de error, mantener la lista original
+      
       return slots;
     }
   }
 
   TimeSlot? _findLastAvailableSlot(List<TimeSlot> slots) {
-    // Filtrar solo slots disponibles y encontrar el último por tiempo
+    
     final availableSlots = slots.where((slot) => slot.available).toList();
     if (availableSlots.isEmpty) {
       return null;
     }
 
-    // Ordenar por tiempo y tomar el último
+    
     availableSlots.sort((a, b) {
       final timeA = a.time.replaceAll(':', '');
       final timeB = b.time.replaceAll(':', '');
@@ -441,7 +441,7 @@ class _TimeSlotChip extends StatelessWidget {
         );
 
     return Container(
-      height: 50, // Altura fija para evitar overflow
+      height: 50, 
       decoration: BoxDecoration(
         gradient: isSelected
             ? LinearGradient(

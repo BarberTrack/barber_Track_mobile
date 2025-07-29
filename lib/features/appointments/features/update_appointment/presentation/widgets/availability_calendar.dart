@@ -112,14 +112,12 @@ class _AvailabilityCalendarState extends State<AvailabilityCalendar> {
     );
     final startingWeekday = firstDayOfMonth.weekday;
 
-    // Días de la semana
     final weekDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Header con días de la semana
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: weekDays
@@ -141,7 +139,6 @@ class _AvailabilityCalendarState extends State<AvailabilityCalendar> {
           ),
           const SizedBox(height: 8),
 
-          // Grid de días
           ...List.generate(6, (weekIndex) {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -224,7 +221,6 @@ class _AvailabilityCalendarState extends State<AvailabilityCalendar> {
     final today = DateTime(now.year, now.month, now.day);
     final checkDate = DateTime(date.year, date.month, date.day);
 
-    // Solo permitir fechas de hoy en adelante
     return !checkDate.isBefore(today);
   }
 

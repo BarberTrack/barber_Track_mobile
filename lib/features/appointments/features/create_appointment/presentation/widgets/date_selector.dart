@@ -32,7 +32,7 @@ class DateSelector extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Encabezado con icono
+            
             Row(
               children: [
                 Container(
@@ -81,7 +81,7 @@ class DateSelector extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Botón mejorado
+            
             Container(
               width: double.infinity,
               height: 60,
@@ -157,7 +157,7 @@ class DateSelector extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Información adicional
+            
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -218,10 +218,10 @@ class DateSelector extends StatelessWidget {
       final bloc = context.read<CreateAppointmentBloc>();
       final currentState = bloc.state;
 
-      // Actualizar la fecha seleccionada
+      
       bloc.add(SelectDate(picked));
 
-      // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
+      
       if (currentState is CreateAppointmentServiceSelected ||
           currentState is CreateAppointmentDateSelected ||
           currentState is CreateAppointmentAvailabilityLoaded ||
@@ -229,12 +229,12 @@ class DateSelector extends StatelessWidget {
           currentState is CreateAppointmentWithNotes) {
         final service = _getSelectedService(currentState);
 
-        // Obtener el primer barbero del servicio seleccionado
+        
         if (service.barberAssignments.isNotEmpty) {
           final barberId = service.barberAssignments.first.barberId;
           final dateString = DateFormat('yyyy-MM-dd').format(picked);
 
-          // Cargar la disponibilidad para la nueva fecha
+
           bloc.add(
             LoadAvailability(
               businessId: _getBusinessId(currentState),

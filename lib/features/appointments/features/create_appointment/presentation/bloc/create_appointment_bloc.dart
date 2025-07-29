@@ -175,7 +175,7 @@ class CreateAppointmentBloc
         ),
       );
     } else if (currentState is CreateAppointmentTimeSlotSelected) {
-      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      
       emit(
         CreateAppointmentTimeSlotSelected(
           services: currentState.services,
@@ -187,7 +187,7 @@ class CreateAppointmentBloc
         ),
       );
     } else if (currentState is CreateAppointmentWithNotes) {
-      // Permitir cambiar de time slot cuando ya hay notas
+      
       emit(
         CreateAppointmentWithNotes(
           services: currentState.services,
@@ -214,33 +214,33 @@ class CreateAppointmentBloc
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
         ),
       );
     } else if (currentState is CreateAppointmentTimeSlotSelected) {
-      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      
       emit(
         CreateAppointmentTimeSlotSelected(
           services: currentState.services,
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
         ),
       );
     } else if (currentState is CreateAppointmentWithNotes) {
-      // Permitir cambiar de time slot cuando ya hay notas
+      
       emit(
         CreateAppointmentWithNotes(
           services: currentState.services,
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
           clientNotes: currentState.clientNotes,
@@ -287,18 +287,18 @@ class CreateAppointmentBloc
   ) async {
     final currentState = state;
 
-    // Solo validar si tenemos un time slot seleccionado
+    
     if (currentState is! CreateAppointmentTimeSlotSelected &&
         currentState is! CreateAppointmentWithNotes &&
         currentState is! CreateAppointmentNotesError) {
       return;
     }
 
-    // Validar las notas
+    
     final validationError = NotesValidator.validateNotes(event.notes);
 
     if (validationError != null) {
-      // Hay error de validación
+      
       if (currentState is CreateAppointmentTimeSlotSelected) {
         emit(
           CreateAppointmentNotesError(
@@ -340,11 +340,11 @@ class CreateAppointmentBloc
         );
       }
     } else {
-      // No hay errores de validación
+
       if (currentState is CreateAppointmentTimeSlotSelected) {
-        // Si las notas están vacías, mantener el estado actual
+        
         if (event.notes.trim().isEmpty) {
-          // No hacer nada, mantener CreateAppointmentTimeSlotSelected
+          
           return;
         } else {
           emit(
@@ -361,7 +361,7 @@ class CreateAppointmentBloc
         }
       } else if (currentState is CreateAppointmentWithNotes) {
         if (event.notes.trim().isEmpty) {
-          // Volver al estado TimeSlotSelected si no hay notas
+          
           emit(
             CreateAppointmentTimeSlotSelected(
               services: currentState.services,
@@ -387,7 +387,7 @@ class CreateAppointmentBloc
         }
       } else if (currentState is CreateAppointmentNotesError) {
         if (event.notes.trim().isEmpty) {
-          // Volver al estado TimeSlotSelected si no hay notas
+          
           emit(
             CreateAppointmentTimeSlotSelected(
               services: currentState.services,
@@ -421,7 +421,7 @@ class CreateAppointmentBloc
   ) async {
     final currentState = state;
 
-    // Verificar que tenemos todos los datos necesarios
+    
     if (currentState is! CreateAppointmentTimeSlotSelected &&
         currentState is! CreateAppointmentWithNotes) {
       emit(

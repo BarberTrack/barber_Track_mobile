@@ -12,7 +12,7 @@ class ServicesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Si no hay servicios disponibles
+    
     if (state.services.isEmpty) {
       return Center(
         child: Container(
@@ -218,7 +218,7 @@ class _ServiceCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    // Icono del servicio
+                    
                     Container(
                       width: 60,
                       height: 60,
@@ -238,7 +238,7 @@ class _ServiceCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // Título y flecha
+                    
                     Expanded(
                       child: Row(
                         children: [
@@ -273,7 +273,7 @@ class _ServiceCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Descripción
+                
                 Text(
                   service.description,
                   style: TextStyle(
@@ -285,7 +285,7 @@ class _ServiceCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 16),
-                // Precio y duración
+                  
                 Wrap(
                   spacing: 12,
                   runSpacing: 8,

@@ -201,7 +201,6 @@ class _TimeSlotsGridState extends State<TimeSlotsGrid> {
       );
 
       if (availabilityDateOnly.isAtSameMomentAs(selectedDateOnly)) {
-        // Filtrar solo los slots que están disponibles (available: true)
         final availableSlots = availability.slots
             .where((slot) => slot.available)
             .toList();
@@ -209,10 +208,9 @@ class _TimeSlotsGridState extends State<TimeSlotsGrid> {
       }
     }
 
-    // Filtrar horarios pasados si es hoy
     if (isToday) {
       final currentMinutes = currentTime.hour * 60 + currentTime.minute;
-      const marginMinutes = 30; // 30 minutos de margen
+      const marginMinutes = 30; 
 
       allTimeSlots = allTimeSlots.where((timeSlot) {
         final timeParts = timeSlot.time.split(':');

@@ -43,7 +43,7 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Cambio de servicio
+
             _buildChangeSection(
               context,
               title: 'Servicio',
@@ -54,7 +54,7 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Cambio de precio
+            
             _buildChangeSection(
               context,
               title: 'Precio',
@@ -65,7 +65,7 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Cambio de duración
+            
             _buildChangeSection(
               context,
               title: 'Duración',
@@ -75,7 +75,7 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
               color: Colors.blueAccent,
             ),
 
-            // Información de fecha y hora
+            
             if (keepDateTime) ...[
               const SizedBox(height: 12),
               _buildInfoSection(
@@ -104,7 +104,7 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
               ),
             ],
 
-            // Notas del cliente
+            
             if (clientNotes.isNotEmpty) ...[
               const SizedBox(height: 12),
               _buildInfoSection(
@@ -374,10 +374,10 @@ class ChangeServiceSummaryDialog extends StatelessWidget {
     DateTime mexicoDateTime;
 
     if (isFromServer) {
-      // Fecha que viene del servidor en UTC, convertir a México (UTC-6)
+        
       mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
     } else {
-      // Fecha ya está en hora local de México, usar directamente
+      
       mexicoDateTime = dateTime;
     }
 

@@ -76,7 +76,6 @@ class TimeSlotsGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header del día
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -138,7 +137,6 @@ class TimeSlotsGrid extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Grid de horarios
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -318,11 +316,9 @@ class TimeSlotsGrid extends StatelessWidget {
         date.year == now.year && date.month == now.month && date.day == now.day;
 
     if (!isToday) {
-      // Si no es hoy, mostrar todos los horarios disponibles
       return slots.where((slot) => slot.available).toList();
     }
 
-    // Si es hoy, filtrar horarios que ya pasaron con margen de 30 minutos
     final currentTime = TimeOfDay.fromDateTime(now);
     final marginTime = TimeOfDay(
       hour: currentTime.hour,
@@ -337,7 +333,6 @@ class TimeSlotsGrid extends StatelessWidget {
       final slotMinute = int.parse(slotTimeParts[1]);
       final slotTime = TimeOfDay(hour: slotHour, minute: slotMinute);
 
-      // Convertir a minutos para comparar fácilmente
       final slotMinutes = slotTime.hour * 60 + slotTime.minute;
       final marginMinutes = marginTime.hour * 60 + marginTime.minute;
 

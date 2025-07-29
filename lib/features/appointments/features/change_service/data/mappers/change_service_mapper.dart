@@ -5,7 +5,7 @@ import '../models/change_service_response_model.dart';
 import '../../../appoinments_home/data/mappers/appointments_mapper.dart';
 
 class ChangeServiceMapper {
-  // Convertir de entidad a modelo
+  
   static ChangeServiceRequestModel toRequestModel(ChangeServiceRequest entity) {
     return ChangeServiceRequestModel(
       scheduledDatetime: entity.scheduledDatetime,
@@ -15,7 +15,7 @@ class ChangeServiceMapper {
     );
   }
 
-  // Convertir de modelo a entidad
+  
   static ChangeServiceRequest toRequestEntity(ChangeServiceRequestModel model) {
     return ChangeServiceRequest(
       scheduledDatetime: model.scheduledDatetime,
@@ -25,7 +25,7 @@ class ChangeServiceMapper {
     );
   }
 
-  // Convertir respuesta de modelo a entidad
+  
   static ChangeServiceResponse toResponseEntity(
     ChangeServiceResponseModel model,
   ) {
@@ -42,5 +42,5 @@ class ChangeServiceMapper {
     );
   }
 
-  // Nota: La conversión de entidad a modelo no es necesaria para este caso de uso
+  
 }

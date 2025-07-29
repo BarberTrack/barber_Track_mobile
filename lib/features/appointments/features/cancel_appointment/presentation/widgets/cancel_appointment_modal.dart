@@ -168,7 +168,7 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                 ),
                 const SizedBox(height: 24),
 
-                // Información de la cita
+               
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -215,7 +215,7 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                 ),
                 const SizedBox(height: 24),
 
-                // Formulario de cancelación
+                
                 Form(
                   key: _formKey,
                   child: Column(
@@ -262,7 +262,7 @@ class _CancelAppointmentModalState extends State<CancelAppointmentModal> {
                 ),
                 const SizedBox(height: 32),
 
-                // Botones
+                  
                 BlocBuilder<CancelAppointmentBloc, CancelAppointmentState>(
                   builder: (context, state) {
                     return Row(

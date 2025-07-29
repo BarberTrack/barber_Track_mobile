@@ -58,7 +58,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
     }
   }
 
-  // Método auxiliar para cargar servicios con appointment
+  
   void loadBusinessServicesWithAppointment(
     String businessId,
     Appointment appointment,
@@ -117,7 +117,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
         ),
       );
     } else if (currentState is ChangeServiceAvailabilityLoaded) {
-      // Volver al estado de selección de fecha desde la vista de disponibilidad
+      
       emit(
         ChangeServiceDateTimeOptionSelected(
           services: currentState.services,
@@ -128,7 +128,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
         ),
       );
     } else if (currentState is ChangeServiceTimeSlotSelected) {
-      // Volver al estado de selección de fecha desde la selección de horario
+      
       emit(
         ChangeServiceDateTimeOptionSelected(
           services: currentState.services,
@@ -268,7 +268,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
   ) async {
     final currentState = state;
 
-    // Validar que el estado sea válido para enviar
+    
     if (currentState is! ChangeServiceWithNotes &&
         !(currentState is ChangeServiceDateTimeOptionSelected &&
             currentState.keepDateTime) &&
@@ -284,24 +284,24 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
       String barberId;
       String clientNotes;
 
-      // Obtener datos según el tipo de estado
+      
       final selectedService = _getSelectedServiceFromState(currentState);
       final originalAppointment = _getOriginalAppointmentFromState(
         currentState,
       );
       final keepDateTime = _getKeepDateTimeFromState(currentState);
 
-      // Obtener notas del cliente
+      
       if (currentState is ChangeServiceWithNotes) {
         clientNotes = currentState.clientNotes.isNotEmpty
             ? currentState.clientNotes
             : originalAppointment.clientNotes ?? '';
       } else {
-        // Si no se modificaron las notas, usar las originales
+        
         clientNotes = originalAppointment.clientNotes ?? '';
       }
 
-      // Obtener el barberId del servicio seleccionado
+      
       final serviceBarberId = _getBarberIdFromService(selectedService);
       if (serviceBarberId == null) {
         emit(
@@ -313,16 +313,15 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
       }
 
       if (keepDateTime) {
-        // Mantener fecha y hora original - CONVERTIR a UTC-6 para enviar petición
+        
         logger.d('Original DateTime: ${originalAppointment.scheduledDatetime}');
         logger.d(
           'Original String: ${originalAppointment.scheduledDatetimeOriginal}',
         );
 
-        // Parsear la fecha original y convertir a UTC-6
+        
         final originalDateTime = originalAppointment.scheduledDatetime;
-        // La fecha original viene del servidor en UTC, convertir a México (UTC-6) para mostrar
-        // pero para la petición, si era 21:00 México, debe enviarse como 15:00 (UTC-6)
+        
         final mexicoDateTime = originalDateTime.toUtc().subtract(
           const Duration(hours: 6),
         );
@@ -332,7 +331,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
 
         barberId = serviceBarberId;
       } else {
-        // Usar nueva fecha y hora - NO CONVERTIR a UTC-6
+
         final selectedDate = _getSelectedDateFromState(currentState);
         final selectedTimeSlot = _getSelectedTimeSlotFromState(currentState);
 
@@ -343,10 +342,10 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
         scheduledDatetime = _formatDateTime(
           selectedDate,
           selectedTimeSlot.time,
-          convertToUtc: false, // No convertir para nueva fecha
+          convertToUtc: false, 
         );
         barberId =
-            serviceBarberId; // Usar el barberId del servicio, no del timeSlot
+            serviceBarberId; 
       }
 
       final request = ChangeServiceRequest(
@@ -368,14 +367,13 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
     }
   }
 
-  /// Obtiene el barberId del servicio seleccionado
-  /// Prioriza el barbero preferido, si no hay uno, toma el primero de la lista
+  
   String? _getBarberIdFromService(Service service) {
     if (service.barberAssignments.isEmpty) {
       return null;
     }
 
-    // Buscar el barbero preferido
+    
     final preferredBarber = service.barberAssignments
         .where((assignment) => assignment.isPreferred)
         .firstOrNull;
@@ -384,7 +382,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
       return preferredBarber.barberId;
     }
 
-    // Si no hay barbero preferido, tomar el primero
+    
     return service.barberAssignments.first.barberId;
   }
 
@@ -397,7 +395,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
 
-    // Crear el DateTime con la hora seleccionada (que ya está en hora de México)
+    
     final mexicoDateTime = DateTime(
       date.year,
       date.month,
@@ -407,11 +405,11 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
     );
 
     if (convertToUtc) {
-      // Convertir de hora de México (UTC-6) a UTC restando 6 horas
+      
       final utcDateTime = mexicoDateTime.subtract(const Duration(hours: 6));
       return utcDateTime.toIso8601String();
     } else {
-      // No convertir, enviar la fecha tal como está (hora local de México)
+      
       return mexicoDateTime.toIso8601String();
     }
   }
@@ -423,7 +421,7 @@ class ChangeServiceBloc extends Bloc<ChangeServiceEvent, ChangeServiceState> {
     emit(ChangeServiceInitial());
   }
 
-  // Métodos auxiliares para obtener datos de diferentes estados
+  
   Service _getSelectedServiceFromState(ChangeServiceState state) {
     if (state is ChangeServiceServiceSelected) return state.selectedService;
     if (state is ChangeServiceDateTimeOptionSelected)

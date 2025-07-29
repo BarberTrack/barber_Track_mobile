@@ -36,7 +36,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
   @override
   void initState() {
     super.initState();
-    // Inicializar con las notas existentes de la cita
+    
     clientNotes = widget.appointment.clientNotes ?? '';
     _notesController.text = clientNotes;
   }
@@ -52,7 +52,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
     return BlocProvider(
       create: (_) {
         final bloc = sl<ChangeServiceBloc>();
-        // Cargar servicios con la información de la cita
+        
         bloc.loadBusinessServicesWithAppointment(
           widget.appointment.businessId,
           widget.appointment,
@@ -313,7 +313,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Mostrar información del servicio seleccionado
+            
             if (state is ChangeServiceServiceSelected ||
                 state is ChangeServiceDateTimeOptionSelected ||
                 state is ChangeServiceDateSelected ||
@@ -324,7 +324,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
               const SizedBox(height: 24),
             ],
 
-            // Mostrar opciones de fecha y hora
+            
             if (state is ChangeServiceServiceSelected) ...[
               Text(
                 '¿Deseas mantener la fecha y hora actual?',
@@ -359,7 +359,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
               ),
             ],
 
-            // Mostrar selección de fecha
+            
             if (state is ChangeServiceDateTimeOptionSelected &&
                 !state.keepDateTime) ...[
               Text(
@@ -375,7 +375,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
                   final bloc = context.read<ChangeServiceBloc>();
                   bloc.add(SelectDate(date));
 
-                  // Cargar disponibilidad automáticamente usando el barbero del servicio seleccionado
+                  
                   final originalAppointment = _getOriginalAppointment(state);
                   final selectedService = _getSelectedService(state);
                   final serviceBarberId = _getBarberIdFromService(
@@ -396,7 +396,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
               ),
             ],
 
-            // Mostrar horarios disponibles
+            
             if (state is ChangeServiceDateSelected) ...[
               Text(
                 'Cargando horarios disponibles...',
@@ -421,7 +421,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
                   ),
                   TextButton.icon(
                     onPressed: () {
-                      // Volver al estado de selección de fecha
+                      
                       context.read<ChangeServiceBloc>().add(
                         SelectChangeDateTime(),
                       );
@@ -481,7 +481,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
               ),
             ],
 
-            // Mostrar notas del cliente
+
             if (state is ChangeServiceDateTimeOptionSelected &&
                     state.keepDateTime ||
                 state is ChangeServiceTimeSlotSelected ||
@@ -719,14 +719,13 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
     throw Exception('Appointment not found in state');
   }
 
-  /// Obtiene el barberId del servicio seleccionado
-  /// Prioriza el barbero preferido, si no hay uno, toma el primero de la lista
+  
   String? _getBarberIdFromService(Service service) {
     if (service.barberAssignments.isEmpty) {
       return null;
     }
 
-    // Buscar el barbero preferido
+    
     final preferredBarber = service.barberAssignments
         .where((assignment) => assignment.isPreferred)
         .firstOrNull;
@@ -735,7 +734,7 @@ class _ChangeServicePageState extends State<ChangeServicePage> {
       return preferredBarber.barberId;
     }
 
-    // Si no hay barbero preferido, tomar el primero
+    
     return service.barberAssignments.first.barberId;
   }
 }
