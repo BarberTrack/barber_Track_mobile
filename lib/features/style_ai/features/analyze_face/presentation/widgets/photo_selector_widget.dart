@@ -140,7 +140,7 @@ class PhotoSelectorWidget extends StatelessWidget {
             child: Image.file(
               selectedPhoto!,
               fit: BoxFit.cover,
-              cacheWidth: 200, // Optimización para reducir memoria
+              cacheWidth: 200, 
               cacheHeight: 120,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -264,7 +264,8 @@ class PhotoSelectorWidget extends StatelessWidget {
         onPhotoSelected(File(pickedFile.path));
       }
     } catch (e) {
-      // Handle error silently or show a snackbar
+      throw Exception(e);
     }
   }
 }
+
