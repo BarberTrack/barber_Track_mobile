@@ -614,7 +614,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Filtros
+            
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.all(20),
@@ -629,7 +629,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
 
-            // Información de resultados
+            
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.symmetric(
@@ -707,7 +707,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
 
-            // Lista de negocios
+            
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
@@ -721,7 +721,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
 
-            // Botón "Ver más barberías"
+            
             if (state.hasMore && !state.isLoadingMore)
               SliverToBoxAdapter(
                 child: Container(
@@ -759,7 +759,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
 
-            // Indicador de carga para más elementos
+            
             if (state.isLoadingMore)
               const SliverToBoxAdapter(
                 child: Padding(
@@ -774,7 +774,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
 
-            // Mensaje de fin de resultados
+
             if (!state.hasMore && state.businesses.isNotEmpty)
               SliverToBoxAdapter(
                 child: Container(

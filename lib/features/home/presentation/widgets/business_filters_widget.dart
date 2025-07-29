@@ -56,7 +56,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Título
+           
           Row(
             children: [
               Icon(
@@ -76,7 +76,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
           ),
           const SizedBox(height: 16),
 
-          // Campo de búsqueda
+          
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -120,7 +120,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
           ),
           const SizedBox(height: 16),
 
-          // Selector de rating
+          
           Text(
             'Rating mínimo',
             style: Theme.of(
@@ -137,7 +137,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
           ),
           const SizedBox(height: 16),
 
-          // Selección de fecha
+          
           Row(
             children: [
               Expanded(
@@ -191,7 +191,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
           ),
           const SizedBox(height: 12),
 
-          // Selección de hora
+          
           Row(
             children: [
               Expanded(
@@ -245,7 +245,7 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
           ),
           const SizedBox(height: 16),
 
-          // Botones de acción
+          
           Row(
             children: [
               Expanded(
@@ -293,10 +293,10 @@ class _BusinessFiltersWidgetState extends State<BusinessFiltersWidget> {
       onSelected: (selected) {
         setState(() {
           if (rating == null) {
-            // Botón "Todos" - limpiar el rating
+            
             _currentFilters = _currentFilters.copyWith(clearRating: true);
           } else {
-            // Botón de rating específico
+            
             _currentFilters = _currentFilters.copyWith(
               rating: selected ? rating : null,
               clearRating: !selected,

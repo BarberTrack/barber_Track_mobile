@@ -37,7 +37,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     RefreshBusinesses event,
     Emitter<HomeState> emit,
   ) async {
-    // todo: lazy loading
+ 
     try {
       final businesses = await getBusinesses();
       emit(HomeLoaded(businesses));
@@ -83,10 +83,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
         final response = await getBusinessesWithFilters(nextPageFilters);
 
-        // Verificar si la respuesta está vacía
         final hasReceivedEmptyResponse = response.businesses.isEmpty;
 
-        // Agregar los nuevos negocios a la lista existente
         final allBusinesses = List<Business>.from(currentState.businesses)
           ..addAll(response.businesses);
 

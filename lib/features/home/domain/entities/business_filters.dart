@@ -39,7 +39,7 @@ class BusinessFilters extends Equatable {
     );
   }
 
-  // Método para generar los query parameters
+  
   Map<String, dynamic> toQueryParameters() {
     final Map<String, dynamic> params = {'page': page, 'limit': limit};
 

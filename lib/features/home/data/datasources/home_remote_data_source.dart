@@ -23,14 +23,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<List<BusinessModel>> getBusinesses() async {
     try {
-      // Obtener el token del almacenamiento
+       
       final token = await tokenStorage.getToken();
 
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
-      // Configurar el header de autorización
+       
       final response = await dioClient.dio.get(
         '/businesses',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
@@ -57,14 +57,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     BusinessFilters filters,
   ) async {
     try {
-      // Obtener el token del almacenamiento
+      
       final token = await tokenStorage.getToken();
 
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
-      // Configurar el header de autorización y query parameters
+      
       final response = await dioClient.dio.get(
         '/businesses',
         queryParameters: filters.toQueryParameters(),
