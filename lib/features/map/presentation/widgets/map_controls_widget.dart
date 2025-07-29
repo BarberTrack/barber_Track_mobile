@@ -27,7 +27,6 @@ class MapControlsWidget extends StatelessWidget {
       top: 100,
       child: Column(
         children: [
-          // Zoom In
           _buildControlButton(
             heroTag: "zoom_in",
             icon: Icons.zoom_in_rounded,
@@ -36,7 +35,6 @@ class MapControlsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Zoom Out
           _buildControlButton(
             heroTag: "zoom_out",
             icon: Icons.zoom_out_rounded,
@@ -45,7 +43,6 @@ class MapControlsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Centrar en ubicación inicial
           _buildControlButton(
             heroTag: "center_location",
             icon: Icons.my_location_rounded,
@@ -54,7 +51,6 @@ class MapControlsWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Limpiar marcadores personalizados (solo si hay marcadores personalizados)
           if (customMarkersCount > 0)
             _buildControlButton(
               heroTag: "clear_markers",
@@ -64,7 +60,6 @@ class MapControlsWidget extends StatelessWidget {
               backgroundColor: Colors.orange,
             ),
 
-          // Información de marcadores
           if (businessMarkersCount > 0 || customMarkersCount > 0) ...[
             const SizedBox(height: 16),
             _buildInfoCard(context),
@@ -279,8 +274,7 @@ class MapControlsWidget extends StatelessWidget {
     );
   }
 }
-
-/// Widget de información flotante sobre el estado del mapa
+  
 class MapInfoWidget extends StatelessWidget {
   final int totalBusinesses;
   final int businessesWithCoordinates;

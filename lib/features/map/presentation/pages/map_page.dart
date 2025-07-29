@@ -108,7 +108,7 @@ class _MapPageState extends State<MapPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // FAB secundario para limpiar filtros (solo visible cuando hay filtros activos)
+       
         if (_currentFilters.hasActiveFilters)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),

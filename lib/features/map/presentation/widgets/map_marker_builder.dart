@@ -237,7 +237,7 @@ class _BusinessMarkerWidget extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Cerrar el modal
+                    Navigator.of(context).pop(); 
                     context.pushNamed(
                       'barber-details',
                       pathParameters: {'businessId': business.id},

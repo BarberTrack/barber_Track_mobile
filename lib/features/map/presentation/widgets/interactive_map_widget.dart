@@ -15,19 +15,15 @@ class InteractiveMapWidget extends StatefulWidget {
 
 class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     with TickerProviderStateMixin {
-  /// Controlador del mapa para navegación programática
   late final MapController _mapController;
 
-  /// Coordenadas iniciales: Tuxtla Gutiérrez, Chiapas
   static const LatLng _initialCenter = LatLng(
     16.754618244645826,
     -93.12845107041579,
   );
 
-  /// Flag para controlar si el mapa está listo para usar
   bool _isMapReady = false;
 
-  /// Animación para el efecto de aparición de marcadores
   late AnimationController _markerAnimationController;
   late Animation<double> _markerAnimation;
 
@@ -35,9 +31,8 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
   void initState() {
     super.initState();
     _mapController = MapController();
-    _isMapReady = false; // Asegurar que inicie en false
+    _isMapReady = false; 
 
-    // Configurar animación para marcadores
     _markerAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -47,7 +42,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
       curve: Curves.elasticOut,
     );
 
-    // Iniciar animación
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _markerAnimationController.forward();
     });
@@ -57,7 +51,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
   void didUpdateWidget(InteractiveMapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Si la lista de negocios cambió significativamente, resetear el estado del mapa
     if (oldWidget.businesses.length != widget.businesses.length) {
       setState(() {
         _isMapReady = false;
@@ -80,7 +73,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     final businessesWithCoordinates =
         MapMarkerBuilder.getBusinessesWithCoordinatesCount(widget.businesses);
 
-    // Verificar si hay negocios con coordenadas
     if (businessesWithCoordinates == 0) {
       return _buildNoCoordinatesView();
     }
@@ -90,7 +82,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
       builder: (context, child) {
         return Stack(
           children: [
-            // Mapa principal
             FlutterMap(
               mapController: _mapController,
               options: MapOptions(
@@ -105,14 +96,12 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
                 ),
               ),
               children: [
-                // Capa de teselas (mapa base)
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.barbertrack.map_app',
                   maxNativeZoom: 19,
                 ),
 
-                // Capa de marcadores de negocios
                 if (businessMarkers.isNotEmpty)
                   MarkerLayer(
                     markers: businessMarkers
@@ -120,7 +109,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
                         .toList(),
                   ),
 
-                // Atribución requerida para OpenStreetMap
                 const RichAttributionWidget(
                   alignment: AttributionAlignment.bottomLeft,
                   attributions: [
@@ -133,7 +121,6 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
               ],
             ),
 
-            // Indicador de carga del mapa
             if (!_isMapReady)
               Positioned.fill(
                 child: Container(
@@ -188,7 +175,7 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     );
   }
 
-  /// Vista mostrada cuando no hay negocios con coordenadas
+
   Widget _buildNoCoordinatesView() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -261,7 +248,7 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     );
   }
 
-  /// Aplica animación a un marcador
+
   Marker _animateMarker(Marker originalMarker) {
     return Marker(
       point: originalMarker.point,
@@ -274,7 +261,7 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     );
   }
 
-  /// Callback cuando el mapa está listo
+
   void _onMapReady() {
     setState(() {
       _isMapReady = true;
