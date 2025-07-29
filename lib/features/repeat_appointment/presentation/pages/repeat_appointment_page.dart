@@ -62,11 +62,11 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Instrucciones
+                  
                   _buildInstructionsCard(),
                   const SizedBox(height: 24),
 
-                  // Selector de fecha
+                  
                   DatePickerWidget(
                     selectedDate: selectedDate,
                     onDateSelected: (date) {
@@ -74,7 +74,7 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
                         selectedDate = date;
                       });
 
-                      // Cargar disponibilidad cuando se selecciona una fecha
+                      
                       context.read<RepeatAppointmentBloc>().add(
                         LoadBusinessAvailability(
                           businessId: widget.businessId,
@@ -89,7 +89,7 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
                   if (selectedDate != null) ...[
                     const SizedBox(height: 24),
 
-                    // Mostrar disponibilidad
+                      
                     if (state is RepeatAppointmentLoading) ...[
                       _buildLoadingWidget(),
                     ] else if (state

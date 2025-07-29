@@ -26,6 +26,7 @@ class TimeSlotsWidget extends StatelessWidget {
           return _buildBarberAvailabilityCard(context, barberAvailability);
         })
         .where(
+          // ignore: unnecessary_cast
           (widget) => widget is! SizedBox || (widget as SizedBox).height != 0,
         )
         .toList();
@@ -37,8 +38,7 @@ class TimeSlotsWidget extends StatelessWidget {
     return Column(children: widgets);
   }
 
-  /// Busca el schedule correspondiente a la fecha seleccionada
-  /// Maneja diferentes formatos de fecha y comparaciones robustas
+ 
   DaySchedule? _findScheduleForDate(List<DaySchedule> schedules) {
     if (schedules.isEmpty) {
       return null;
@@ -46,14 +46,14 @@ class TimeSlotsWidget extends StatelessWidget {
 
     final targetDateString = selectedDate.toIso8601String().split('T')[0];
 
-    // Intento 1: Búsqueda por string exacto
+    
     for (var schedule in schedules) {
       if (schedule.date == targetDateString) {
         return schedule;
       }
     }
 
-    // Intento 2: Comparación de fechas parseadas (más robusto)
+     
     try {
       final targetDate = DateTime.parse(targetDateString);
 
@@ -64,18 +64,18 @@ class TimeSlotsWidget extends StatelessWidget {
             return schedule;
           }
         } catch (e) {
-          // Si no se puede parsear esta fecha del schedule, continúa con la siguiente
+        
           continue;
         }
       }
     } catch (e) {
-      // Si no se puede parsear la fecha objetivo, intentar con comparación de strings
+  throw Exception(e);
     }
 
     return null;
   }
 
-  /// Compara si dos fechas son el mismo día
+  
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
@@ -154,7 +154,7 @@ class TimeSlotsWidget extends StatelessWidget {
     BuildContext context,
     BarberAvailability barberAvailability,
   ) {
-    // Buscar el schedule para la fecha seleccionada
+    
     final daySchedule = _findScheduleForDate(barberAvailability.schedule);
 
     if (daySchedule == null) {
@@ -165,7 +165,7 @@ class TimeSlotsWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Filtrar solo los slots disponibles
+   
     final availableSlots = daySchedule.availableSlots
         .where((slot) => slot.available)
         .toList();
@@ -182,7 +182,7 @@ class TimeSlotsWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header con información del barbero
+            
             Row(
               children: [
                 Container(
@@ -220,7 +220,7 @@ class TimeSlotsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Grid de horarios
+            
             Wrap(
               spacing: 8,
               runSpacing: 8,
