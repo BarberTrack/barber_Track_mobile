@@ -21,7 +21,7 @@ class ActionButtonsSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          // Botón para ver reseñas
+          
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {
@@ -48,7 +48,7 @@ class ActionButtonsSection extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Botón para ver barberos
+          
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {
@@ -74,7 +74,7 @@ class ActionButtonsSection extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Botón para ver promociones (solo si es favorito)
+          
           if (isFavorite) ...[
             _buildGalleryStyleButton(
               context: context,
@@ -96,7 +96,7 @@ class ActionButtonsSection extends StatelessWidget {
             const SizedBox(height: 16),
           ],
 
-          // Botón para ver servicios
+            
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {

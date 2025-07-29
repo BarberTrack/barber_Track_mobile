@@ -128,10 +128,10 @@ class InfoGridWidget extends StatelessWidget {
   }
 
   void _openMaps(String address) {
-    // Implementar apertura de mapas
+   
   }
 
   void _makeCall(String phone) {
-    // Implementar llamada telefónica
+    
   }
 }

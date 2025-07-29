@@ -10,7 +10,7 @@ class HeroSectionWidget extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 360;
 
-    // Calcular altura dinámica basada en la descripción
+    
     final hasDescription =
         business.description != null && business.description.isNotEmpty;
     final estimatedHeight = _calculateContainerHeight(
@@ -19,7 +19,7 @@ class HeroSectionWidget extends StatelessWidget {
       business.description,
     );
 
-    // Determinar si está abierto o cerrado
+    
     final businessStatus = _getBusinessStatus();
 
     return Container(
@@ -42,7 +42,7 @@ class HeroSectionWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Patrón decorativo de fondo
+          
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -56,7 +56,7 @@ class HeroSectionWidget extends StatelessWidget {
             ),
           ),
 
-          // Círculos decorativos
+          
           Positioned(
             top: -20,
             right: -20,
@@ -82,13 +82,13 @@ class HeroSectionWidget extends StatelessWidget {
             ),
           ),
 
-          // Contenido principal
+          
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header con icono y badge
+                
                 Row(
                   children: [
                     Container(
@@ -151,7 +151,7 @@ class HeroSectionWidget extends StatelessWidget {
 
                 SizedBox(height: isSmallScreen ? 16 : 20),
 
-                // Nombre del negocio - Compacto
+                
                 Text(
                   business.name ?? 'Barbería',
                   style: TextStyle(
@@ -167,7 +167,7 @@ class HeroSectionWidget extends StatelessWidget {
 
                 SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Descripción - Expandida para mostrar más texto
+                
                 if (hasDescription)
                   Expanded(
                     child: Container(
@@ -189,7 +189,7 @@ class HeroSectionWidget extends StatelessWidget {
 
                 SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Rating section - Ahora muestra el rating real
+                
                 Row(
                   children: [
                     _buildRatingStat(
@@ -207,51 +207,38 @@ class HeroSectionWidget extends StatelessWidget {
     );
   }
 
-  /// Determina el estado actual del negocio (abierto/cerrado)
+  
   Map<String, dynamic> _getBusinessStatus() {
-    // Verificar si el negocio está activo
+    
     if (business.isActive != true) {
-      print('DEBUG: Negocio inactivo');
       return {'isOpen': false, 'text': 'Cerrado'};
     }
 
-    // Verificar si tenemos horarios
+
     if (business.businessHours == null) {
-      print('DEBUG: Sin horarios definidos');
       return {'isOpen': false, 'text': 'Cerrado'};
     }
 
-    // Obtener el día actual
+    
     final now = DateTime.now();
     final currentDay = _getCurrentDayKey(now.weekday);
-    print(
-      'DEBUG: Día actual: $currentDay, Hora actual: ${now.hour}:${now.minute}',
-    );
+ 
 
-    // Obtener datos del día actual
     final dayData = business.businessHours[currentDay] as Map<String, dynamic>?;
-    print('DEBUG: Datos del día: $dayData');
 
-    // Si no hay datos para el día o está marcado como cerrado
+
     if (dayData == null || dayData['closed'] == true) {
-      print('DEBUG: Día marcado como cerrado');
       return {'isOpen': false, 'text': 'Cerrado'};
     }
 
-    // Obtener horarios de apertura y cierre
     final openTime = dayData['open'] as String?;
     final closeTime = dayData['close'] as String?;
-    print('DEBUG: Horario - Abre: $openTime, Cierra: $closeTime');
 
-    // Si no hay horarios definidos
     if (openTime == null || closeTime == null) {
-      print('DEBUG: Horarios no definidos');
       return {'isOpen': false, 'text': 'Cerrado'};
     }
 
-    // Verificar si está dentro del horario
     final isWithinHours = _isWithinBusinessHours(now, openTime, closeTime);
-    print('DEBUG: ¿Está dentro del horario? $isWithinHours');
 
     return {
       'isOpen': isWithinHours,
@@ -259,7 +246,7 @@ class HeroSectionWidget extends StatelessWidget {
     };
   }
 
-  /// Obtiene la clave del día actual para los horarios
+
   String _getCurrentDayKey(int weekday) {
     final dayMap = {
       1: 'monday',
@@ -273,10 +260,8 @@ class HeroSectionWidget extends StatelessWidget {
     return dayMap[weekday] ?? 'monday';
   }
 
-  /// Verifica si la hora actual está dentro del horario de negocio
   bool _isWithinBusinessHours(DateTime now, String openTime, String closeTime) {
     try {
-      // Parsear horarios (formato esperado: "HH:mm")
       final openParts = openTime.split(':');
       final closeParts = closeTime.split(':');
 
@@ -289,7 +274,6 @@ class HeroSectionWidget extends StatelessWidget {
       final closeHour = int.parse(closeParts[0]);
       final closeMinute = int.parse(closeParts[1]);
 
-      // Crear DateTime para horarios de hoy
       final today = DateTime(now.year, now.month, now.day);
       final openDateTime = DateTime(
         today.year,
@@ -306,20 +290,16 @@ class HeroSectionWidget extends StatelessWidget {
         closeMinute,
       );
 
-      // Si el horario de cierre es antes que el de apertura,
-      // significa que cierra al día siguiente (ej: 22:00 - 02:00)
       if (closeDateTime.isBefore(openDateTime) ||
           (closeHour < openHour) ||
           (closeHour == openHour && closeMinute <= openMinute)) {
         closeDateTime = closeDateTime.add(const Duration(days: 1));
       }
 
-      // Verificar si la hora actual está dentro del rango (inclusivo)
       return (now.isAtSameMomentAs(openDateTime) ||
               now.isAfter(openDateTime)) &&
           (now.isAtSameMomentAs(closeDateTime) || now.isBefore(closeDateTime));
     } catch (e) {
-      // En caso de error, asumir que está cerrado
       return false;
     }
   }
@@ -331,13 +311,12 @@ class HeroSectionWidget extends StatelessWidget {
   ) {
     double baseHeight = isSmallScreen ? 280 : 260;
 
-    if (hasDescription && description != null) {
-      // Estimar líneas basado en la longitud del texto
+    if (hasDescription && description != null) {  
       int estimatedLines = (description.length / (isSmallScreen ? 35 : 45))
           .ceil();
       estimatedLines = estimatedLines.clamp(1, isSmallScreen ? 4 : 5);
 
-      // Agregar altura extra por línea de descripción
+      
       double extraHeight = estimatedLines * (isSmallScreen ? 18 : 20);
       return baseHeight + extraHeight;
     }
@@ -350,10 +329,10 @@ class HeroSectionWidget extends StatelessWidget {
     required int totalReviews,
     required bool isSmallScreen,
   }) {
-    // Formatear el rating para mostrar máximo 1 decimal
+    
     String formattedRating = rating.toStringAsFixed(1);
 
-    // Si termina en .0, mostrar sin decimales
+    
     if (formattedRating.endsWith('.0')) {
       formattedRating = rating.toStringAsFixed(0);
     }
@@ -371,7 +350,7 @@ class HeroSectionWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Estrella con fondo
+          
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -386,7 +365,7 @@ class HeroSectionWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          // Rating y reviews
+            
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

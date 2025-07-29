@@ -22,7 +22,7 @@ class BarberdetailsBloc extends Bloc<BarberdetailsEvent, BarberdetailsState> {
 
     try {
       final business = await getBusinessById(event.businessId);
-      //logger.d(business);
+        //logger.d(business);
       emit(BarberdetailsLoaded(business));
     } catch (e) {
       logger.e(e);
