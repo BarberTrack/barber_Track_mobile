@@ -28,7 +28,7 @@ class BarberCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with avatar and name
+            
             Row(
               children: [
                 Container(
@@ -119,7 +119,7 @@ class BarberCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Bio
+            
             Text(
               barber.bio,
               style: TextStyle(
@@ -132,7 +132,7 @@ class BarberCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Experience
+            
             Row(
               children: [
                 Icon(
@@ -149,7 +149,7 @@ class BarberCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Specialties
+            
             Text(
               'Especialidades:',
               style: TextStyle(
@@ -189,7 +189,7 @@ class BarberCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Portfolio button
+              
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

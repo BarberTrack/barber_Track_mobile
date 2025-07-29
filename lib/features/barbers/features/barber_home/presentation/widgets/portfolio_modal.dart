@@ -30,7 +30,7 @@ class _PortfolioModalState extends State<PortfolioModal> {
       backgroundColor: Colors.black.withOpacity(0.95),
       child: Stack(
         children: [
-          // Header
+          
           Positioned(
             top: 50,
             left: 16,
@@ -77,7 +77,7 @@ class _PortfolioModalState extends State<PortfolioModal> {
             ),
           ),
 
-          // Image Gallery
+          
           Center(
             child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
@@ -159,9 +159,9 @@ class _PortfolioModalState extends State<PortfolioModal> {
             ),
           ),
 
-          // Navigation arrows (only show if more than one image)
+          
           if (widget.portfolioImages.length > 1) ...[
-            // Left arrow
+            
             Positioned(
               left: 16,
               top: 0,
@@ -194,7 +194,7 @@ class _PortfolioModalState extends State<PortfolioModal> {
               ),
             ),
 
-            // Right arrow
+            
             Positioned(
               right: 16,
               top: 0,
@@ -228,7 +228,7 @@ class _PortfolioModalState extends State<PortfolioModal> {
             ),
           ],
 
-          // Page indicators (only show if more than one image)
+          
           if (widget.portfolioImages.length > 1)
             Positioned(
               bottom: 50,
