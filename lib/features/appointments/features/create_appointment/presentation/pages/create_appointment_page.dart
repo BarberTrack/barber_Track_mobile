@@ -49,9 +49,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               _showSuccessDialog(context, state);
             } else if (state is CreateAppointmentError) {
               _showErrorDialog(context, state.message);
-            } else if (state is CreateAppointmentNotesError) {
-              // No necesitamos mostrar nada aquí, el error se muestra en el widget
-            }
+            } else if (state is CreateAppointmentNotesError) {}
           },
           builder: (context, state) {
             if (state is CreateAppointmentLoading ||
@@ -96,7 +94,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Servicio seleccionado
           if (state is CreateAppointmentServiceSelected ||
               state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
@@ -166,7 +163,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                   setState(() {
                     clientNotes = value;
                   });
-                  // Disparar validación en tiempo real
                   context.read<CreateAppointmentBloc>().add(
                     ValidateClientNotes(value),
                   );
@@ -701,7 +697,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Encabezado del modal
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -757,13 +752,11 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                   ),
                 ),
 
-                // Contenido del modal
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Información del servicio
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -811,7 +804,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
                       const SizedBox(height: 16),
 
-                      // Información de la cita
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -873,7 +865,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
                       const SizedBox(height: 16),
 
-                      // Mensaje de confirmación
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -921,7 +912,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                   ),
                 ),
 
-                // Botones de acción
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -1022,25 +1012,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: Text(value)),
-        ],
       ),
     );
   }

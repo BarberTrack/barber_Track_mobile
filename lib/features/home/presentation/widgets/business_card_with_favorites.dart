@@ -6,7 +6,6 @@ import '../../../favorites/presentation/bloc/favorites_state.dart';
 import '../../domain/entities/business.dart';
 import '../../../favorites/domain/entities/favorite.dart';
 import 'business_card.dart';
-import '../../../../core/di/injection.dart';
 
 class BusinessCardWithFavorites extends StatefulWidget {
   final Business business;

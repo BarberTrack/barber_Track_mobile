@@ -4,7 +4,6 @@ import '../../../../../../core/di/injection.dart';
 import '../bloc/barberdetails_bloc.dart';
 import '../../../../../appointments/features/create_appointment/presentation/pages/create_appointment_page.dart';
 import '../widgets/hero_section_widget.dart';
-//import '../widgets/quick_actions_widget.dart';
 import '../widgets/info_grid_widget.dart';
 import '../widgets/schedule_timeline_widget.dart';
 import '../widgets/action_buttons_section.dart';
@@ -35,7 +34,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     super.initState();
     _favoritesStorage = sl<FavoritesStorage>();
     _initializeFavoriteStatus();
-    // Cargar favoritos de manera segura
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _safeAddFavoriteEvent(const LoadFavorites());
@@ -43,13 +41,11 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     });
   }
 
-  // NO cerrar el bloc singleton
   @override
   void dispose() {
     super.dispose();
   }
 
-  // Inicializar estado de favorito desde storage local
   Future<void> _initializeFavoriteStatus() async {
     final isFavorite = await _favoritesStorage.isFavorite(widget.businessId);
     if (mounted) {
@@ -59,7 +55,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     }
   }
 
-  // Función helper para agregar eventos de manera segura al FavoritesBloc
   void _safeAddFavoriteEvent(FavoritesEvent event) {
     if (mounted) {
       try {
@@ -81,12 +76,11 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     });
   }
 
-  // Helper para validar si hay imágenes válidas
   bool _hasValidGalleryImages(dynamic galleryImages) {
     if (galleryImages == null) return false;
     if (galleryImages is! List) return false;
 
-    List<dynamic> images = galleryImages as List;
+    List<dynamic> images = galleryImages;
     return images.any((img) {
       if (img == null) return false;
       String imageStr = img.toString().trim();
@@ -94,12 +88,11 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
     });
   }
 
-  // Helper para obtener lista limpia de imágenes
   List<String> _getValidGalleryImages(dynamic galleryImages) {
     if (galleryImages == null) return [];
     if (galleryImages is! List) return [];
 
-    List<dynamic> images = galleryImages as List;
+    List<dynamic> images = galleryImages;
     return images
         .where((img) => img != null && img.toString().trim().isNotEmpty)
         .map((img) => img.toString().trim())
@@ -149,7 +142,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
       ),
       child: CustomScrollView(
         slivers: [
-          // Custom App Bar
           SliverAppBar(
             expandedHeight: 100,
             floating: true,
@@ -197,23 +189,19 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
             ),
           ),
 
-          // Content
           SliverToBoxAdapter(
             child: Column(
               children: [
                 const SizedBox(height: 8),
 
-                // Hero Section - Información principal destacada
                 HeroSectionWidget(business: business),
 
                 const SizedBox(height: 24),
 
-                // Business Card con funcionalidad de favoritos
                 _buildFavoritesSection(context, business),
 
                 const SizedBox(height: 24),
 
-                // Botón de galería como sección destacada
                 if (_hasValidGalleryImages(business.galleryImages))
                   _buildGallerySection(
                     context,
@@ -222,7 +210,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
 
                 const SizedBox(height: 24),
 
-                // Action Buttons - Reviews y Ver barberos (después de galería)
                 ActionButtonsSection(
                   businessId: widget.businessId,
                   isFavorite: _isFavorite,
@@ -230,15 +217,13 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
 
                 const SizedBox(height: 32),
 
-                // Info Grid - Información de contacto compacta
                 InfoGridWidget(business: business),
 
                 const SizedBox(height: 32),
 
-                // Schedule Timeline - Horarios en formato timeline
                 ScheduleTimelineWidget(businessHours: business.businessHours),
 
-                const SizedBox(height: 120), // Espacio para FAB
+                const SizedBox(height: 120),
               ],
             ),
           ),
@@ -254,7 +239,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
           _currentFavorites = state.favorites;
           _checkIfFavorite();
         } else if (state is AddToFavoritesSuccess) {
-          // Actualizar inmediatamente desde storage local
           _initializeFavoriteStatus();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -276,7 +260,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
             ),
           );
         } else if (state is RemoveFromFavoritesSuccess) {
-          // Actualizar inmediatamente desde storage local
           _initializeFavoriteStatus();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -329,12 +312,10 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
                 ? null
                 : () {
                     if (_isFavorite) {
-                      // Quitar de favoritos
                       _safeAddFavoriteEvent(
                         RemoveFavoriteEvent(business.id ?? ''),
                       );
                     } else {
-                      // Agregar a favoritos
                       _safeAddFavoriteEvent(
                         AddFavoriteEvent(business.id ?? ''),
                       );
@@ -474,7 +455,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
             ),
             child: Column(
               children: [
-                // Header del modal
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -521,7 +501,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
                   ),
                 ),
 
-                // Galería de imágenes
                 Expanded(child: _buildImageGallery(galleryImages)),
               ],
             ),
@@ -539,7 +518,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
           margin: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // Contador de imágenes
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -560,7 +538,6 @@ class _BarberDetailsPageState extends State<BarberDetailsPage> {
               ),
               const SizedBox(height: 16),
 
-              // Imagen
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
