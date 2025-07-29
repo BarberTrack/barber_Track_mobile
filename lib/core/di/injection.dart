@@ -14,6 +14,7 @@ import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
 import '../../features/home/domain/repositories/home_repository.dart';
 import '../../features/home/domain/usecases/get_businesses.dart';
+import '../../features/home/domain/usecases/get_businesses_with_filters.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 
 // BarberDetails imports
@@ -109,6 +110,59 @@ import '../../features/barberShops/features/business_services/domain/usecases/ge
     as business_services_usecase;
 import '../../features/barberShops/features/business_services/presentation/bloc/business_services_bloc.dart';
 
+// Map imports
+import '../../features/map/data/datasources/map_remote_data_source.dart';
+import '../../features/map/data/repositories/map_repository_impl.dart';
+import '../../features/map/domain/repositories/map_repository.dart';
+import '../../features/map/domain/usecases/get_map_businesses.dart';
+import '../../features/map/domain/usecases/get_map_businesses_with_filters.dart';
+import '../../features/map/presentation/bloc/map_bloc.dart';
+
+// Repeat Appointment imports
+import '../../features/repeat_appointment/data/datasources/repeat_appointment_remote_data_source.dart';
+import '../../features/repeat_appointment/data/repositories/repeat_appointment_repository_impl.dart';
+import '../../features/repeat_appointment/domain/repositories/repeat_appointment_repository.dart';
+import '../../features/repeat_appointment/domain/usecases/get_business_availability.dart';
+import '../../features/repeat_appointment/domain/usecases/repeat_appointment.dart'
+    as repeat_usecase;
+import '../../features/repeat_appointment/presentation/bloc/repeat_appointment_bloc.dart';
+
+// Update Appointment imports
+import '../../features/appointments/features/update_appointment/data/datasources/update_appointment_remote_data_source.dart';
+import '../../features/appointments/features/update_appointment/data/repositories/update_appointment_repository_impl.dart';
+import '../../features/appointments/features/update_appointment/domain/repositories/update_appointment_repository.dart';
+import '../../features/appointments/features/update_appointment/domain/usecases/get_availability.dart'
+    as update_availability;
+import '../../features/appointments/features/update_appointment/domain/usecases/update_appointment.dart'
+    as update_usecase;
+import '../../features/appointments/features/update_appointment/presentation/bloc/update_appointment_bloc.dart';
+
+// Change Service imports
+import '../../features/appointments/features/change_service/data/datasources/change_service_remote_data_source.dart';
+import '../../features/appointments/features/change_service/data/repositories/change_service_repository_impl.dart';
+import '../../features/appointments/features/change_service/domain/repositories/change_service_repository.dart';
+import '../../features/appointments/features/change_service/domain/usecases/get_business_services.dart'
+    as change_service_business_services;
+import '../../features/appointments/features/change_service/domain/usecases/get_availability.dart'
+    as change_service_availability;
+import '../../features/appointments/features/change_service/domain/usecases/change_service.dart'
+    as change_service_usecase;
+import '../../features/appointments/features/change_service/presentation/bloc/change_service_bloc.dart';
+
+// Promotions imports
+import '../../features/promotions/data/datasources/promotions_remote_data_source.dart';
+import '../../features/promotions/data/repositories/promotions_repository_impl.dart';
+import '../../features/promotions/domain/repositories/promotions_repository.dart';
+import '../../features/promotions/domain/usecases/get_business_promotions.dart';
+import '../../features/promotions/presentation/bloc/promotions_bloc.dart';
+
+// Register imports
+import '../../features/register/data/datasources/register_remote_data_source.dart';
+import '../../features/register/data/repositories/register_repository_impl.dart';
+import '../../features/register/domain/repositories/register_repository.dart';
+import '../../features/register/domain/usecases/register_user.dart';
+import '../../features/register/presentation/bloc/register_bloc.dart';
+
 final GetIt sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
@@ -150,7 +204,13 @@ Future<void> initializeDependencies() async {
     () => GetBusinesses(sl<HomeRepository>()),
   );
 
-  sl.registerFactory<HomeBloc>(() => HomeBloc(sl<GetBusinesses>()));
+  sl.registerLazySingleton<GetBusinessesWithFilters>(
+    () => GetBusinessesWithFilters(sl<HomeRepository>()),
+  );
+
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(sl<GetBusinesses>(), sl<GetBusinessesWithFilters>()),
+  );
 
   // BarberDetails dependencies
   sl.registerLazySingleton<BarberDetailsRemoteDataSource>(
@@ -329,7 +389,7 @@ Future<void> initializeDependencies() async {
     () => RemoveFromFavorites(sl<FavoritesRepository>()),
   );
 
-  sl.registerLazySingleton<FavoritesBloc>(
+  sl.registerFactory<FavoritesBloc>(
     () => FavoritesBloc(
       getFavoritesUseCase: sl<GetFavorites>(),
       addToFavoritesUseCase: sl<AddToFavorites>(),
@@ -404,5 +464,159 @@ Future<void> initializeDependencies() async {
     () => BusinessServicesBloc(
       getBusinessServices: sl<business_services_usecase.GetBusinessServices>(),
     ),
+  );
+
+  // Map dependencies
+  sl.registerLazySingleton<MapRemoteDataSource>(
+    () => MapRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<MapRepository>(
+    () => MapRepositoryImpl(remoteDataSource: sl<MapRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetMapBusinesses>(
+    () => GetMapBusinesses(sl<MapRepository>()),
+  );
+
+  sl.registerLazySingleton<GetMapBusinessesWithFilters>(
+    () => GetMapBusinessesWithFilters(sl<MapRepository>()),
+  );
+
+  sl.registerFactory<MapBloc>(
+    () => MapBloc(
+      getMapBusinesses: sl<GetMapBusinesses>(),
+      getMapBusinessesWithFilters: sl<GetMapBusinessesWithFilters>(),
+    ),
+  );
+
+  // Repeat Appointment dependencies
+  sl.registerLazySingleton<RepeatAppointmentRemoteDataSource>(
+    () => RepeatAppointmentRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+    ),
+  );
+
+  sl.registerLazySingleton<RepeatAppointmentRepository>(
+    () => RepeatAppointmentRepositoryImpl(
+      sl<RepeatAppointmentRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<GetBusinessAvailability>(
+    () => GetBusinessAvailability(sl<RepeatAppointmentRepository>()),
+  );
+
+  sl.registerLazySingleton<repeat_usecase.RepeatAppointment>(
+    () => repeat_usecase.RepeatAppointment(sl<RepeatAppointmentRepository>()),
+  );
+
+  sl.registerFactory<RepeatAppointmentBloc>(
+    () => RepeatAppointmentBloc(
+      getBusinessAvailability: sl<GetBusinessAvailability>(),
+      repeatAppointmentUseCase: sl<repeat_usecase.RepeatAppointment>(),
+    ),
+  );
+
+  // Update Appointment dependencies
+  sl.registerLazySingleton<UpdateAppointmentRemoteDataSource>(
+    () => UpdateAppointmentRemoteDataSourceImpl(
+      sl<DioClient>(),
+      sl<TokenStorage>(),
+    ),
+  );
+
+  sl.registerLazySingleton<UpdateAppointmentRepository>(
+    () => UpdateAppointmentRepositoryImpl(
+      sl<UpdateAppointmentRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<update_availability.GetAvailability>(
+    () =>
+        update_availability.GetAvailability(sl<UpdateAppointmentRepository>()),
+  );
+
+  sl.registerLazySingleton<update_usecase.UpdateAppointment>(
+    () => update_usecase.UpdateAppointment(sl<UpdateAppointmentRepository>()),
+  );
+
+  sl.registerFactory<UpdateAppointmentBloc>(
+    () => UpdateAppointmentBloc(
+      getAvailability: sl<update_availability.GetAvailability>(),
+      updateAppointmentUseCase: sl<update_usecase.UpdateAppointment>(),
+    ),
+  );
+
+  // Change Service dependencies
+  sl.registerLazySingleton<ChangeServiceRemoteDataSource>(
+    () =>
+        ChangeServiceRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<ChangeServiceRepository>(
+    () => ChangeServiceRepositoryImpl(sl<ChangeServiceRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<
+    change_service_business_services.GetBusinessServices
+  >(
+    () => change_service_business_services.GetBusinessServices(
+      sl<ChangeServiceRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<change_service_availability.GetAvailability>(
+    () => change_service_availability.GetAvailability(
+      sl<ChangeServiceRepository>(),
+    ),
+  );
+
+  sl.registerLazySingleton<change_service_usecase.ChangeService>(
+    () => change_service_usecase.ChangeService(sl<ChangeServiceRepository>()),
+  );
+
+  sl.registerFactory<ChangeServiceBloc>(
+    () => ChangeServiceBloc(
+      getBusinessServices:
+          sl<change_service_business_services.GetBusinessServices>(),
+      getAvailability: sl<change_service_availability.GetAvailability>(),
+      changeServiceUseCase: sl<change_service_usecase.ChangeService>(),
+    ),
+  );
+
+  // Promotions dependencies
+  sl.registerLazySingleton<PromotionsRemoteDataSource>(
+    () => PromotionsRemoteDataSourceImpl(sl<DioClient>(), sl<TokenStorage>()),
+  );
+
+  sl.registerLazySingleton<PromotionsRepository>(
+    () => PromotionsRepositoryImpl(sl<PromotionsRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<GetBusinessPromotions>(
+    () => GetBusinessPromotions(sl<PromotionsRepository>()),
+  );
+
+  sl.registerFactory<PromotionsBloc>(
+    () => PromotionsBloc(getBusinessPromotions: sl<GetBusinessPromotions>()),
+  );
+
+  // Register dependencies
+  sl.registerLazySingleton<RegisterRemoteDataSource>(
+    () => RegisterRemoteDataSourceImpl(sl<DioClient>()),
+  );
+
+  sl.registerLazySingleton<RegisterRepository>(
+    () => RegisterRepositoryImpl(sl<RegisterRemoteDataSource>()),
+  );
+
+  sl.registerLazySingleton<RegisterUser>(
+    () => RegisterUser(sl<RegisterRepository>()),
+  );
+
+  sl.registerFactory<RegisterBloc>(
+    () => RegisterBloc(registerUserUseCase: sl<RegisterUser>()),
   );
 }

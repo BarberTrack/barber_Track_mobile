@@ -21,7 +21,7 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
   final Logger logger = Logger();
   FaceAnalysisRemoteDataSourceImpl(this.dioClient, this.tokenStorage);
 
-  /// Detecta el tipo MIME correcto basado en la extensión del archivo
+ 
   MediaType _getMediaType(String filePath) {
     final extension = filePath.toLowerCase();
     if (extension.endsWith('.jpg') || extension.endsWith('.jpeg')) {
@@ -31,7 +31,7 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
     } else if (extension.endsWith('.webp')) {
       return MediaType('image', 'webp');
     }
-    // Default a JPEG si no se puede determinar
+    
     return MediaType('image', 'jpeg');
   }
 
@@ -43,7 +43,7 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
     try {
       final token = await tokenStorage.getToken();
 
-      // Create FormData with both photos (ambas con el mismo nombre 'photos')
+      
       final formData = FormData.fromMap({
         'photos': [
           await MultipartFile.fromFile(
@@ -51,23 +51,23 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
             filename: 'front_photo.jpeg',
             contentType: _getMediaType(
               frontPhoto.path,
-            ), // Detectar tipo MIME correcto
+            ), 
           ),
           await MultipartFile.fromFile(
             profilePhoto.path,
             filename: 'profile_photo.jpeg',
             contentType: _getMediaType(
               profilePhoto.path,
-            ), // Detectar tipo MIME correcto
+            ), 
           ),
         ],
       });
 
-      logger.d('Enviando análisis facial...');
-      logger.d('Tamaño foto frontal: ${await frontPhoto.length()} bytes');
-      logger.d('Tamaño foto perfil: ${await profilePhoto.length()} bytes');
-      logger.d('Tipo MIME foto frontal: ${_getMediaType(frontPhoto.path)}');
-      logger.d('Tipo MIME foto perfil: ${_getMediaType(profilePhoto.path)}');
+      // logger.d('Enviando análisis facial...');
+      // logger.d('Tamaño foto frontal: ${await frontPhoto.length()} bytes');
+      // logger.d('Tamaño foto perfil: ${await profilePhoto.length()} bytes');
+      // logger.d('Tipo MIME foto frontal: ${_getMediaType(frontPhoto.path)}');
+      // logger.d('Tipo MIME foto perfil: ${_getMediaType(profilePhoto.path)}');
 
       final response = await dioClient.dio.post(
         '/api/style/analyze-face',
@@ -79,24 +79,24 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
           },
           receiveTimeout: const Duration(
             minutes: 2,
-          ), // Longer timeout for AI processing
+          ), 
           sendTimeout: const Duration(minutes: 2),
         ),
       );
-      logger.d('Respuesta recibida - Status: ${response.statusCode}');
-      logger.d('Respuesta data: ${response.data}');
+      // logger.d('Respuesta recibida - Status: ${response.statusCode}');
+      // logger.d('Respuesta data: ${response.data}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = response.data;
 
-        // Verificar si la respuesta tiene la estructura esperada
+        
         if (responseData is Map<String, dynamic> &&
             responseData.containsKey('data')) {
           final data = responseData['data'] as Map<String, dynamic>;
           return FaceAnalysisModel.fromJson(data);
         } else {
-          // Si la respuesta no tiene la estructura esperada
-          logger.e('Estructura de respuesta inesperada: $responseData');
+          
+          // logger.e('Estructura de respuesta inesperada: $responseData');
           throw Exception(
             'La respuesta del servidor no tiene el formato esperado',
           );
@@ -128,7 +128,7 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
           'Has excedido el límite diario de análisis. Inténtalo mañana.',
         );
       } else if (e.response?.statusCode == 500) {
-        // Extraer mensaje específico del servidor si está disponible
+        
         String serverMessage =
             'El servidor está experimentando problemas. Inténtalo más tarde.';
 
@@ -146,7 +146,7 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
             }
           }
         } catch (_) {
-          // Si no se puede parsear, usar mensaje por defecto
+          
         }
 
         throw Exception(serverMessage);
@@ -179,13 +179,13 @@ class FaceAnalysisRemoteDataSourceImpl implements FaceAnalysisRemoteDataSource {
     try {
       final token = await tokenStorage.getToken();
 
-      // Verificar que tenemos token válido como test básico de conectividad
+
       if (token == null || token.isEmpty) {
         logger.e('No hay token disponible');
         return false;
       }
 
-      logger.d('Token disponible - Conectividad OK');
+       
       return true;
     } catch (e) {
       logger.e('Error en test de conectividad: $e');

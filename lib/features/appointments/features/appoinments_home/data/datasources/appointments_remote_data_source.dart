@@ -45,9 +45,7 @@ class AppointmentsRemoteDataSourceImpl implements AppointmentsRemoteDataSource {
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      // logger.d(
-      //   'Get appointments response: ${response.statusCode} - ${response.data}',
-      // );
+      //logger.d('Get appointments response: ${response.data}');
 
       if (response.statusCode == 200) {
         return AppointmentsResponseModel.fromJson(

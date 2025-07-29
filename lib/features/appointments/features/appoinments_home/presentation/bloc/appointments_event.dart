@@ -12,10 +12,19 @@ class LoadAppointments extends AppointmentsEvent {
   final int limit;
   final String? status;
 
-  const LoadAppointments({this.page = 1, this.limit = 10, this.status});
+  const LoadAppointments({this.page = 1, this.limit = 5, this.status});
 
   @override
   List<Object?> get props => [page, limit, status];
+}
+
+class LoadMoreAppointments extends AppointmentsEvent {
+  final String? status;
+
+  const LoadMoreAppointments({this.status});
+
+  @override
+  List<Object?> get props => [status];
 }
 
 class RefreshAppointments extends AppointmentsEvent {

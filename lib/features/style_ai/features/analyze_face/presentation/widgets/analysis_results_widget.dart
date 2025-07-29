@@ -239,7 +239,6 @@ class AnalysisResultsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Face shape
             _buildVisagismoItem(
               'Forma del Rostro',
               faceAnalysis.visagismo.formaRostro.toUpperCase(),
@@ -248,7 +247,6 @@ class AnalysisResultsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Facial harmony
             Text(
               'Armonía Facial',
               style: TextStyle(
@@ -278,7 +276,6 @@ class AnalysisResultsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Frontal analysis
             Text(
               'Análisis Frontal',
               style: TextStyle(
@@ -321,8 +318,7 @@ class AnalysisResultsWidget extends StatelessWidget {
                   .anchoMandibula,
             ),
             const SizedBox(height: 16),
-
-            // Profile analysis
+  
             Text(
               'Análisis de Perfil',
               style: TextStyle(

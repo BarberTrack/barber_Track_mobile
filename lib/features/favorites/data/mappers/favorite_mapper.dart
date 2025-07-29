@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import '../../domain/entities/favorite.dart';
 import '../models/favorite_model.dart';
 import '../../../home/data/mappers/business_mapper.dart';
@@ -18,7 +20,7 @@ class FavoriteMapper {
   }
 }
 
-// Implementación concreta de la entidad abstracta
+
 class FavoriteEntity extends Favorite {
   const FavoriteEntity({
     required super.id,

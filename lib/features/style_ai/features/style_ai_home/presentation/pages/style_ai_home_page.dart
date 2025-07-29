@@ -7,14 +7,68 @@ import '../bloc/style_ai_home_bloc.dart';
 import '../widgets/style_history_card.dart';
 import '../widgets/style_detail_modal.dart';
 
-class StyleAiHomePage extends StatelessWidget {
+class StyleAiHomePage extends StatefulWidget {
   const StyleAiHomePage({super.key});
 
   @override
+  State<StyleAiHomePage> createState() => _StyleAiHomePageState();
+}
+
+class _StyleAiHomePageState extends State<StyleAiHomePage>
+    with WidgetsBindingObserver, RouteAware {
+  late StyleAiHomeBloc _bloc;
+  bool _hasInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _bloc = sl<StyleAiHomeBloc>()..add(const LoadStyleHistoryEvent());
+    _hasInitialized = true;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasInitialized) {
+      final route = ModalRoute.of(context);
+      if (route is PageRoute) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _bloc.add(const LoadStyleHistoryEvent());
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _bloc.close();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && mounted) {
+      _bloc.add(const LoadStyleHistoryEvent());
+    }
+  }
+
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    if (mounted) {
+      _bloc.add(const LoadStyleHistoryEvent());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          sl<StyleAiHomeBloc>()..add(const LoadStyleHistoryEvent()),
+    return BlocProvider.value(
+      value: _bloc,
       child: Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -71,7 +125,6 @@ class StyleAiHomePage extends StatelessWidget {
       },
       child: Column(
         children: [
-          // Daily Usage Info
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
@@ -127,10 +180,8 @@ class StyleAiHomePage extends StatelessWidget {
             ),
           ),
 
-          // Available Analysis Section
           _buildAnalysisSection(context),
 
-          // History List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(bottom: 16),
@@ -152,10 +203,8 @@ class StyleAiHomePage extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Column(
       children: [
-        // Available Analysis Section
         _buildAnalysisSection(context),
 
-        // Empty State Message
         Expanded(
           child: Center(
             child: Column(
@@ -306,130 +355,227 @@ class StyleAiHomePage extends StatelessWidget {
   }
 
   Widget _buildAnalysisSection(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Análisis Disponibles',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
+    return BlocBuilder<StyleAiHomeBloc, StyleAiHomeState>(
+      builder: (context, state) {
+        bool hasReachedLimit = false;
+        if (state is StyleAiHomeSuccess) {
+          hasReachedLimit = state.styleHistory.dailyUsage.remainingToday <= 0;
+        }
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Analyze Face Button
-              Expanded(
-                child: Container(
-                  height: 100,
+              const Text(
+                'Análisis Disponibles',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              if (hasReachedLimit && state is StyleAiHomeSuccess) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     gradient: LinearGradient(
+                      colors: [Colors.orange.shade300, Colors.orange.shade600],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.schedule, color: Colors.white, size: 32),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Límite de Uso Alcanzado',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Has excedido tu límite de uso diario.\nEstará disponible hasta el siguiente día.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Disponible en: ${_getTimeUntilReset(state.styleHistory.dailyUsage.resetTime)}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildAnalysisButton(
+                      context: context,
+                      title: 'Analizar Rostro',
+                      icon: Icons.face_retouching_natural,
                       colors: [Colors.blueAccent, Colors.blue.shade700],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blueAccent.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
+                      shadowColor: Colors.blueAccent,
+                      isEnabled: !hasReachedLimit,
                       onTap: () => context.push(AppRouter.analyzeFace),
-                      borderRadius: BorderRadius.circular(12),
-                      child: const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.face_retouching_natural,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Analizar Rostro',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Analyze Reference Button
-              Expanded(
-                child: Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnalysisButton(
+                      context: context,
+                      title: 'Analizar Referencia',
+                      icon: Icons.auto_awesome,
                       colors: [Colors.green, Colors.green.shade700],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
+                      shadowColor: Colors.green,
+                      isEnabled: !hasReachedLimit,
                       onTap: () => context.push(AppRouter.analyzeReference),
-                      borderRadius: BorderRadius.circular(12),
-                      child: const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.auto_awesome,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Analizar Referencia',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
-                ),
+                ],
               ),
+              const SizedBox(height: 20),
             ],
           ),
-          const SizedBox(height: 20),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnalysisButton({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required List<Color> colors,
+    required Color shadowColor,
+    required bool isEnabled,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: isEnabled
+              ? colors
+              : [Colors.grey.shade400, Colors.grey.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isEnabled ? shadowColor : Colors.grey).withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isEnabled ? onTap : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isEnabled) ...[
+                  Icon(icon, color: Colors.white, size: 28),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ] else ...[
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        color: Colors.white.withOpacity(0.3),
+                        size: 28,
+                      ),
+                      Icon(
+                        Icons.lock,
+                        color: Colors.white.withOpacity(0.9),
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  String _getTimeUntilReset(DateTime resetTime) {
+    final now = DateTime.now();
+    final difference = resetTime.difference(now);
+
+    if (difference.isNegative) {
+      return 'Disponible ahora';
+    }
+
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    } else {
+      return '${minutes}m';
+    }
   }
 }

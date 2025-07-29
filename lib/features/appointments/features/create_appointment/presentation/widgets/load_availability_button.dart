@@ -16,7 +16,7 @@ class LoadAvailabilityButton extends StatelessWidget {
         icon: const Icon(Icons.access_time),
         label: const Text('Cargar horarios disponibles'),
         onPressed: () {
-          // Obtener el primer barbero del servicio seleccionado
+          
           if (state.selectedService.barberAssignments.isNotEmpty) {
             final barberId =
                 state.selectedService.barberAssignments.first.barberId;

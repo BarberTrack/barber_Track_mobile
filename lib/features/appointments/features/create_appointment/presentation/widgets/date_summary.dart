@@ -68,10 +68,8 @@ class DateSummary extends StatelessWidget {
       final bloc = context.read<CreateAppointmentBloc>();
       final currentState = bloc.state;
 
-      // Actualizar la fecha seleccionada
       bloc.add(SelectDate(picked));
 
-      // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
       if (currentState is CreateAppointmentServiceSelected ||
           currentState is CreateAppointmentDateSelected ||
           currentState is CreateAppointmentAvailabilityLoaded ||
@@ -79,12 +77,10 @@ class DateSummary extends StatelessWidget {
           currentState is CreateAppointmentWithNotes) {
         final service = _getSelectedService(currentState);
 
-        // Obtener el primer barbero del servicio seleccionado
         if (service.barberAssignments.isNotEmpty) {
           final barberId = service.barberAssignments.first.barberId;
           final dateString = DateFormat('yyyy-MM-dd').format(picked);
-
-          // Cargar la disponibilidad para la nueva fecha
+  
           bloc.add(
             LoadAvailability(
               businessId: businessId,

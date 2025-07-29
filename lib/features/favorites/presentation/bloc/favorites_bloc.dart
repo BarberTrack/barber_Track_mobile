@@ -45,7 +45,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       final response = await getFavoritesUseCase.execute();
       final favorites = response.data.favorites;
 
-      // Sincronizar con storage local
+      
       final favoriteIds = favorites.map((fav) => fav.businessId).toList();
 
       if (favoriteIds.isEmpty) {
@@ -70,12 +70,12 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     try {
       final response = await addToFavoritesUseCase!.execute(event.businessId);
 
-      // Actualizar storage local inmediatamente
+      
       await favoritesStorage.addFavoriteBusinessId(event.businessId);
 
       emit(AddToFavoritesSuccess(response.message));
 
-      // Recargar favoritos para mantener sincronización
+      
       add(const RefreshFavorites());
     } catch (e) {
       emit(AddToFavoritesError(e.toString()));
@@ -94,12 +94,12 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
         event.businessId,
       );
 
-      // Actualizar storage local inmediatamente
+      
       await favoritesStorage.removeFavoriteBusinessId(event.businessId);
 
       emit(RemoveFromFavoritesSuccess(response.message));
 
-      // Recargar favoritos para mantener sincronización
+      
       add(const RefreshFavorites());
     } catch (e) {
       emit(RemoveFromFavoritesError(e.toString()));
@@ -119,7 +119,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
         ),
       );
     } catch (e) {
-      // Si falla el storage local, intentar verificar desde la lista cargada
+      
       if (state is FavoritesLoaded) {
         final favoritesLoaded = state as FavoritesLoaded;
         final isFavorite = favoritesLoaded.favorites.any(

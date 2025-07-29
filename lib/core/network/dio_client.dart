@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import '../config/environment.dart';
 
 class DioClient {
   late final Dio _dio;
@@ -7,11 +8,11 @@ class DioClient {
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://barbertrack-gateway.up.railway.app/api/v1',
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        // sendTimeout no es compatible con Web para requests sin body
-        sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
+        baseUrl: Environment.apiBaseUrl,
+        connectTimeout: Duration(seconds: Environment.connectTimeout),
+        receiveTimeout: Duration(seconds: Environment.receiveTimeout),
+
+        sendTimeout: kIsWeb ? null : Duration(seconds: Environment.sendTimeout),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

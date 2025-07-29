@@ -26,7 +26,6 @@ class StyleDetailModal extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Handle bar
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12),
             height: 4,
@@ -36,7 +35,6 @@ class StyleDetailModal extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -56,7 +54,6 @@ class StyleDetailModal extends StatelessWidget {
             ),
           ),
           const Divider(),
-          // Content
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
@@ -64,8 +61,7 @@ class StyleDetailModal extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRecommendationsSection(context),
-                  const SizedBox(height: 24),
-                  // Show different sections based on analysis type
+                  const SizedBox(height: 24),   
                   if (analysis.analysisType == 'visagismo_facial' &&
                       analysis.visagismo != null) ...[
                     _buildVisagismoSection(context),

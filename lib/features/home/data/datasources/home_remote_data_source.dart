@@ -1,11 +1,16 @@
 import 'package:dio/dio.dart';
 import '../models/business_model.dart';
+import '../models/businesses_response_model.dart';
+import '../../domain/entities/business_filters.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
 import 'package:logger/logger.dart';
 
 abstract class HomeRemoteDataSource {
   Future<List<BusinessModel>> getBusinesses();
+  Future<BusinessesResponseModel> getBusinessesWithFilters(
+    BusinessFilters filters,
+  );
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -18,14 +23,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<List<BusinessModel>> getBusinesses() async {
     try {
-      // Obtener el token del almacenamiento
+       
       final token = await tokenStorage.getToken();
 
       if (token == null) {
         throw Exception('No authentication token found');
       }
 
-      // Configurar el header de autorización
+       
       final response = await dioClient.dio.get(
         '/businesses',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
@@ -34,10 +39,43 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       if (response.statusCode == 200) {
         final data = response.data;
         final businessesData = data['data']['businesses'] as List<dynamic>;
-
         return businessesData
             .map((businessJson) => BusinessModel.fromJson(businessJson))
             .toList();
+      } else {
+        throw Exception('Failed to load businesses: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<BusinessesResponseModel> getBusinessesWithFilters(
+    BusinessFilters filters,
+  ) async {
+    try {
+      
+      final token = await tokenStorage.getToken();
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      
+      final response = await dioClient.dio.get(
+        '/businesses',
+        queryParameters: filters.toQueryParameters(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final businessesData = data['data'];
+        //logger.d('Businesses: $data');
+        return BusinessesResponseModel.fromJson(businessesData);
       } else {
         throw Exception('Failed to load businesses: ${response.statusCode}');
       }

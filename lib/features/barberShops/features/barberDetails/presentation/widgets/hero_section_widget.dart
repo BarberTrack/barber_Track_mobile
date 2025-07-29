@@ -7,8 +7,23 @@ class HeroSectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
+    
+    final hasDescription =
+        business.description != null && business.description.isNotEmpty;
+    final estimatedHeight = _calculateContainerHeight(
+      isSmallScreen,
+      hasDescription,
+      business.description,
+    );
+
+    
+    final businessStatus = _getBusinessStatus();
+
     return Container(
-      height: 280,
+      height: estimatedHeight,
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
@@ -27,7 +42,7 @@ class HeroSectionWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Patrón decorativo de fondo
+          
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -41,7 +56,7 @@ class HeroSectionWidget extends StatelessWidget {
             ),
           ),
 
-          // Círculos decorativos
+          
           Positioned(
             top: -20,
             right: -20,
@@ -67,17 +82,17 @@ class HeroSectionWidget extends StatelessWidget {
             ),
           ),
 
-          // Contenido principal
+          
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header con icono y badge
+                
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -89,7 +104,7 @@ class HeroSectionWidget extends StatelessWidget {
                       child: Icon(
                         Icons.content_cut_rounded,
                         color: Colors.white,
-                        size: 32,
+                        size: isSmallScreen ? 28 : 32,
                       ),
                     ),
                     const Spacer(),
@@ -99,7 +114,9 @@ class HeroSectionWidget extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.9),
+                        color: businessStatus['isOpen']
+                            ? Colors.green.withOpacity(0.9)
+                            : Colors.red.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Colors.white.withOpacity(0.3),
@@ -119,11 +136,11 @@ class HeroSectionWidget extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Abierto',
+                            businessStatus['text'],
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: isSmallScreen ? 12 : 14,
                             ),
                           ),
                         ],
@@ -132,57 +149,53 @@ class HeroSectionWidget extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: isSmallScreen ? 16 : 20),
 
-                // Nombre del negocio
+                
                 Text(
-                  business.name,
+                  business.name ?? 'Barbería',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: isSmallScreen ? 22 : 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 0.5,
+                    height: 1.1,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Descripción
-                if (business.description.isNotEmpty)
-                  Text(
-                    business.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white.withOpacity(0.9),
-                      height: 1.4,
+                
+                if (hasDescription)
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        business.description,
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 13 : 15,
+                          color: Colors.white.withOpacity(0.95),
+                          height: 1.5,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: isSmallScreen ? 4 : 5,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.justify,
+                      ),
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
                   ),
 
-                const Spacer(),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Quick stats
+                
                 Row(
                   children: [
-                    _buildQuickStat(
-                      icon: Icons.star_rounded,
-                      label: '4.8',
-                      subtitle: 'Rating',
-                    ),
-                    const SizedBox(width: 24),
-                    _buildQuickStat(
-                      icon: Icons.schedule_rounded,
-                      label: '25min',
-                      subtitle: 'Promedio',
-                    ),
-                    const SizedBox(width: 24),
-                    _buildQuickStat(
-                      icon: Icons.location_on_rounded,
-                      label: '2.1km',
-                      subtitle: 'Distancia',
+                    _buildRatingStat(
+                      rating: business.ratingAverage?.toDouble() ?? 0.0,
+                      totalReviews: business.totalReviews ?? 0,
+                      isSmallScreen: isSmallScreen,
                     ),
                   ],
                 ),
@@ -194,33 +207,189 @@ class HeroSectionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickStat({
-    required IconData icon,
-    required String label,
-    required String subtitle,
+  
+  Map<String, dynamic> _getBusinessStatus() {
+    
+    if (business.isActive != true) {
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+
+    if (business.businessHours == null) {
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    
+    final now = DateTime.now();
+    final currentDay = _getCurrentDayKey(now.weekday);
+ 
+
+    final dayData = business.businessHours[currentDay] as Map<String, dynamic>?;
+
+
+    if (dayData == null || dayData['closed'] == true) {
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    final openTime = dayData['open'] as String?;
+    final closeTime = dayData['close'] as String?;
+
+    if (openTime == null || closeTime == null) {
+      return {'isOpen': false, 'text': 'Cerrado'};
+    }
+
+    final isWithinHours = _isWithinBusinessHours(now, openTime, closeTime);
+
+    return {
+      'isOpen': isWithinHours,
+      'text': isWithinHours ? 'Abierto' : 'Cerrado',
+    };
+  }
+
+
+  String _getCurrentDayKey(int weekday) {
+    final dayMap = {
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday',
+      7: 'sunday',
+    };
+    return dayMap[weekday] ?? 'monday';
+  }
+
+  bool _isWithinBusinessHours(DateTime now, String openTime, String closeTime) {
+    try {
+      final openParts = openTime.split(':');
+      final closeParts = closeTime.split(':');
+
+      if (openParts.length != 2 || closeParts.length != 2) {
+        return false;
+      }
+
+      final openHour = int.parse(openParts[0]);
+      final openMinute = int.parse(openParts[1]);
+      final closeHour = int.parse(closeParts[0]);
+      final closeMinute = int.parse(closeParts[1]);
+
+      final today = DateTime(now.year, now.month, now.day);
+      final openDateTime = DateTime(
+        today.year,
+        today.month,
+        today.day,
+        openHour,
+        openMinute,
+      );
+      var closeDateTime = DateTime(
+        today.year,
+        today.month,
+        today.day,
+        closeHour,
+        closeMinute,
+      );
+
+      if (closeDateTime.isBefore(openDateTime) ||
+          (closeHour < openHour) ||
+          (closeHour == openHour && closeMinute <= openMinute)) {
+        closeDateTime = closeDateTime.add(const Duration(days: 1));
+      }
+
+      return (now.isAtSameMomentAs(openDateTime) ||
+              now.isAfter(openDateTime)) &&
+          (now.isAtSameMomentAs(closeDateTime) || now.isBefore(closeDateTime));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  double _calculateContainerHeight(
+    bool isSmallScreen,
+    bool hasDescription,
+    String? description,
+  ) {
+    double baseHeight = isSmallScreen ? 280 : 260;
+
+    if (hasDescription && description != null) {  
+      int estimatedLines = (description.length / (isSmallScreen ? 35 : 45))
+          .ceil();
+      estimatedLines = estimatedLines.clamp(1, isSmallScreen ? 4 : 5);
+
+      
+      double extraHeight = estimatedLines * (isSmallScreen ? 18 : 20);
+      return baseHeight + extraHeight;
+    }
+
+    return baseHeight;
+  }
+
+  Widget _buildRatingStat({
+    required double rating,
+    required int totalReviews,
+    required bool isSmallScreen,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 16),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+    
+    String formattedRating = rating.toStringAsFixed(1);
+
+    
+    if (formattedRating.endsWith('.0')) {
+      formattedRating = rating.toStringAsFixed(0);
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16,
+        vertical: isSmallScreen ? 8 : 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.amber.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        Text(
-          subtitle,
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12),
-        ),
-      ],
+            child: Icon(
+              Icons.star_rounded,
+              color: Colors.white,
+              size: isSmallScreen ? 14 : 16,
+            ),
+          ),
+          const SizedBox(width: 8),
+
+            
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                formattedRating,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 16 : 18,
+                ),
+              ),
+              if (totalReviews > 0)
+                Text(
+                  '$totalReviews reseña${totalReviews != 1 ? 's' : ''}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: isSmallScreen ? 10 : 12,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

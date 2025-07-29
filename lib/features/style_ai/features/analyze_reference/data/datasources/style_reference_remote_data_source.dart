@@ -17,7 +17,7 @@ class StyleReferenceRemoteDataSourceImpl
 
   StyleReferenceRemoteDataSourceImpl(this.dioClient, this.tokenStorage);
 
-  /// Detecta el tipo MIME correcto basado en la extensión del archivo
+ 
   MediaType _getMediaType(String filePath) {
     final extension = filePath.toLowerCase();
     if (extension.endsWith('.jpg') || extension.endsWith('.jpeg')) {
@@ -27,7 +27,7 @@ class StyleReferenceRemoteDataSourceImpl
     } else if (extension.endsWith('.webp')) {
       return MediaType('image', 'webp');
     }
-    // Default a JPEG si no se puede determinar
+    
     return MediaType('image', 'jpeg');
   }
 
@@ -36,26 +36,19 @@ class StyleReferenceRemoteDataSourceImpl
     File referenceImage,
   ) async {
     try {
-      // Comprimir imagen antes del envío para optimizar el tamaño
+      
       final File compressedImage =
           await ImageCompressionService.compressImageForAnalysis(
             referenceImage,
           );
 
-      print(
-        'Tamaño original: ${ImageCompressionService.getFileSizeInMB(referenceImage).toStringAsFixed(2)} MB',
-      );
-      print(
-        'Tamaño comprimido: ${ImageCompressionService.getFileSizeInMB(compressedImage).toStringAsFixed(2)} MB',
-      );
-
-      // Obtener el token de autenticación
+      
       final token = await tokenStorage.getToken();
       if (token == null) {
         throw Exception('Token de autenticación no encontrado');
       }
 
-      // Crear FormData para multipart/form-data con contentType correcto
+      
       final formData = FormData.fromMap({
         'referencePhoto': await MultipartFile.fromFile(
           compressedImage.path,
@@ -64,7 +57,7 @@ class StyleReferenceRemoteDataSourceImpl
         ),
       });
 
-      // Configurar headers y timeouts para esta petición específica
+      
       final options = Options(
         headers: {
           'Authorization': 'Bearer $token',
@@ -73,22 +66,20 @@ class StyleReferenceRemoteDataSourceImpl
         },
         receiveTimeout: const Duration(
           minutes: 2,
-        ), // Timeout más largo para procesamiento de IA
+        ), 
         sendTimeout: const Duration(minutes: 2),
       );
 
-      print('Enviando petición a: /api/style/generate-description');
-      print('Tipo MIME del archivo: ${_getMediaType(compressedImage.path)}');
+   
 
-      // Realizar la petición POST - endpoint correcto que coincide con el curl funcionando
+      
       final response = await dioClient.dio.post(
         '/api/style/generate-description',
         data: formData,
         options: options,
       );
 
-      print('Respuesta del servidor: ${response.statusCode}');
-      print('Datos de respuesta: ${response.data}');
+
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return StyleAnalysisResponseModel.fromJson(response.data);
@@ -96,8 +87,7 @@ class StyleReferenceRemoteDataSourceImpl
         throw Exception('Error en la petición: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      print('Error DioException: ${e.toString()}');
-      print('Respuesta del error: ${e.response?.data}');
+
 
       if (e.response?.statusCode == 401) {
         throw Exception('Token de autenticación inválido o expirado');
@@ -128,7 +118,7 @@ class StyleReferenceRemoteDataSourceImpl
             }
           }
         } catch (_) {
-          // Si no se puede parsear, usar mensaje por defecto
+            
         }
 
         throw Exception(serverMessage);
@@ -147,7 +137,6 @@ class StyleReferenceRemoteDataSourceImpl
         );
       }
     } catch (e) {
-      print('Error inesperado: ${e.toString()}');
       throw Exception('Error inesperado: $e');
     }
   }

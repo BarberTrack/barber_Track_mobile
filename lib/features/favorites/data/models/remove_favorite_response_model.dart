@@ -21,6 +21,7 @@ class RemoveFavoriteResponseModel {
     return {
       'success': success,
       'message': message,
+      // ignore: unnecessary_cast
       'data': (data as RemoveFavoriteDataModel).toJson(),
     };
   }

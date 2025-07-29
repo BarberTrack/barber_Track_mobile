@@ -10,7 +10,7 @@ class CreateReviewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Solo mostrar el botón si el status es "completed"
+
     if (appointment.status != 'completed') {
       return const SizedBox.shrink();
     }

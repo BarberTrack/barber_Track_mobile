@@ -81,7 +81,7 @@ class AnalyzeFaceBloc extends Bloc<AnalyzeFaceEvent, AnalyzeFaceState> {
       );
 
       try {
-        // 1. Primero probar conectividad
+        
         final isConnected = await remoteDataSource.testConnectivity();
         if (!isConnected) {
           throw Exception(
@@ -89,20 +89,12 @@ class AnalyzeFaceBloc extends Bloc<AnalyzeFaceEvent, AnalyzeFaceState> {
           );
         }
 
-        // 2. Comprimir imágenes de forma asíncrona para evitar congelamiento de UI
+        
         File frontPhotoToSend;
         File profilePhotoToSend;
 
         try {
-          // Validar imágenes antes de procesar
-          await ApiDebugHelper.logFileInfo(
-            currentState.frontPhoto!,
-            'Foto Frontal Original',
-          );
-          await ApiDebugHelper.logFileInfo(
-            currentState.profilePhoto!,
-            'Foto Perfil Original',
-          );
+
 
           final frontIsValid = await ApiDebugHelper.isValidImageFile(
             currentState.frontPhoto!,
@@ -127,22 +119,14 @@ class AnalyzeFaceBloc extends Bloc<AnalyzeFaceEvent, AnalyzeFaceState> {
                 currentState.profilePhoto!,
               );
 
-          // Log de imágenes comprimidas
-          await ApiDebugHelper.logFileInfo(
-            frontPhotoToSend,
-            'Foto Frontal Comprimida',
-          );
-          await ApiDebugHelper.logFileInfo(
-            profilePhotoToSend,
-            'Foto Perfil Comprimida',
-          );
+
         } catch (compressionError) {
-          // Si falla la compresión, usar imágenes originales
+          
           frontPhotoToSend = currentState.frontPhoto!;
           profilePhotoToSend = currentState.profilePhoto!;
         }
 
-        // 3. Hacer el análisis
+          
         final faceAnalysis = await analyzeFaceUseCase(
           AnalyzeFaceParams(
             frontPhoto: frontPhotoToSend,

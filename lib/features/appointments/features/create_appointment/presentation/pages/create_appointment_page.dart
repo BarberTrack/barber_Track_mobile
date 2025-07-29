@@ -6,6 +6,7 @@ import '../../../../../../core/di/injection.dart';
 import '../../../../../../core/router/app_router.dart';
 import '../bloc/create_appointment_bloc.dart';
 import '../../domain/entities/service.dart';
+import '../../domain/entities/availability.dart';
 import '../../domain/entities/time_slot.dart';
 import '../widgets/widgets.dart';
 
@@ -48,7 +49,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
               _showSuccessDialog(context, state);
             } else if (state is CreateAppointmentError) {
               _showErrorDialog(context, state.message);
-            }
+            } else if (state is CreateAppointmentNotesError) {}
           },
           builder: (context, state) {
             if (state is CreateAppointmentLoading ||
@@ -62,23 +63,13 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
                 state is CreateAppointmentDateSelected ||
                 state is CreateAppointmentAvailabilityLoaded ||
                 state is CreateAppointmentTimeSlotSelected ||
-                state is CreateAppointmentWithNotes) {
+                state is CreateAppointmentWithNotes ||
+                state is CreateAppointmentNotesError) {
               return _buildAppointmentFlow(context, state);
             }
             return const Center(child: Text('Cargando servicios...'));
           },
         ),
-        floatingActionButton:
-            BlocBuilder<CreateAppointmentBloc, CreateAppointmentState>(
-              builder: (context, state) {
-                return FloatingActionButton(
-                  backgroundColor: Colors.orange.shade600,
-                  foregroundColor: Colors.white,
-                  child: const Icon(Icons.info),
-                  onPressed: () => _showDebugModal(context, state),
-                );
-              },
-            ),
       ),
     );
   }
@@ -103,11 +94,12 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Servicio seleccionado
           if (state is CreateAppointmentServiceSelected ||
               state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             ServiceSummary(
               service: _getSelectedService(state),
               businessId: widget.businessId,
@@ -115,15 +107,15 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             const SizedBox(height: 24),
           ],
 
-          // Selector de fecha
           if (state is CreateAppointmentServiceSelected) ...[
             const DateSelector(),
           ],
 
-          // Fecha seleccionada y disponibilidad
           if (state is CreateAppointmentDateSelected ||
               state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             DateSummary(
               date: _getSelectedDate(state),
               businessId: widget.businessId,
@@ -134,35 +126,46 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
             ],
           ],
 
-          // Horarios disponibles
           if (state is CreateAppointmentAvailabilityLoaded ||
-              state is CreateAppointmentTimeSlotSelected) ...[
+              state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             TimeSlotsWidget(
               availability: state is CreateAppointmentAvailabilityLoaded
                   ? state.availability
-                  : (state as CreateAppointmentTimeSlotSelected).availability,
+                  : _getAvailability(state),
               state: state,
             ),
           ],
 
-          // Fecha y hora seleccionada específica
-          if (state is CreateAppointmentTimeSlotSelected) ...[
+          if (state is CreateAppointmentTimeSlotSelected ||
+              state is CreateAppointmentWithNotes ||
+              state is CreateAppointmentNotesError) ...[
             const SizedBox(height: 24),
-            _buildQuickDateTimeCard(context, state),
+            _buildQuickDateTimeCard(context, _getTimeSlotSelectedState(state)),
             const SizedBox(height: 16),
-            _buildSelectedDateTimeSummary(context, state),
+            _buildSelectedDateTimeSummary(
+              context,
+              _getTimeSlotSelectedState(state),
+            ),
             const SizedBox(height: 16),
-            _buildFinalSummary(context, state),
-            // Card de client notes
+            _buildFinalSummary(context, _getTimeSlotSelectedState(state)),
             if (showClientNotesCard) ...[
               const SizedBox(height: 16),
               ClientNotesCard(
                 notesController: _notesController,
                 clientNotes: clientNotes,
+                errorMessage: state is CreateAppointmentNotesError
+                    ? state.errorMessage
+                    : null,
+                hasValidationError: state is CreateAppointmentNotesError,
                 onNotesChanged: (value) {
                   setState(() {
                     clientNotes = value;
                   });
+                  context.read<CreateAppointmentBloc>().add(
+                    ValidateClientNotes(value),
+                  );
                 },
                 onConfirmPressed: () => _showConfirmationModal(context),
               ),
@@ -177,7 +180,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     BuildContext context,
     CreateAppointmentTimeSlotSelected state,
   ) {
-    // Verificar si la fecha seleccionada es diferente a la fecha de búsqueda original
     final originalSearchDate = _getOriginalSearchDate(state);
     final isDifferentDate = !_isSameDateOnly(
       state.selectedDate,
@@ -360,7 +362,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
   }
 
   DateTime _getOriginalSearchDate(CreateAppointmentTimeSlotSelected state) {
-    // Intentar obtener la fecha original de búsqueda desde el availability
     if (state.availability.isNotEmpty) {
       try {
         return DateTime.parse(state.availability.first.date);
@@ -552,93 +553,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     );
   }
 
-  // void _selectDate(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now().add(const Duration(days: 1)),
-  //     firstDate: DateTime.now(),
-  //     lastDate: DateTime.now().add(const Duration(days: 30)),
-  //   );
-
-  //   if (picked != null) {
-  //     final bloc = context.read<CreateAppointmentBloc>();
-  //     final currentState = bloc.state;
-
-  //     // Actualizar la fecha seleccionada
-  //     bloc.add(SelectDate(picked));
-
-  //     // Si hay un servicio seleccionado, cargar automáticamente la disponibilidad para la nueva fecha
-  //     if (currentState is CreateAppointmentServiceSelected ||
-  //         currentState is CreateAppointmentDateSelected ||
-  //         currentState is CreateAppointmentAvailabilityLoaded ||
-  //         currentState is CreateAppointmentTimeSlotSelected ||
-  //         currentState is CreateAppointmentWithNotes) {
-  //       final service = _getSelectedService(currentState);
-
-  //       // Obtener el primer barbero del servicio seleccionado
-  //       if (service.barberAssignments.isNotEmpty) {
-  //         final barberId = service.barberAssignments.first.barberId;
-  //         final dateString = DateFormat('yyyy-MM-dd').format(picked);
-
-  //         // Cargar la disponibilidad para la nueva fecha
-  //         bloc.add(
-  //           LoadAvailability(
-  //             businessId: widget.businessId,
-  //             barberId: barberId,
-  //             date: dateString,
-  //             days: 3,
-  //           ),
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
-
-  void _showDebugModal(BuildContext context, CreateAppointmentState state) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Información de Debug'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Business ID: ${widget.businessId}'),
-              const SizedBox(height: 8),
-              if (state is CreateAppointmentServiceSelected ||
-                  state is CreateAppointmentDateSelected ||
-                  state is CreateAppointmentAvailabilityLoaded ||
-                  state is CreateAppointmentTimeSlotSelected) ...[
-                Text('Service ID: ${_getSelectedService(state).id}'),
-                Text(
-                  'Barber ID: ${_getBarberIdFromService(_getSelectedService(state))}',
-                ),
-                const SizedBox(height: 8),
-              ],
-              if (state is CreateAppointmentDateSelected ||
-                  state is CreateAppointmentAvailabilityLoaded ||
-                  state is CreateAppointmentTimeSlotSelected) ...[
-                Text('Date: ${_getFormattedDateTime(state)}'),
-                const SizedBox(height: 8),
-              ],
-              if (clientNotes.isNotEmpty) ...[
-                Text('Client Notes: $clientNotes'),
-                const SizedBox(height: 8),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Service _getSelectedService(CreateAppointmentState state) {
     if (state is CreateAppointmentServiceSelected) return state.selectedService;
     if (state is CreateAppointmentDateSelected) return state.selectedService;
@@ -647,6 +561,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentTimeSlotSelected)
       return state.selectedService;
     if (state is CreateAppointmentWithNotes) return state.selectedService;
+    if (state is CreateAppointmentNotesError) return state.selectedService;
     throw Exception('Estado no válido para obtener servicio seleccionado');
   }
 
@@ -655,43 +570,44 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentAvailabilityLoaded) return state.selectedDate;
     if (state is CreateAppointmentTimeSlotSelected) return state.selectedDate;
     if (state is CreateAppointmentWithNotes) return state.selectedDate;
+    if (state is CreateAppointmentNotesError) return state.selectedDate;
     throw Exception('Estado no válido para obtener fecha seleccionada');
   }
 
-  String _getBarberIdFromService(Service service) {
-    return service.barberAssignments.isNotEmpty
-        ? service.barberAssignments.first.barberId
-        : 'No disponible';
+  List<Availability> _getAvailability(CreateAppointmentState state) {
+    if (state is CreateAppointmentTimeSlotSelected) return state.availability;
+    if (state is CreateAppointmentWithNotes) return state.availability;
+    if (state is CreateAppointmentNotesError) return state.availability;
+    throw Exception('Estado no válido para obtener disponibilidad');
   }
 
-  String _getFormattedDateTime(CreateAppointmentState state) {
-    final selectedDate = _getSelectedDate(state);
-
-    // Si tenemos un time slot seleccionado, combinar fecha y hora
-    if (state is CreateAppointmentTimeSlotSelected) {
-      final timeSlot = state.selectedTimeSlot;
-      final timeParts = timeSlot.time.split(':');
-      if (timeParts.length >= 2) {
-        final hour = int.tryParse(timeParts[0]) ?? 0;
-        final minute = int.tryParse(timeParts[1]) ?? 0;
-
-        final combinedDateTime = DateTime(
-          selectedDate.year,
-          selectedDate.month,
-          selectedDate.day,
-          hour,
-          minute,
-        );
-
-        return combinedDateTime.toIso8601String();
-      }
+  CreateAppointmentTimeSlotSelected _getTimeSlotSelectedState(
+    CreateAppointmentState state,
+  ) {
+    if (state is CreateAppointmentTimeSlotSelected) return state;
+    if (state is CreateAppointmentWithNotes) {
+      return CreateAppointmentTimeSlotSelected(
+        services: state.services,
+        businessId: state.businessId,
+        selectedService: state.selectedService,
+        selectedDate: state.selectedDate,
+        availability: state.availability,
+        selectedTimeSlot: state.selectedTimeSlot,
+      );
     }
-
-    // Si no hay time slot, mostrar solo la fecha
-    return selectedDate.toIso8601String();
+    if (state is CreateAppointmentNotesError) {
+      return CreateAppointmentTimeSlotSelected(
+        services: state.services,
+        businessId: state.businessId,
+        selectedService: state.selectedService,
+        selectedDate: state.selectedDate,
+        availability: state.availability,
+        selectedTimeSlot: state.selectedTimeSlot,
+      );
+    }
+    throw Exception('Estado no válido para obtener TimeSlotSelected');
   }
 
-  // Helper para formatear fechas sin problemas de locale
   String _formatDateForDisplay(String dateString) {
     try {
       final date = DateTime.parse(dateString);
@@ -724,7 +640,6 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
 
       return '$weekday, ${date.day} de $month ${date.year}';
     } catch (e) {
-      // Fallback en caso de error
       return DateFormat('dd/MM/yyyy').format(DateTime.parse(dateString));
     }
   }
@@ -734,7 +649,8 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     final state = bloc.state;
 
     if (state is! CreateAppointmentTimeSlotSelected &&
-        state is! CreateAppointmentWithNotes) {
+        state is! CreateAppointmentWithNotes &&
+        state is! CreateAppointmentNotesError) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor complete todos los datos de la cita'),
@@ -749,100 +665,401 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     final timeSlot = _getSelectedTimeSlot(state);
     final notes = state is CreateAppointmentWithNotes
         ? state.clientNotes
+        : state is CreateAppointmentNotesError
+        ? state.clientNotes
         : clientNotes;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.calendar_today, color: Colors.blue),
-            SizedBox(width: 8),
-            Text('Confirmar Cita'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Servicio:', service.name),
-              _buildDetailRow(
-                'Precio:',
-                '\$${service.price.toStringAsFixed(2)}',
-              ),
-              _buildDetailRow(
-                'Duración:',
-                '${service.durationMinutes} minutos',
-              ),
-              _buildDetailRow('Barbero:', timeSlot.barberName),
-              _buildDetailRow(
-                'Fecha:',
-                _formatDateForDisplay(selectedDate.toIso8601String()),
-              ),
-              _buildDetailRow('Hora:', timeSlot.time),
-              if (notes.isNotEmpty) _buildDetailRow('Notas:', notes),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 43, 43, 43),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.info, color: Colors.blue, size: 20),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '¿Está seguro que desea agendar esta cita?',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.9,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade600,
-              foregroundColor: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade600, Colors.blue.shade800],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.calendar_today,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Confirmar Cita',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Revisa los detalles antes de agendar',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade900.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blue.shade600,
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildEnhancedDetailRow(
+                              icon: Icons.content_cut,
+                              label: 'Servicio',
+                              value: service.name,
+                              color: Colors.blue.shade300,
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildEnhancedDetailRow(
+                                    icon: Icons.attach_money,
+                                    label: 'Precio',
+                                    value:
+                                        '\$${service.price.toStringAsFixed(2)}',
+                                    color: Colors.green.shade300,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildEnhancedDetailRow(
+                                    icon: Icons.access_time,
+                                    label: 'Duración',
+                                    value: '${service.durationMinutes} min',
+                                    color: Colors.orange.shade300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade900.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.green.shade600,
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildEnhancedDetailRow(
+                              icon: Icons.person,
+                              label: 'Barbero',
+                              value: timeSlot.barberName,
+                              color: Colors.purple.shade300,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildEnhancedDetailRow(
+                              icon: Icons.calendar_today,
+                              label: 'Fecha',
+                              value: _formatDateForDisplay(
+                                selectedDate.toIso8601String(),
+                              ),
+                              color: Colors.blue.shade300,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildEnhancedDetailRow(
+                              icon: Icons.schedule,
+                              label: 'Hora',
+                              value: timeSlot.time,
+                              color: Colors.green.shade300,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      if (notes.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade900.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.amber.shade600,
+                              width: 1,
+                            ),
+                          ),
+                          child: _buildEnhancedDetailRow(
+                            icon: Icons.note,
+                            label: 'Notas',
+                            value: notes,
+                            color: Colors.amber.shade300,
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 16),
+
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blue.shade900.withOpacity(0.3),
+                              Colors.blue.shade800.withOpacity(0.3),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blue.shade600,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade600,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.help_outline,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                '¿Está seguro que desea agendar esta cita?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade800,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.shade600,
+                              width: 1,
+                            ),
+                          ),
+                          child: TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.grey.shade300,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: 48,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.green.shade600,
+                                Colors.green.shade700,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.green.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _updateClientNotesAndCreateAppointment(
+                                bloc,
+                                notes,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.check_circle, size: 20),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Agendar Cita',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _updateClientNotesAndCreateAppointment(bloc, notes);
-            },
-            child: const Text('Agendar Cita'),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+  Widget _buildEnhancedDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(6),
           ),
-          Expanded(child: Text(value)),
-        ],
-      ),
+          child: Icon(icon, color: color, size: 16),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -850,12 +1067,10 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     CreateAppointmentBloc bloc,
     String notes,
   ) {
-    // Actualizar notas si no están vacías
     if (notes.isNotEmpty) {
       bloc.add(UpdateClientNotes(notes));
     }
 
-    // Crear la cita
     bloc.add(const CreateAppointment());
   }
 
@@ -935,6 +1150,7 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     if (state is CreateAppointmentTimeSlotSelected)
       return state.selectedTimeSlot;
     if (state is CreateAppointmentWithNotes) return state.selectedTimeSlot;
+    if (state is CreateAppointmentNotesError) return state.selectedTimeSlot;
     throw Exception('Estado no válido para obtener time slot seleccionado');
   }
 }

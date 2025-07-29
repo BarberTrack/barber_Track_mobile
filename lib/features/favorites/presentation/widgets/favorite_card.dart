@@ -13,7 +13,7 @@ class FavoriteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Usamos BusinessCard existente pasando el business del favorite
+        
         GestureDetector(
           onTap: () {
             context.push('${AppRouter.barberDetails}/${favorite.business.id}');
@@ -21,7 +21,7 @@ class FavoriteCard extends StatelessWidget {
           child: BusinessCard(business: favorite.business),
         ),
 
-        // Badge de favorito
+        
         Positioned(
           top: 16,
           left: 16,

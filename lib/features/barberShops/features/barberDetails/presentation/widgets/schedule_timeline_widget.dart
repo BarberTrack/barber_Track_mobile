@@ -107,7 +107,6 @@ class ScheduleTimelineWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            // Timeline indicator
             Column(
               children: [
                 Container(
@@ -156,7 +155,6 @@ class ScheduleTimelineWidget extends StatelessWidget {
 
             const SizedBox(width: 16),
 
-            // Day content
             Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -202,7 +200,6 @@ class ScheduleTimelineWidget extends StatelessWidget {
                       ],
                     ),
 
-                    // Time display
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,

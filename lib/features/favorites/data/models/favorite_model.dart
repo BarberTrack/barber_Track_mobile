@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import '../../../home/data/models/business_model.dart';
 
 class FavoriteModel {

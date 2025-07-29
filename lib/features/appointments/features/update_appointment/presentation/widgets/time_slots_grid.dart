@@ -1,0 +1,357 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../domain/entities/availability.dart';
+
+class TimeSlotsGrid extends StatelessWidget {
+  final List<Availability> availability;
+  final Function(TimeSlot, DateTime) onTimeSlotSelected;
+  final TimeSlot? selectedTimeSlot;
+  final DateTime? selectedDate;
+  final DateTime? originalAppointmentDate;
+  final String? originalAppointmentTime;
+
+  const TimeSlotsGrid({
+    super.key,
+    required this.availability,
+    required this.onTimeSlotSelected,
+    this.selectedTimeSlot,
+    this.selectedDate,
+    this.originalAppointmentDate,
+    this.originalAppointmentTime,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (availability.isEmpty) {
+      return _buildEmptyState(context);
+    }
+
+    return Column(
+      children: availability.map((dayAvailability) {
+        return _buildDaySection(context, dayAvailability);
+      }).toList(),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          Icon(Icons.schedule_rounded, size: 48, color: Colors.grey.shade400),
+          const SizedBox(height: 16),
+          Text(
+            'No hay horarios disponibles',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Selecciona otra fecha para ver más opciones',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey.shade500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDaySection(BuildContext context, Availability dayAvailability) {
+    final theme = Theme.of(context);
+    final date = DateTime.parse(dayAvailability.date);
+    final availableSlots = _filterAvailableSlots(dayAvailability.slots, date);
+
+    if (availableSlots.isEmpty) {
+      return Container();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.green.withOpacity(0.1),
+                  Colors.green.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.green.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.calendar_today_rounded,
+                    size: 16,
+                    color: Colors.green.shade700,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _formatDayHeader(date),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green.shade700,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${availableSlots.length} disponibles',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: availableSlots.map((slot) {
+              return _buildTimeSlotChip(context, slot, date);
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeSlotChip(
+    BuildContext context,
+    TimeSlot slot,
+    DateTime date,
+  ) {
+    final theme = Theme.of(context);
+    final isSelected = _isSlotSelected(slot, date);
+    final isOriginalSlot = _isOriginalSlot(slot, date);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: slot.available ? () => onTimeSlotSelected(slot, date) : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      Colors.green.withOpacity(0.2),
+                      Colors.green.withOpacity(0.1),
+                    ],
+                  )
+                : isOriginalSlot
+                ? LinearGradient(
+                    colors: [
+                      Colors.orange.withOpacity(0.15),
+                      Colors.orange.withOpacity(0.08),
+                    ],
+                  )
+                : slot.available
+                ? LinearGradient(
+                    colors: [
+                      Colors.blue.withOpacity(0.1),
+                      Colors.blue.withOpacity(0.05),
+                    ],
+                  )
+                : LinearGradient(
+                    colors: [
+                      Colors.grey.withOpacity(0.1),
+                      Colors.grey.withOpacity(0.05),
+                    ],
+                  ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? Colors.green.withOpacity(0.5)
+                  : isOriginalSlot
+                  ? Colors.orange.withOpacity(0.4)
+                  : slot.available
+                  ? Colors.blue.withOpacity(0.3)
+                  : Colors.grey.withOpacity(0.3),
+              width: isSelected ? 2 : (isOriginalSlot ? 2 : 1),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isSelected
+                    ? Icons.check_circle_rounded
+                    : isOriginalSlot
+                    ? Icons.schedule_rounded
+                    : slot.available
+                    ? Icons.access_time_rounded
+                    : Icons.block_rounded,
+                size: 16,
+                color: isSelected
+                    ? Colors.green.shade600
+                    : isOriginalSlot
+                    ? Colors.orange.shade600
+                    : slot.available
+                    ? Colors.blue.shade600
+                    : Colors.grey.shade400,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                slot.time,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isSelected
+                      ? Colors.green.shade700
+                      : isOriginalSlot
+                      ? Colors.orange.shade700
+                      : slot.available
+                      ? Colors.blue.shade700
+                      : Colors.grey.shade400,
+                ),
+              ),
+              if (isOriginalSlot) ...[
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Horario actual de tu cita',
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.orange.withOpacity(0.5),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      'ACTUAL',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange.shade700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (!slot.available && slot.blockReason != null) ...[
+                const SizedBox(width: 8),
+                Tooltip(
+                  message: slot.blockReason!,
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    size: 14,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool _isSlotSelected(TimeSlot slot, DateTime date) {
+    if (selectedTimeSlot == null || selectedDate == null) return false;
+
+    final isSameDate =
+        selectedDate!.year == date.year &&
+        selectedDate!.month == date.month &&
+        selectedDate!.day == date.day;
+
+    return isSameDate && selectedTimeSlot!.time == slot.time;
+  }
+
+  bool _isOriginalSlot(TimeSlot slot, DateTime date) {
+    if (originalAppointmentDate == null || originalAppointmentTime == null) {
+      return false;
+    }
+
+    final originalDate = originalAppointmentDate!;
+    final isSameDate =
+        date.year == originalDate.year &&
+        date.month == originalDate.month &&
+        date.day == originalDate.day;
+
+    return isSameDate && originalAppointmentTime == slot.time;
+  }
+
+  List<TimeSlot> _filterAvailableSlots(List<TimeSlot> slots, DateTime date) {
+    final now = DateTime.now();
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
+
+    if (!isToday) {
+      return slots.where((slot) => slot.available).toList();
+    }
+
+    final currentTime = TimeOfDay.fromDateTime(now);
+    final marginTime = TimeOfDay(
+      hour: currentTime.hour,
+      minute: currentTime.minute + 30,
+    );
+
+    return slots.where((slot) {
+      if (!slot.available) return false;
+
+      final slotTimeParts = slot.time.split(':');
+      final slotHour = int.parse(slotTimeParts[0]);
+      final slotMinute = int.parse(slotTimeParts[1]);
+      final slotTime = TimeOfDay(hour: slotHour, minute: slotMinute);
+
+      final slotMinutes = slotTime.hour * 60 + slotTime.minute;
+      final marginMinutes = marginTime.hour * 60 + marginTime.minute;
+
+      return slotMinutes >= marginMinutes;
+    }).toList();
+  }
+
+  String _formatDayHeader(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final checkDate = DateTime(date.year, date.month, date.day);
+
+    if (checkDate == today) {
+      return 'Hoy, ${DateFormat('dd/MM').format(date)}';
+    } else if (checkDate == tomorrow) {
+      return 'Mañana, ${DateFormat('dd/MM').format(date)}';
+    } else {
+      return '${DateFormat('EEEE dd/MM', 'es').format(date)}';
+    }
+  }
+}

@@ -17,7 +17,6 @@ class ReviewCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ratings Row
             Row(
               children: [
                 _buildRatingSection('Negocio', review.businessRating),
@@ -27,7 +26,6 @@ class ReviewCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Comment
             if (review.comment.isNotEmpty) ...[
               Text(
                 review.comment,
@@ -36,7 +34,6 @@ class ReviewCard extends StatelessWidget {
               const SizedBox(height: 12),
             ],
 
-            // Status
             Row(
               children: [
                 Container(
@@ -59,7 +56,6 @@ class ReviewCard extends StatelessWidget {
                 ),
                 const Spacer(),
 
-                // Business Response indicator
                 if (review.businessResponse != null) ...[
                   const Icon(Icons.reply, size: 16, color: Colors.green),
                   const SizedBox(width: 4),
@@ -75,7 +71,6 @@ class ReviewCard extends StatelessWidget {
               ],
             ),
 
-            // Business Response
             if (review.businessResponse != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -111,8 +106,7 @@ class ReviewCard extends StatelessWidget {
                 ),
               ),
             ],
-
-            // Moderation Info
+  
             if (review.moderationLogs != null) ...[
               ModerationInfoWidget(moderationLogs: review.moderationLogs!),
             ],

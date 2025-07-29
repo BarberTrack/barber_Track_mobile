@@ -44,11 +44,19 @@ class _FavoriteStatusButtonState extends State<FavoriteStatusButton> {
   }
 
   void _toggleFavorite() {
-    final favoritesBloc = context.read<FavoritesBloc>();
-    if (_isFavorite) {
-      favoritesBloc.add(RemoveFavoriteEvent(widget.businessId));
-    } else {
-      favoritesBloc.add(AddFavoriteEvent(widget.businessId));
+    if (!mounted) return;
+    
+    try {
+      final favoritesBloc = context.read<FavoritesBloc>();
+      if (!favoritesBloc.isClosed) {
+        if (_isFavorite) {
+          favoritesBloc.add(RemoveFavoriteEvent(widget.businessId));
+        } else {
+          favoritesBloc.add(AddFavoriteEvent(widget.businessId));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error toggling favorite: $e');
     }
   }
 

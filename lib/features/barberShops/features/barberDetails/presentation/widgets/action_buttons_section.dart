@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../reviews/features/business_review/presentation/pages/business_review_page.dart';
 import '../../../../../barbers/features/barber_home/presentation/pages/barber_home_page.dart';
 import '../../../business_services/presentation/pages/business_services_page.dart';
+import '../../../../../../core/router/app_router.dart';
 
 class ActionButtonsSection extends StatelessWidget {
   final String businessId;
+  final bool isFavorite;
 
-  const ActionButtonsSection({super.key, required this.businessId});
+  const ActionButtonsSection({
+    super.key, 
+    required this.businessId,
+    required this.isFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +21,7 @@ class ActionButtonsSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          // Botón para ver reseñas
+          
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {
@@ -41,7 +48,7 @@ class ActionButtonsSection extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Botón para ver barberos
+          
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {
@@ -67,7 +74,29 @@ class ActionButtonsSection extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Botón para ver servicios
+          
+          if (isFavorite) ...[
+            _buildGalleryStyleButton(
+              context: context,
+              onPressed: () {
+                context.push('${AppRouter.promotions}/$businessId');
+              },
+              icon: Icons.local_offer_rounded,
+              title: 'Ver Promociones',
+              subtitle: 'Descuentos exclusivos',
+              gradientColors: [
+                Colors.purple.withOpacity(0.1),
+                Colors.pink.withOpacity(0.1),
+              ],
+              borderColor: Colors.purple.withOpacity(0.3),
+              iconBackgroundColor: Colors.purple.withOpacity(0.2),
+              iconColor: Colors.purple.shade300,
+              buttonColor: Colors.purple.shade600,
+            ),
+            const SizedBox(height: 16),
+          ],
+
+            
           _buildGalleryStyleButton(
             context: context,
             onPressed: () {

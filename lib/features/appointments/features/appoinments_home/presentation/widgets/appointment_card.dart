@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../../core/router/app_router.dart';
 import '../../domain/entities/appointment.dart';
 import '../../../../../reviews/features/create_review/presentation/widgets/create_review_button.dart';
 import '../../../cancel_appointment/presentation/widgets/cancel_appointment_modal.dart';
@@ -38,7 +40,7 @@ class AppointmentCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header con gradiente
+           
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -57,14 +59,14 @@ class AppointmentCard extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Status y fecha
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [_buildStatusChip(context)],
                   ),
                   const SizedBox(height: 20),
 
-                  // Información principal con iconos mejorados
+                  
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -84,7 +86,7 @@ class AppointmentCard extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        // Información de fecha y hora
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.schedule_rounded,
@@ -96,7 +98,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del negocio
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.store_mall_directory_rounded,
@@ -106,7 +108,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del barbero
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.person_pin_rounded,
@@ -116,7 +118,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del servicio
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.content_cut_rounded,
@@ -131,14 +133,14 @@ class AppointmentCard extends StatelessWidget {
               ),
             ),
 
-            // Sección de precio y duración
+            
             Container(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      // Precio
+                      
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(20),
@@ -190,7 +192,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Duración
+                      
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(20),
@@ -244,7 +246,7 @@ class AppointmentCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Notas del cliente
+
                   if (appointment.clientNotes != null) ...[
                     const SizedBox(height: 20),
                     Container(
@@ -315,10 +317,26 @@ class AppointmentCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 10),
-                  // Botón de crear reseña (solo si el status es completed)
+                 
                   CreateReviewButton(appointment: appointment),
 
-                  // Botón de cancelar cita (solo si el status es scheduled)
+                 
+                  const SizedBox(height: 16),
+                  _buildRepeatAppointmentButton(context),
+
+                 
+                  if (appointment.status.toLowerCase() == 'scheduled') ...[
+                    const SizedBox(height: 16),
+                    _buildChangeServiceButton(context),
+                  ],
+
+                 
+                  if (appointment.status.toLowerCase() == 'scheduled') ...[
+                    const SizedBox(height: 16),
+                    _buildEditAppointmentButton(context),
+                  ],
+
+                 
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
                     _buildCancelButton(context),
@@ -480,26 +498,132 @@ class AppointmentCard extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    // Convertir de UTC a GMT-6 (hora de México City)
+    
     final mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
     final now = DateTime.now();
-    final difference = mexicoDateTime.difference(now);
+
+    
+    final appointmentDate = DateTime(
+      mexicoDateTime.year,
+      mexicoDateTime.month,
+      mexicoDateTime.day,
+    );
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    final difference = appointmentDate.difference(today).inDays;
 
     String date = DateFormat('dd/MM/yyyy').format(mexicoDateTime);
     String time = DateFormat('HH:mm').format(mexicoDateTime);
 
-    if (difference.inDays == 0) {
+    if (appointmentDate == today) {
       return 'Hoy a las $time';
-    } else if (difference.inDays == 1) {
+    } else if (appointmentDate == tomorrow) {
       return 'Mañana a las $time';
-    } else if (difference.inDays == -1) {
+    } else if (appointmentDate == yesterday) {
       return 'Ayer a las $time';
-    } else if (difference.inDays > 0 && difference.inDays <= 7) {
+    } else if (difference > 0 && difference <= 7) {
       String dayName = DateFormat('EEEE', 'es').format(mexicoDateTime);
       return '$dayName a las $time';
     } else {
       return '$date a las $time';
     }
+  }
+
+  Widget _buildRepeatAppointmentButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '/repeat-appointment/${appointment.businessId}/${appointment.barberId}/${appointment.serviceId}/${appointment.id}',
+          );
+        },
+        icon: Icon(Icons.repeat_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Repetir Cita',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChangeServiceButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '${AppRouter.changeService}/${appointment.id}',
+            extra: appointment,
+          );
+        },
+        icon: Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Cambiar Servicio',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.purple.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditAppointmentButton(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.go(
+            '/update-appointment/${appointment.id}',
+            extra: appointment,
+          );
+        },
+        icon: Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+        label: Text(
+          'Editar Cita',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildCancelButton(BuildContext context) {
@@ -516,7 +640,7 @@ class AppointmentCard extends StatelessWidget {
                 CancelAppointmentModal(appointment: appointment),
           );
 
-          // Si se canceló exitosamente, resetear filtro y refrescar
+            
           if (result == true) {
             onAppointmentCancelled?.call();
           }

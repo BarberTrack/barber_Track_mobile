@@ -273,7 +273,7 @@ class _AnalyzeReferencePageState extends State<AnalyzeReferencePage> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Nuestro IA está procesando tu imagen de referencia',
+            'Chat GPT está procesando tu imagen de referencia',
             style: TextStyle(fontSize: 14, color: Color(0xFFE5E7EB)),
             textAlign: TextAlign.center,
           ),

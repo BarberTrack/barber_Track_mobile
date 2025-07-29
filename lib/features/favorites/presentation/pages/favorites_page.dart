@@ -30,14 +30,26 @@ class FavoritesView extends StatefulWidget {
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
+  
+  void _safeAddFavoriteEvent(FavoritesEvent event) {
+    if (mounted) {
+      try {
+        final favoritesBloc = context.read<FavoritesBloc>();
+        if (!favoritesBloc.isClosed) {
+          favoritesBloc.add(event);
+        }
+      } catch (e) {
+        debugPrint('Error adding favorite event: $e');
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    // Ejecutar LoadFavorites cada vez que se inicialice la página
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<FavoritesBloc>().add(const LoadFavorites());
-      }
+      _safeAddFavoriteEvent(const LoadFavorites());
     });
   }
 
@@ -50,16 +62,16 @@ class _FavoritesViewState extends State<FavoritesView> {
       backgroundColor: colorScheme.background,
       body: BlocListener<FavoritesBloc, FavoritesState>(
         listener: (context, state) {
-          // Escuchar cuando se agregan o quitan favoritos desde otras páginas
+           
           if (state is AddToFavoritesSuccess ||
               state is RemoveFromFavoritesSuccess) {
-            // Recargar la lista de favoritos automáticamente
-            context.read<FavoritesBloc>().add(const RefreshFavorites());
+             
+            _safeAddFavoriteEvent(const RefreshFavorites());
           }
         },
         child: RefreshIndicator(
           onRefresh: () async {
-            context.read<FavoritesBloc>().add(const RefreshFavorites());
+            _safeAddFavoriteEvent(const RefreshFavorites());
           },
           color: Colors.blueAccent,
           backgroundColor: colorScheme.surface,
@@ -165,7 +177,7 @@ class _FavoritesViewState extends State<FavoritesView> {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: () {
-                context.read<FavoritesBloc>().add(const LoadFavorites());
+                _safeAddFavoriteEvent(const LoadFavorites());
               },
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('Reintentar'),
@@ -314,24 +326,21 @@ class _FavoritesViewState extends State<FavoritesView> {
           ),
         ),
 
-        // Grid de favoritos
+        
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 1,
-              childAspectRatio: 0.75,
-              mainAxisSpacing: 20,
-            ),
+          sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
               final favorite = state.favorites[index];
-              return FavoriteCard(favorite: favorite);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: FavoriteCard(favorite: favorite),
+              );
             }, childCount: state.favorites.length),
           ),
         ),
-
-        // Espacio final
-        //const SliverToBoxAdapter(child: SizedBox(height: 20)),
+ 
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
     );
   }

@@ -44,7 +44,7 @@ class BarberBusinessModel {
   });
 
   factory BarberBusinessModel.fromJson(Map<String, dynamic> json) {
-    // Helper para convertir ratingAverage que puede venir como String o double
+    
     double parseRatingAverage(dynamic value) {
       if (value == null) return 0.0;
       if (value is double) return value;
@@ -53,7 +53,7 @@ class BarberBusinessModel {
       return 0.0;
     }
 
-    // Helper para convertir latitude/longitude que pueden ser null
+    
     double? parseCoordinate(dynamic value) {
       if (value == null) return null;
       if (value is double) return value;
@@ -62,7 +62,7 @@ class BarberBusinessModel {
       return null;
     }
 
-    // Helper para manejar Map de forma segura
+    
     Map<String, dynamic> parseMap(dynamic value) {
       if (value == null) return {};
       if (value is Map<String, dynamic>) return value;
@@ -70,14 +70,14 @@ class BarberBusinessModel {
       return {};
     }
 
-    // Helper para manejar String de forma segura
+    
     String parseString(dynamic value) {
       if (value == null) return '';
       if (value is String) return value;
       return value.toString();
     }
 
-    // Helper para manejar bool de forma segura
+    
     bool parseBool(dynamic value) {
       if (value == null) return false;
       if (value is bool) return value;
@@ -86,7 +86,7 @@ class BarberBusinessModel {
       return false;
     }
 
-    // Helper para manejar int de forma segura
+    
     int parseInt(dynamic value) {
       if (value == null) return 0;
       if (value is int) return value;
@@ -115,11 +115,10 @@ class BarberBusinessModel {
             galleryImages = imagesData
                 .map((item) {
                   if (item is String) {
-                    // Si ya es un String, lo devolvemos tal como está
+                    
                     return item;
                   } else if (item is Map<String, dynamic>) {
-                    // Si es un objeto, intentamos extraer la URL
-                    // Posibles campos: url, imageUrl, path, src, etc.
+                    
                     return item['url'] ??
                         item['imageUrl'] ??
                         item['path'] ??
@@ -127,7 +126,7 @@ class BarberBusinessModel {
                         item['link'] ??
                         '';
                   } else {
-                    // Si es otro tipo, lo convertimos a String
+                    
                     return item.toString();
                   }
                 })
@@ -136,8 +135,7 @@ class BarberBusinessModel {
                 .cast<String>();
           }
         } catch (e) {
-          print('Warning: Error parsing galleryImages: $e');
-          print('galleryImages data: ${json['galleryImages']}');
+
           galleryImages = [];
         }
       }
@@ -156,7 +154,6 @@ class BarberBusinessModel {
             products = List<Map<String, dynamic>>.from(json['products']);
           }
         } catch (e) {
-          print('Warning: Error parsing products: $e');
           products = null;
         }
       }
@@ -168,7 +165,6 @@ class BarberBusinessModel {
             promotions = List<Map<String, dynamic>>.from(json['promotions']);
           }
         } catch (e) {
-          print('Warning: Error parsing promotions: $e');
           promotions = null;
         }
       }
@@ -208,8 +204,6 @@ class BarberBusinessModel {
         updatedAt: updatedAt,
       );
     } catch (e) {
-      print('ERROR: Error in BarberBusinessModel.fromJson: $e');
-      print('JSON input: $json');
       rethrow;
     }
   }

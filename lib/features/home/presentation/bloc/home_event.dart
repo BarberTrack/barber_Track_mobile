@@ -14,3 +14,21 @@ class LoadBusinesses extends HomeEvent {
 class RefreshBusinesses extends HomeEvent {
   const RefreshBusinesses();
 }
+
+class LoadBusinessesWithFilters extends HomeEvent {
+  final BusinessFilters filters;
+  
+  const LoadBusinessesWithFilters(this.filters);
+  
+  @override
+  List<Object> get props => [filters];
+}
+
+class LoadMoreBusinesses extends HomeEvent {
+  final BusinessFilters filters;
+  
+  const LoadMoreBusinesses(this.filters);
+  
+  @override
+  List<Object> get props => [filters];
+}

@@ -33,7 +33,7 @@ class AppointmentStatusFilter extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                // Opción "Todas"
+           
                 _FilterChip(
                   label: 'Todas',
                   isSelected: selectedStatus == null,

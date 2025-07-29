@@ -1,4 +1,7 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/login/presentation/pages/login_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -12,9 +15,20 @@ import '../../features/reviews/features/business_review/presentation/pages/busin
 import '../../features/reviews/features/create_review/presentation/pages/create_review_page.dart';
 import '../../features/favorites/presentation/pages/favorites_page.dart';
 import '../../features/barbers/features/barber_home/presentation/pages/barber_home_page.dart';
+import '../../features/map/presentation/pages/map_page.dart';
+import '../../features/map/presentation/bloc/map_bloc.dart';
+import '../../features/map/presentation/bloc/map_event.dart';
+import '../../features/repeat_appointment/presentation/pages/repeat_appointment_page.dart';
+import '../../features/appointments/features/update_appointment/presentation/pages/update_appointment_page.dart';
+import '../../features/appointments/features/change_service/presentation/pages/change_service_page.dart';
+import '../../features/appointments/features/appoinments_home/domain/entities/appointment.dart';
+import '../../features/promotions/presentation/pages/promotions_page.dart';
+import '../../features/register/presentation/pages/register_page.dart';
+import '../di/injection.dart';
 
 class AppRouter {
   static const String login = '/login';
+  static const String register = '/register';
   static const String home = '/home';
   static const String barberDetails = '/barber-details';
   static const String createAppointment = '/create-appointment';
@@ -26,6 +40,11 @@ class AppRouter {
   static const String createReview = '/create-review';
   static const String favorites = '/favorites';
   static const String barberHome = '/barber-home';
+  static const String map = '/map';
+  static const String repeatAppointment = '/repeat-appointment';
+  static const String updateAppointment = '/update-appointment';
+  static const String changeService = '/change-service';
+  static const String promotions = '/promotions';
 
   static final GoRouter router = GoRouter(
     initialLocation: login,
@@ -35,6 +54,12 @@ class AppRouter {
         name: 'login',
         builder: (BuildContext context, GoRouterState state) =>
             const LoginPage(),
+      ),
+      GoRoute(
+        path: register,
+        name: 'register',
+        builder: (BuildContext context, GoRouterState state) =>
+            const RegisterPage(),
       ),
       GoRoute(
         path: home,
@@ -110,6 +135,80 @@ class AppRouter {
         builder: (BuildContext context, GoRouterState state) {
           final businessId = state.pathParameters['businessId'] ?? '';
           return BarberHomePage(businessId: businessId);
+        },
+      ),
+      GoRoute(
+        path: map,
+        name: 'map',
+        builder: (BuildContext context, GoRouterState state) => BlocProvider(
+          create: (context) => sl<MapBloc>()..add(const LoadMapBusinesses()),
+          child: const MapPage(),
+        ),
+      ),
+      GoRoute(
+        path:
+            '$repeatAppointment/:businessId/:barberId/:serviceId/:appointmentId',
+        name: 'repeat-appointment',
+        builder: (BuildContext context, GoRouterState state) {
+          final businessId = state.pathParameters['businessId'] ?? '';
+          final barberId = state.pathParameters['barberId'] ?? '';
+          final serviceId = state.pathParameters['serviceId'] ?? '';
+          final appointmentId = state.pathParameters['appointmentId'] ?? '';
+          return RepeatAppointmentPage(
+            businessId: businessId,
+            barberId: barberId,
+            serviceId: serviceId,
+            appointmentId: appointmentId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '$updateAppointment/:appointmentId',
+        name: 'update-appointment',
+        builder: (BuildContext context, GoRouterState state) {
+          final appointmentId = state.pathParameters['appointmentId'] ?? '';
+          final appointment = state.extra as Appointment?;
+
+          if (appointment == null) {
+         
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Información de cita no disponible'),
+              ),
+            );
+          }
+
+          return UpdateAppointmentPage(appointment: appointment);
+        },
+      ),
+      GoRoute(
+        path: '$changeService/:appointmentId',
+        name: 'change-service',
+        builder: (BuildContext context, GoRouterState state) {
+          final appointmentId = state.pathParameters['appointmentId'] ?? '';
+          final appointment = state.extra as Appointment?;
+
+          if (appointment == null) {
+       
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Información de cita no disponible'),
+              ),
+            );
+          }
+
+          return ChangeServicePage(
+            appointmentId: appointmentId,
+            appointment: appointment,
+          );
+        },
+      ),
+      GoRoute(
+        path: '$promotions/:businessId',
+        name: 'promotions',
+        builder: (BuildContext context, GoRouterState state) {
+          final businessId = state.pathParameters['businessId'] ?? '';
+          return PromotionsPage(businessId: businessId);
         },
       ),
     ],

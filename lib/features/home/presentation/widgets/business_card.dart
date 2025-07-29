@@ -63,7 +63,7 @@ class BusinessCard extends StatelessWidget {
         else
           _buildImagePlaceholder(),
 
-        // Overlay gradient
+        
         Positioned.fill(
           child: Container(
             decoration: BoxDecoration(
@@ -84,10 +84,10 @@ class BusinessCard extends StatelessWidget {
           ),
         ),
 
-        // Rating badge
+        
         Positioned(top: 16, right: 16, child: _buildRatingBadge()),
 
-        // Favorite button (only show if enabled)
+        
         if (showFavoriteButton)
           Positioned(top: 16, left: 16, child: _buildFavoriteButton()),
       ],
@@ -203,7 +203,7 @@ class BusinessCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Business name
+          
           Text(
             business.name,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -217,7 +217,7 @@ class BusinessCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Address
+          
           _buildInfoRow(
             icon: Icons.location_on_rounded,
             iconColor: Colors.cyan,
@@ -226,7 +226,7 @@ class BusinessCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Phone
+          
           _buildInfoRow(
             icon: Icons.phone_rounded,
             iconColor: Colors.green,
@@ -235,7 +235,7 @@ class BusinessCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Reviews section
+          
           _buildReviewsSection(context),
         ],
       ),
@@ -288,7 +288,7 @@ class BusinessCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Rating stars
+          
           Row(
             children: List.generate(5, (index) {
               return Icon(
@@ -304,7 +304,7 @@ class BusinessCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
 
-          // Rating text
+          
           Text(
             business.ratingAverage.toStringAsFixed(1),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -315,7 +315,7 @@ class BusinessCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
 
-          // Reviews count
+          
           Expanded(
             child: Text(
               '(${business.totalReviews} reseñas)',
@@ -326,7 +326,7 @@ class BusinessCard extends StatelessWidget {
             ),
           ),
 
-          // Arrow icon
+          
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(

@@ -32,6 +32,35 @@ class AppointmentsView extends StatefulWidget {
 
 class _AppointmentsViewState extends State<AppointmentsView> {
   AppointmentStatus? _selectedStatus;
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<AppointmentsBloc>().add(
+        LoadMoreAppointments(status: _selectedStatus?.value),
+      );
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll - 200);
+  }
 
   void _resetFilterAndRefresh() {
     setState(() {
@@ -167,15 +196,16 @@ class _AppointmentsViewState extends State<AppointmentsView> {
               }
 
               return CustomScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // Header con estadísticas mejoradas
+
                   SliverToBoxAdapter(
                     child: Container(
                       margin: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Tarjeta principal de estadísticas
+                          
                           Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
@@ -247,7 +277,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          // Filtro de estado
+                          
                           AppointmentStatusFilter(
                             selectedStatus: _selectedStatus,
                             onStatusChanged: (status) {
@@ -262,7 +292,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          // Título de la lista
+                          
                           Row(
                             children: [
                               Container(
@@ -307,7 +337,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                       ),
                     ),
                   ),
-                  // Lista de citas con mejor separación
+                  
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     sliver: SliverList(
@@ -322,14 +352,53 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                       }, childCount: state.appointments.length),
                     ),
                   ),
-                  // Espaciado inferior con botón flotante
+                  
+                  if (state.isLoadingMore)
+                    SliverToBoxAdapter(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blueAccent,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Cargando más citas...',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: Colors.blueAccent,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  
                   SliverToBoxAdapter(
                     child: Container(
                       margin: const EdgeInsets.all(20),
                       child: Column(
                         children: [
                           const SizedBox(height: 20),
-                          // Botón para agendar nueva cita
+                          
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
@@ -390,7 +459,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Si hay un filtro aplicado, mostrar mensaje de filtro sin resultados
+    
     if (currentFilter != null) {
       final status = AppointmentStatus.fromString(currentFilter);
       final statusDisplayName = status?.displayName ?? 'este estado';
@@ -497,7 +566,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
       );
     }
 
-    // Si no hay filtro, mostrar mensaje de agenda vacía
+      
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),

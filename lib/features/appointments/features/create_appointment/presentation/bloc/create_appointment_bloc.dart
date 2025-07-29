@@ -8,6 +8,7 @@ import '../../domain/entities/appointment.dart';
 import '../../domain/usecases/get_business_services.dart';
 import '../../domain/usecases/get_availability.dart';
 import '../../domain/usecases/create_appointment.dart' as appointment_usecase;
+import '../../../../../../core/utils/notes_validator.dart';
 
 part 'create_appointment_event.dart';
 part 'create_appointment_state.dart';
@@ -31,6 +32,7 @@ class CreateAppointmentBloc
     on<SelectTimeSlot>(_onSelectTimeSlot);
     on<SelectTimeSlotWithDate>(_onSelectTimeSlotWithDate);
     on<UpdateClientNotes>(_onUpdateClientNotes);
+    on<ValidateClientNotes>(_onValidateClientNotes);
     on<CreateAppointment>(_onCreateAppointment);
     on<ResetSelection>(_onResetSelection);
   }
@@ -173,7 +175,7 @@ class CreateAppointmentBloc
         ),
       );
     } else if (currentState is CreateAppointmentTimeSlotSelected) {
-      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      
       emit(
         CreateAppointmentTimeSlotSelected(
           services: currentState.services,
@@ -185,7 +187,7 @@ class CreateAppointmentBloc
         ),
       );
     } else if (currentState is CreateAppointmentWithNotes) {
-      // Permitir cambiar de time slot cuando ya hay notas
+      
       emit(
         CreateAppointmentWithNotes(
           services: currentState.services,
@@ -212,33 +214,33 @@ class CreateAppointmentBloc
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
         ),
       );
     } else if (currentState is CreateAppointmentTimeSlotSelected) {
-      // Permitir cambiar de time slot cuando ya hay uno seleccionado
+      
       emit(
         CreateAppointmentTimeSlotSelected(
           services: currentState.services,
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
         ),
       );
     } else if (currentState is CreateAppointmentWithNotes) {
-      // Permitir cambiar de time slot cuando ya hay notas
+      
       emit(
         CreateAppointmentWithNotes(
           services: currentState.services,
           businessId: currentState.businessId,
           selectedService: currentState.selectedService,
           selectedDate:
-              event.selectedDate, // Usar la fecha específica del evento
+              event.selectedDate, 
           availability: currentState.availability,
           selectedTimeSlot: event.timeSlot,
           clientNotes: currentState.clientNotes,
@@ -279,13 +281,147 @@ class CreateAppointmentBloc
     }
   }
 
+  Future<void> _onValidateClientNotes(
+    ValidateClientNotes event,
+    Emitter<CreateAppointmentState> emit,
+  ) async {
+    final currentState = state;
+
+    
+    if (currentState is! CreateAppointmentTimeSlotSelected &&
+        currentState is! CreateAppointmentWithNotes &&
+        currentState is! CreateAppointmentNotesError) {
+      return;
+    }
+
+    
+    final validationError = NotesValidator.validateNotes(event.notes);
+
+    if (validationError != null) {
+      
+      if (currentState is CreateAppointmentTimeSlotSelected) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      } else if (currentState is CreateAppointmentWithNotes) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      } else if (currentState is CreateAppointmentNotesError) {
+        emit(
+          CreateAppointmentNotesError(
+            services: currentState.services,
+            businessId: currentState.businessId,
+            selectedService: currentState.selectedService,
+            selectedDate: currentState.selectedDate,
+            availability: currentState.availability,
+            selectedTimeSlot: currentState.selectedTimeSlot,
+            clientNotes: event.notes,
+            errorMessage: validationError,
+          ),
+        );
+      }
+    } else {
+
+      if (currentState is CreateAppointmentTimeSlotSelected) {
+        
+        if (event.notes.trim().isEmpty) {
+          
+          return;
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      } else if (currentState is CreateAppointmentWithNotes) {
+        if (event.notes.trim().isEmpty) {
+          
+          emit(
+            CreateAppointmentTimeSlotSelected(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+            ),
+          );
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      } else if (currentState is CreateAppointmentNotesError) {
+        if (event.notes.trim().isEmpty) {
+          
+          emit(
+            CreateAppointmentTimeSlotSelected(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+            ),
+          );
+        } else {
+          emit(
+            CreateAppointmentWithNotes(
+              services: currentState.services,
+              businessId: currentState.businessId,
+              selectedService: currentState.selectedService,
+              selectedDate: currentState.selectedDate,
+              availability: currentState.availability,
+              selectedTimeSlot: currentState.selectedTimeSlot,
+              clientNotes: event.notes,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _onCreateAppointment(
     CreateAppointment event,
     Emitter<CreateAppointmentState> emit,
   ) async {
     final currentState = state;
 
-    // Verificar que tenemos todos los datos necesarios
+    
     if (currentState is! CreateAppointmentTimeSlotSelected &&
         currentState is! CreateAppointmentWithNotes) {
       emit(
@@ -342,12 +478,12 @@ class CreateAppointmentBloc
   }
 
   String _formatDateTime(DateTime date, String time) {
-    // Combinar fecha y hora en formato ISO 8601
     final timeParts = time.split(':');
     final hour = int.parse(timeParts[0]);
     final minute = int.parse(timeParts[1]);
 
     final dateTime = DateTime(date.year, date.month, date.day, hour, minute);
+
     return dateTime.toIso8601String();
   }
 

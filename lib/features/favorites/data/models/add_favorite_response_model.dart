@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_cast
+
 import 'favorite_model.dart';
 
 class AddFavoriteResponseModel {
