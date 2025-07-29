@@ -30,7 +30,7 @@ class FavoritesView extends StatefulWidget {
 }
 
 class _FavoritesViewState extends State<FavoritesView> {
-  // Función helper para agregar eventos de manera segura al FavoritesBloc
+  
   void _safeAddFavoriteEvent(FavoritesEvent event) {
     if (mounted) {
       try {
@@ -47,7 +47,7 @@ class _FavoritesViewState extends State<FavoritesView> {
   @override
   void initState() {
     super.initState();
-    // Ejecutar LoadFavorites cada vez que se inicialice la página
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _safeAddFavoriteEvent(const LoadFavorites());
     });
@@ -62,10 +62,10 @@ class _FavoritesViewState extends State<FavoritesView> {
       backgroundColor: colorScheme.background,
       body: BlocListener<FavoritesBloc, FavoritesState>(
         listener: (context, state) {
-          // Escuchar cuando se agregan o quitan favoritos desde otras páginas
+           
           if (state is AddToFavoritesSuccess ||
               state is RemoveFromFavoritesSuccess) {
-            // Recargar la lista de favoritos automáticamente
+             
             _safeAddFavoriteEvent(const RefreshFavorites());
           }
         },
@@ -326,7 +326,7 @@ class _FavoritesViewState extends State<FavoritesView> {
           ),
         ),
 
-        // Lista de favoritos
+        
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           sliver: SliverList(
@@ -339,8 +339,7 @@ class _FavoritesViewState extends State<FavoritesView> {
             }, childCount: state.favorites.length),
           ),
         ),
-
-        // Espacio final
+ 
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
     );
