@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'dart:developer';
 import 'dart:io' show Platform;
 import 'package:dio/dio.dart';
@@ -7,7 +9,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../network/dio_client.dart';
 import '../storage/token_storage.dart';
 
-// Handler para notificaciones en background
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -24,13 +25,10 @@ class NotificationService {
 
   static Future<void> initialize() async {
     try {
-      // Inicializar Firebase
       await Firebase.initializeApp();
 
-      // Configurar el handler para notificaciones en background
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
-      // Configurar notificaciones locales
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -41,20 +39,15 @@ class NotificationService {
         initializationSettings,
         onDidReceiveNotificationResponse: (NotificationResponse details) {
           log('Notification clicked: ${details.payload}');
-          // Aquí puedes manejar el clic en la notificación
         },
       );
 
-      // Crear canal de notificaciones para Android
       await _createNotificationChannel();
 
-      // Solicitar permisos
       await requestPermissions();
 
-      // Configurar listeners
       _setupMessageHandlers();
 
-      // Obtener y mostrar token
       await getToken();
 
       log('NotificationService initialized successfully');
@@ -92,7 +85,6 @@ class NotificationService {
     try {
       String? token = await _firebaseMessaging.getToken();
 
-      // Registrar el token en la API
       if (token != null) {
         await _registerTokenInAPI(token);
       }
@@ -104,34 +96,30 @@ class NotificationService {
     }
   }
 
-  // Método público para registrar el token FCM manualmente
   static Future<void> registerTokenInAPI() async {
     try {
       String? token = await _firebaseMessaging.getToken();
       if (token != null) {
         await _registerTokenInAPI(token);
       } else {
-        log('❌ No se pudo obtener el token FCM');
+        log('No se pudo obtener el token FCM');
       }
     } catch (e) {
-      log('❌ Error obteniendo token FCM para registro: $e');
+      log('Error obteniendo token FCM para registro: $e');
     }
   }
 
-  // Método para registrar el token FCM en la API
   static Future<void> _registerTokenInAPI(String fcmToken) async {
     try {
-      // Obtener el token de autenticación
       String? authToken = await _tokenStorage.getToken();
 
       if (authToken == null) {
         log(
-          '❌ No hay token de autenticación. No se puede registrar el token FCM.',
+          'No hay token de autenticación. No se puede registrar el token FCM.',
         );
         return;
       }
 
-      // Generar un deviceId simple por ahora
       String deviceId = 'device_${DateTime.now().millisecondsSinceEpoch}';
 
       final response = await _dioClient.dio.post(
@@ -140,10 +128,9 @@ class NotificationService {
         data: {'token': fcmToken, 'deviceId': deviceId, 'platform': 'android'},
       );
       if (response.statusCode == 201) {
-      } else {
-      }
+      } else {}
     } catch (e) {
-      log('❌ Error registrando token FCM en la API: $e');
+      log('Error registrando token FCM en la API: $e');
       if (e is DioException) {
         log('Status Code: ${e.response?.statusCode}');
       }
@@ -151,25 +138,20 @@ class NotificationService {
   }
 
   static void _setupMessageHandlers() {
-    // Cuando la app está en foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-
-
       if (message.notification != null) {
         _showLocalNotification(message);
       }
     });
 
-    // Cuando la app está en background y se abre tocando la notificación
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      log('📱 App abierta desde notificación');
+      log('App abierta desde notificación');
       _handleNotificationClick(message);
     });
 
-    // Verificar si la app se abrió desde una notificación (app estaba cerrada)
     _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
-        log('📱 App abierta desde notificación (estaba cerrada)');
+        log('App abierta desde notificación (estaba cerrada)');
         _handleNotificationClick(message);
       }
     });
@@ -201,13 +183,9 @@ class NotificationService {
   }
 
   static void _handleNotificationClick(RemoteMessage message) {
-    // TODO: Implementar navegación según el contenido de message.data
-    // Ejemplo: si message.data contiene {"type": "appointment", "id": "123"}
-    // puedes navegar a la pantalla de citas con ese ID
     log('Handling notification click with data: ${message.data}');
   }
 
-  // Método para suscribirse a temas (opcional)
   static Future<void> subscribeToTopic(String topic) async {
     try {
       await _firebaseMessaging.subscribeToTopic(topic);
@@ -217,7 +195,6 @@ class NotificationService {
     }
   }
 
-  // Método para desuscribirse de temas (opcional)
   static Future<void> unsubscribeFromTopic(String topic) async {
     try {
       await _firebaseMessaging.unsubscribeFromTopic(topic);

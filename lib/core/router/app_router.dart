@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -168,7 +170,7 @@ class AppRouter {
           final appointment = state.extra as Appointment?;
 
           if (appointment == null) {
-            // Si no se pasa la cita como extra, redirigir a appointments
+         
             return const Scaffold(
               body: Center(
                 child: Text('Error: Información de cita no disponible'),
@@ -187,7 +189,7 @@ class AppRouter {
           final appointment = state.extra as Appointment?;
 
           if (appointment == null) {
-            // Si no se pasa la cita como extra, redirigir a appointments
+       
             return const Scaffold(
               body: Center(
                 child: Text('Error: Información de cita no disponible'),

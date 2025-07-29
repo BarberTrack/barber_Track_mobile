@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:logger/logger.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
@@ -9,7 +11,7 @@ import '../../features/favorites/domain/usecases/get_favorites.dart';
 class ApiDebugHelper {
   static final Logger _logger = Logger();
 
-  /// Imprime información detallada sobre un archivo
+
   static Future<void> logFileInfo(File file, String description) async {
     try {
     
@@ -21,15 +23,14 @@ class ApiDebugHelper {
       }
 
     } catch (e) {
-      //_logger.e('Error al obtener información del archivo $description: $e');
+        throw Exception(e);
     }
   }
 
-  /// Verifica si un archivo es válido para el análisis
   static Future<bool> isValidImageFile(File file) async {
     try {
       if (!await file.exists()) {
-        //_logger.w('El archivo no existe: ${file.path}');
+ 
         return false;
       }
 
@@ -38,16 +39,13 @@ class ApiDebugHelper {
       const minSize = 1024; // 1KB
 
       if (fileSize > maxSize) {
-        //_logger.w('Archivo demasiado grande: ${fileSize / (1024 * 1024)} MB');
         return false;
       }
 
       if (fileSize < minSize) {
-        //_logger.w('Archivo demasiado pequeño: $fileSize bytes');
         return false;
       }
 
-      // Verificar extensión
       final extension = file.path.toLowerCase();
       if (!extension.endsWith('.jpg') &&
           !extension.endsWith('.jpeg') &&
@@ -58,12 +56,10 @@ class ApiDebugHelper {
 
       return true;
     } catch (e) {
-      //_logger.e('Error al validar archivo: $e');
       return false;
     }
   }
 
-  /// Genera un reporte de diagnóstico del sistema
   static Future<String> generateDiagnosticReport() async {
     final buffer = StringBuffer();
 
@@ -73,10 +69,8 @@ class ApiDebugHelper {
     buffer.writeln('Platform Version: ${Platform.operatingSystemVersion}');
 
     try {
-      // Verificar espacio de almacenamiento disponible
       buffer.writeln('');
       buffer.writeln('=== ALMACENAMIENTO ===');
-      // Nota: En Flutter no hay una API directa para esto, pero podemos verificar operaciones básicas
     } catch (e) {
       buffer.writeln('Error al obtener información del sistema: $e');
     }
@@ -112,13 +106,13 @@ class ApiDebugHelper {
 
         if (favorites != null && favorites.isNotEmpty) {
           for (int i = 0; i < favorites.length; i++) {
-            final fav = favorites[i];
-
+            
+            
           }
         }
       }
-    } catch (e, stackTrace) {
-
+    } catch (e) {
+        throw Exception(e);
     }
 
   }
@@ -126,20 +120,15 @@ class ApiDebugHelper {
   static Future<void> testFavoritesFullFlow() async {
 
     try {
-      // 1. Test directo de la API
       await testFavoritesApi();
 
-      // 2. Test del use case completo
       final getFavoritesUseCase = sl<GetFavorites>();
       final response = await getFavoritesUseCase.execute();
 
-
-
-      // 3. Inspeccionar cada favorito del use case
       for (int i = 0; i < response.data.favorites.length; i++) {
-        final fav = response.data.favorites[i];
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
+        throw Exception(e);
     }
 
   }
@@ -160,10 +149,10 @@ class ApiDebugHelper {
         ),
       );
 
-
-      // Después de agregar, obtener la lista actualizada
+      
       await testFavoritesApi();
-    } catch (e, stackTrace) {
+    } catch (e) {
+        throw Exception(e);
     }
 
   }
