@@ -39,7 +39,6 @@ class DatePickerWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Fecha seleccionada o placeholder
             if (selectedDate != null) ...[
               Container(
                 width: double.infinity,
@@ -75,8 +74,7 @@ class DatePickerWidget extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-
-            // Botón para seleccionar fecha
+      
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(

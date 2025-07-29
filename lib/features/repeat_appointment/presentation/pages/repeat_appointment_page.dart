@@ -300,7 +300,7 @@ class _RepeatAppointmentPageState extends State<RepeatAppointmentPage> {
       ),
     );
 
-    // Navegar de vuelta a la pantalla de citas después de un breve delay
+    
     Future.delayed(const Duration(seconds: 2), () {
       if (context.mounted) {
         context.go('/appointments');

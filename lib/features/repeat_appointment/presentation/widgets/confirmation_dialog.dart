@@ -41,7 +41,7 @@ class ConfirmationDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Mensaje de confirmación
+            
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -61,7 +61,7 @@ class ConfirmationDialog extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Detalles de la cita
+            
             _buildDetailCard(
               context,
               'Fecha',
@@ -89,7 +89,7 @@ class ConfirmationDialog extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Nota informativa
+            
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -121,7 +121,7 @@ class ConfirmationDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        // Botón Cancelar
+        
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           style: TextButton.styleFrom(
@@ -134,7 +134,7 @@ class ConfirmationDialog extends StatelessWidget {
           ),
         ),
 
-        // Botón Confirmar
+          
         ElevatedButton.icon(
           onPressed: () => Navigator.of(context).pop(true),
           icon: const Icon(Icons.check_circle_outline, size: 20),
