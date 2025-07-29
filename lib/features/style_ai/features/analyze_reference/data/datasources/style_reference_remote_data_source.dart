@@ -17,7 +17,7 @@ class StyleReferenceRemoteDataSourceImpl
 
   StyleReferenceRemoteDataSourceImpl(this.dioClient, this.tokenStorage);
 
-  /// Detecta el tipo MIME correcto basado en la extensión del archivo
+ 
   MediaType _getMediaType(String filePath) {
     final extension = filePath.toLowerCase();
     if (extension.endsWith('.jpg') || extension.endsWith('.jpeg')) {
@@ -27,7 +27,7 @@ class StyleReferenceRemoteDataSourceImpl
     } else if (extension.endsWith('.webp')) {
       return MediaType('image', 'webp');
     }
-    // Default a JPEG si no se puede determinar
+    
     return MediaType('image', 'jpeg');
   }
 
@@ -36,19 +36,19 @@ class StyleReferenceRemoteDataSourceImpl
     File referenceImage,
   ) async {
     try {
-      // Comprimir imagen antes del envío para optimizar el tamaño
+      
       final File compressedImage =
           await ImageCompressionService.compressImageForAnalysis(
             referenceImage,
           );
 
-      // Obtener el token de autenticación
+      
       final token = await tokenStorage.getToken();
       if (token == null) {
         throw Exception('Token de autenticación no encontrado');
       }
 
-      // Crear FormData para multipart/form-data con contentType correcto
+      
       final formData = FormData.fromMap({
         'referencePhoto': await MultipartFile.fromFile(
           compressedImage.path,
@@ -57,7 +57,7 @@ class StyleReferenceRemoteDataSourceImpl
         ),
       });
 
-      // Configurar headers y timeouts para esta petición específica
+      
       final options = Options(
         headers: {
           'Authorization': 'Bearer $token',
@@ -66,13 +66,13 @@ class StyleReferenceRemoteDataSourceImpl
         },
         receiveTimeout: const Duration(
           minutes: 2,
-        ), // Timeout más largo para procesamiento de IA
+        ), 
         sendTimeout: const Duration(minutes: 2),
       );
 
    
 
-      // Realizar la petición POST - endpoint correcto que coincide con el curl funcionando
+      
       final response = await dioClient.dio.post(
         '/api/style/generate-description',
         data: formData,
@@ -118,7 +118,7 @@ class StyleReferenceRemoteDataSourceImpl
             }
           }
         } catch (_) {
-          // Si no se puede parsear, usar mensaje por defecto
+            
         }
 
         throw Exception(serverMessage);
