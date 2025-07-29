@@ -42,7 +42,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El email es obligatorio';
     }
 
-    // Validación de longitud
+    
     if (value.length > 254) {
       return 'El email es demasiado largo (máximo 254 caracteres)';
     }
@@ -51,7 +51,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El email es demasiado corto (mínimo 5 caracteres)';
     }
 
-    // Validación de contenido - caracteres peligrosos
+    
     if (value.contains('<') ||
         value.contains('>') ||
         value.contains('"') ||
@@ -63,7 +63,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El email contiene caracteres no permitidos';
     }
 
-    // Validación de formato con regex específico
+    
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
@@ -80,7 +80,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'La contraseña es obligatoria';
     }
 
-    // Validación de longitud
+
     if (value.length < 8) {
       return 'La contraseña debe tener al menos 8 caracteres';
     }
@@ -89,7 +89,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'La contraseña es demasiado larga (máximo 128 caracteres)';
     }
 
-    // Validación de contenido - caracteres peligrosos
+    
     if (value.contains('<') ||
         value.contains('>') ||
         value.contains('"') ||
@@ -99,7 +99,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'La contraseña contiene caracteres no permitidos';
     }
 
-    // Validación de formato - complejidad
+      
     bool hasUppercase = value.contains(RegExp(r'[A-Z]'));
     bool hasLowercase = value.contains(RegExp(r'[a-z]'));
     bool hasDigit = value.contains(RegExp(r'[0-9]'));
@@ -129,7 +129,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return '$fieldName es obligatorio';
     }
 
-    // Validación de longitud
+  
     if (value.length < 2) {
       return '$fieldName debe tener al menos 2 caracteres';
     }
@@ -138,7 +138,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return '$fieldName es demasiado largo (máximo 50 caracteres)';
     }
 
-    // Validación de contenido - caracteres peligrosos
+    
     if (value.contains('<') ||
         value.contains('>') ||
         value.contains('"') ||
@@ -154,19 +154,19 @@ class _RegisterFormState extends State<RegisterForm> {
       return '$fieldName contiene caracteres no permitidos';
     }
 
-    // Validación de formato - solo letras, espacios, acentos y apostrofes
+    
     final nameRegex = RegExp(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$");
 
     if (!nameRegex.hasMatch(value)) {
       return '$fieldName solo puede contener letras, espacios, acentos y apostrofes';
     }
 
-    // Validación adicional - no puede empezar o terminar con espacios
+    
     if (value.trim() != value) {
       return '$fieldName no puede empezar o terminar con espacios';
     }
 
-    // Validación adicional - no puede tener espacios dobles
+    
     if (value.contains('  ')) {
       return '$fieldName no puede tener espacios dobles';
     }
@@ -179,7 +179,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El teléfono es obligatorio';
     }
 
-    // Validación de longitud
+    
     if (value.length < 10) {
       return 'El teléfono debe tener al menos 10 dígitos';
     }
@@ -188,7 +188,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El teléfono es demasiado largo (máximo 15 dígitos)';
     }
 
-    // Validación de contenido - caracteres peligrosos
+    
     if (value.contains('<') ||
         value.contains('>') ||
         value.contains('"') ||
@@ -202,7 +202,7 @@ class _RegisterFormState extends State<RegisterForm> {
       return 'El teléfono contiene caracteres no permitidos';
     }
 
-    // Validación de formato - solo números y símbolo +
+    
     final phoneRegex = RegExp(r'^\+?[1-9]\d{8,14}$');
 
     if (!phoneRegex.hasMatch(value)) {

@@ -58,7 +58,7 @@ class _RegisterViewState extends State<RegisterView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Botón de regresar manual
+                   
                   Row(
                     children: [
                       IconButton(
@@ -76,11 +76,11 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Logo o imagen opcional
+                 
                   const Icon(Icons.person_add, size: 80, color: Colors.blue),
                   const SizedBox(height: 24),
 
-                  // Título
+                 
                   const Text(
                     'Crear Nueva Cuenta',
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -88,7 +88,7 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Subtítulo
+                  
                   const Text(
                     'Completa los datos para registrarte',
                     style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -96,7 +96,7 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Formulario
+                  
                   RegisterForm(
                     onSubmit:
                         ({
@@ -118,7 +118,7 @@ class _RegisterViewState extends State<RegisterView> {
                         },
                   ),
 
-                  // Loading indicator
+                  
                   if (state is RegisterLoading) ...[
                     const SizedBox(height: 24),
                     const Center(child: CircularProgressIndicator()),
@@ -126,7 +126,7 @@ class _RegisterViewState extends State<RegisterView> {
 
                   const SizedBox(height: 24),
 
-                  // Link para ir a login
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -164,8 +164,8 @@ class _RegisterViewState extends State<RegisterView> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Cerrar diálogo
-              context.go('/login'); // Navegar a login
+              Navigator.of(context).pop(); 
+              context.go('/login'); 
             },
             child: const Text('Iniciar Sesión'),
           ),
