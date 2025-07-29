@@ -124,7 +124,6 @@ class UpdateAppointmentBloc
   ) async {
     final currentState = state;
 
-    // Verificar que tenemos todos los datos necesarios
     if (currentState is! UpdateAppointmentTimeSlotSelected &&
         currentState is! UpdateAppointmentWithNotes) {
       emit(

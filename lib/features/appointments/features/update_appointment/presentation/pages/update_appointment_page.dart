@@ -61,10 +61,8 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
           builder: (context, state) {
             return Column(
               children: [
-                // Header con información de la cita original
                 _buildAppointmentHeader(),
 
-                // Contenido principal
                 Expanded(child: _buildContent(context, state)),
               ],
             );
@@ -76,7 +74,6 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
 
   Widget _buildAppointmentHeader() {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -289,7 +286,7 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Calendario
+         
           Card(
             elevation: 4,
             shape: RoundedRectangleBorder(
@@ -334,7 +331,7 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
 
           const SizedBox(height: 16),
 
-          // Horarios disponibles
+          
           if (availability.isNotEmpty) ...[
             Card(
               elevation: 4,
@@ -398,7 +395,7 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
             ),
             const SizedBox(height: 16),
 
-            // Leyenda de estados
+            
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -454,7 +451,7 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
             const SizedBox(height: 16),
           ],
 
-          // Notas del cliente
+          
           if (state is UpdateAppointmentTimeSlotSelected ||
               state is UpdateAppointmentWithNotes) ...[
             ClientNotesSection(
@@ -471,7 +468,7 @@ class _UpdateAppointmentPageState extends State<UpdateAppointmentPage> {
             ),
             const SizedBox(height: 24),
 
-            // Botón de confirmar
+            
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

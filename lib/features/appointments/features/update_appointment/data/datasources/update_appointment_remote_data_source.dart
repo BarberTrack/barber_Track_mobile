@@ -55,7 +55,7 @@ class UpdateAppointmentRemoteDataSourceImpl
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      logger.d('Availability response: ${response.data}');
+      //logger.d('Availability response: ${response.data}');
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
@@ -97,9 +97,9 @@ class UpdateAppointmentRemoteDataSourceImpl
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      logger.d(
-        'Update appointment response: ${response.statusCode} - ${response.data}',
-      );
+      // logger.d(
+      //   'Update appointment response: ${response.statusCode} - ${response.data}',
+      // );
 
       if (response.statusCode == 200) {
         return UpdateAppointmentResponseModel.fromJson(
