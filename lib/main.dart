@@ -11,12 +11,10 @@ import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Cargar variables de entorno
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
-    // Si no existe el archivo .env, continúa con valores por defecto
-    print('No se pudo cargar el archivo .env: $e');
+    throw Exception(e);
   }
 
   await initializeDependencies();
@@ -30,13 +28,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SecureApplication(
       onNeedUnlock: (secureApplicationController) async {
-        // Auto-unlock - permitir acceso normal
         secureApplicationController?.unlock();
         return null;
       },
       child: Builder(
         builder: (context) {
-          // Inicializar el servicio de seguridad
           final secureController = SecureApplicationProvider.of(context);
           SecurityService.instance.initialize(secureController);
 
@@ -51,8 +47,8 @@ class MyApp extends StatelessWidget {
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: const [
-                Locale('es', 'ES'), // Español
-                Locale('en', 'US'), // Inglés
+                Locale('es', 'ES'), 
+                Locale('en', 'US'), 
               ],
               locale: const Locale('es', 'ES'),
               theme: ThemeData(
