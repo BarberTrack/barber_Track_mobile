@@ -142,7 +142,7 @@ class _BusinessReviewPageState extends State<BusinessReviewPage> {
                     },
                     child: Column(
                       children: [
-                        // Header with rating info
+
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
@@ -181,7 +181,7 @@ class _BusinessReviewPageState extends State<BusinessReviewPage> {
                           ),
                         ),
 
-                        // Reviews list
+                            
                         Expanded(
                           child: ListView.builder(
                             itemCount: reviewResponse.reviews.length,
