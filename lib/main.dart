@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:secure_application/secure_application.dart';
 import 'core/di/injection.dart';
 import 'core/router/app_router.dart';
@@ -9,6 +10,15 @@ import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Cargar variables de entorno
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // Si no existe el archivo .env, continúa con valores por defecto
+    print('No se pudo cargar el archivo .env: $e');
+  }
+
   await initializeDependencies();
   runApp(const MyApp());
 }
