@@ -10,7 +10,7 @@ class BarberDioClient {
         baseUrl: 'https://api-barber-dummie-production.up.railway.app',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
-        // sendTimeout no es compatible con Web para requests sin body
+         
         sendTimeout: kIsWeb ? null : const Duration(seconds: 30),
         headers: {
           'Content-Type': 'application/json',

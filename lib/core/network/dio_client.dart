@@ -11,7 +11,7 @@ class DioClient {
         baseUrl: Environment.apiBaseUrl,
         connectTimeout: Duration(seconds: Environment.connectTimeout),
         receiveTimeout: Duration(seconds: Environment.receiveTimeout),
-        // sendTimeout no es compatible con Web para requests sin body
+
         sendTimeout: kIsWeb ? null : Duration(seconds: Environment.sendTimeout),
         headers: {
           'Content-Type': 'application/json',

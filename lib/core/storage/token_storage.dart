@@ -31,7 +31,7 @@ class TokenStorage {
 
   Future<void> logout() async {
     await deleteToken();
-    // También limpiar favoritos al cerrar sesión
+     
     final favoritesStorage = FavoritesStorage();
     await favoritesStorage.clearFavorites();
   }
