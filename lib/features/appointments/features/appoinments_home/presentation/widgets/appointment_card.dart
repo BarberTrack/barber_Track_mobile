@@ -40,7 +40,7 @@ class AppointmentCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header con gradiente
+           
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -59,14 +59,14 @@ class AppointmentCard extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  // Status y fecha
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [_buildStatusChip(context)],
                   ),
                   const SizedBox(height: 20),
 
-                  // Información principal con iconos mejorados
+                  
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -86,7 +86,7 @@ class AppointmentCard extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        // Información de fecha y hora
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.schedule_rounded,
@@ -98,7 +98,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del negocio
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.store_mall_directory_rounded,
@@ -108,7 +108,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del barbero
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.person_pin_rounded,
@@ -118,7 +118,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
 
-                        // Información del servicio
+                        
                         _buildInfoRow(
                           context: context,
                           icon: Icons.content_cut_rounded,
@@ -133,14 +133,14 @@ class AppointmentCard extends StatelessWidget {
               ),
             ),
 
-            // Sección de precio y duración
+            
             Container(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      // Precio
+                      
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(20),
@@ -192,7 +192,7 @@ class AppointmentCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Duración
+                      
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(20),
@@ -246,7 +246,7 @@ class AppointmentCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Notas del cliente
+
                   if (appointment.clientNotes != null) ...[
                     const SizedBox(height: 20),
                     Container(
@@ -317,26 +317,26 @@ class AppointmentCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 10),
-                  // Botón de crear reseña (solo si el status es completed)
+                 
                   CreateReviewButton(appointment: appointment),
 
-                  // Botón de repetir cita (disponible para todas las citas)
+                 
                   const SizedBox(height: 16),
                   _buildRepeatAppointmentButton(context),
 
-                  // Botón de cambiar servicio (solo si el status es scheduled)
+                 
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
                     _buildChangeServiceButton(context),
                   ],
 
-                  // Botón de editar cita (solo si el status es scheduled)
+                 
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
                     _buildEditAppointmentButton(context),
                   ],
 
-                  // Botón de cancelar cita (solo si el status es scheduled)
+                 
                   if (appointment.status.toLowerCase() == 'scheduled') ...[
                     const SizedBox(height: 16),
                     _buildCancelButton(context),
@@ -498,11 +498,11 @@ class AppointmentCard extends StatelessWidget {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    // Convertir de UTC a GMT-6 (hora de México City)
+    
     final mexicoDateTime = dateTime.toUtc().subtract(const Duration(hours: 6));
     final now = DateTime.now();
 
-    // Obtener solo las fechas (sin tiempo) para comparación correcta
+    
     final appointmentDate = DateTime(
       mexicoDateTime.year,
       mexicoDateTime.month,
@@ -640,7 +640,7 @@ class AppointmentCard extends StatelessWidget {
                 CancelAppointmentModal(appointment: appointment),
           );
 
-          // Si se canceló exitosamente, resetear filtro y refrescar
+            
           if (result == true) {
             onAppointmentCancelled?.call();
           }

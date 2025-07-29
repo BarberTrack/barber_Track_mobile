@@ -199,13 +199,13 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                 controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // Header con estadísticas mejoradas
+
                   SliverToBoxAdapter(
                     child: Container(
                       margin: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Tarjeta principal de estadísticas
+                          
                           Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
@@ -277,7 +277,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                             ),
                           ),
                           const SizedBox(height: 24),
-                          // Filtro de estado
+                          
                           AppointmentStatusFilter(
                             selectedStatus: _selectedStatus,
                             onStatusChanged: (status) {
@@ -292,7 +292,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          // Título de la lista
+                          
                           Row(
                             children: [
                               Container(
@@ -337,7 +337,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                       ),
                     ),
                   ),
-                  // Lista de citas con mejor separación
+                  
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     sliver: SliverList(
@@ -352,7 +352,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                       }, childCount: state.appointments.length),
                     ),
                   ),
-                  // Loading indicator para más elementos
+                  
                   if (state.isLoadingMore)
                     SliverToBoxAdapter(
                       child: Container(
@@ -391,14 +391,14 @@ class _AppointmentsViewState extends State<AppointmentsView> {
                         ),
                       ),
                     ),
-                  // Espaciado inferior con botón flotante
+                  
                   SliverToBoxAdapter(
                     child: Container(
                       margin: const EdgeInsets.all(20),
                       child: Column(
                         children: [
                           const SizedBox(height: 20),
-                          // Botón para agendar nueva cita
+                          
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
@@ -459,7 +459,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Si hay un filtro aplicado, mostrar mensaje de filtro sin resultados
+    
     if (currentFilter != null) {
       final status = AppointmentStatus.fromString(currentFilter);
       final statusDisplayName = status?.displayName ?? 'este estado';
@@ -566,7 +566,7 @@ class _AppointmentsViewState extends State<AppointmentsView> {
       );
     }
 
-    // Si no hay filtro, mostrar mensaje de agenda vacía
+      
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
