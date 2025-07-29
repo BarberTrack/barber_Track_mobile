@@ -266,10 +266,10 @@ class _InteractiveMapWidgetState extends State<InteractiveMapWidget>
     setState(() {
       _isMapReady = true;
     });
-    debugPrint('🗺️ Mapa interactivo inicializado correctamente');
-    debugPrint('📍 Coordenadas iniciales: $_initialCenter');
+    debugPrint('Mapa interactivo inicializado correctamente');
+    debugPrint('Coordenadas iniciales: $_initialCenter');
     debugPrint(
-      '🏪 Negocios con coordenadas: ${MapMarkerBuilder.getBusinessesWithCoordinatesCount(widget.businesses)}',
+      'Negocios con coordenadas: ${MapMarkerBuilder.getBusinessesWithCoordinatesCount(widget.businesses)}',
     );
   }
 }
